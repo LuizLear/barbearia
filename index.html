@@ -52,7 +52,7 @@
             border-radius: 8px;
         }
 
-        /* ===== TELAS DE AUTENTICAÇÃO (LOGIN E REGISTRO) ===== */
+        /* ===== TELAS DE AUTENTICAÇÃO ===== */
         .auth-screen {
             position: fixed;
             inset: 0;
@@ -228,6 +228,11 @@
         .header .logo i {
             font-size: 1.4rem;
         }
+        .header .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
         .header .stars-display {
             display: flex;
             align-items: center;
@@ -244,6 +249,20 @@
         .header .stars-display i {
             color: var(--gold);
             font-size: 1rem;
+        }
+        .header .logout-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px 6px;
+            border-radius: 8px;
+        }
+        .header .logout-btn:hover {
+            color: #fff;
+            background: #2a2a2a;
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -367,6 +386,105 @@
             font-size: 0.7rem;
             display: inline-block;
         }
+        .badge-promo {
+            background: #e74c3c;
+            color: #fff;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* ===== SLIDESHOW ===== */
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: #111;
+            aspect-ratio: 16/9;
+        }
+        .slideshow-slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .slideshow-slide.active {
+            display: block;
+        }
+        .slideshow-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slideshow-slide .slide-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            color: #fff;
+        }
+        .slideshow-slide .slide-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+        .slideshow-slide .slide-info .price {
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .slideshow-slide .slide-info .old-price {
+            text-decoration: line-through;
+            color: #aaa;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        .slideshow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            z-index: 2;
+            transition: var(--transition);
+        }
+        .slideshow-btn:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        .slideshow-btn.prev { left: 8px; }
+        .slideshow-btn.next { right: 8px; }
+        .slideshow-dots {
+            text-align: center;
+            padding: 6px 0;
+        }
+        .slideshow-dots .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #555;
+            margin: 0 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .slideshow-dots .dot.active {
+            background: var(--gold);
+        }
 
         /* ===== BOTÕES ===== */
         .btn {
@@ -440,9 +558,7 @@
         }
 
         /* ===== FORMULÁRIOS ===== */
-        input,
-        select,
-        textarea {
+        input, select, textarea {
             width: 100%;
             padding: 12px 16px;
             background: #222;
@@ -454,16 +570,11 @@
             transition: var(--transition);
             outline: none;
         }
-        input:focus,
-        select:focus,
-        textarea:focus {
+        input:focus, select:focus, textarea:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
         }
-        input::placeholder,
-        textarea::placeholder {
-            color: #666;
-        }
+        input::placeholder, textarea::placeholder { color: #666; }
         label {
             display: block;
             font-weight: 500;
@@ -471,16 +582,26 @@
             color: var(--text-secondary);
             font-size: 0.85rem;
         }
-        .form-group {
-            margin-bottom: 14px;
+        .form-group { margin-bottom: 14px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 0;
         }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
         }
 
-        /* ===== ESTRELAS / CÍRCULOS ===== */
+        /* ===== ESTRELAS ===== */
         .stars-grid {
             display: grid;
             grid-template-columns: repeat(10, 1fr);
@@ -505,14 +626,10 @@
             background: var(--gold);
             border-color: var(--gold);
             color: #0a0a0a;
-            box-shadow: 0 0 16px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 16px rgba(212,175,55,0.3);
         }
-        .star-circle.earned i {
-            color: #0a0a0a;
-        }
-        .star-circle i {
-            font-size: 1rem;
-        }
+        .star-circle.earned i { color: #0a0a0a; }
+        .star-circle i { font-size: 1rem; }
 
         /* ===== PRODUTOS ===== */
         .product-grid {
@@ -527,6 +644,7 @@
             border: 1px solid #282828;
             transition: var(--transition);
             cursor: pointer;
+            position: relative;
         }
         .product-card:hover {
             border-color: var(--gold);
@@ -554,15 +672,17 @@
             font-weight: 700;
             font-size: 0.95rem;
         }
+        .product-card .info .old-price {
+            color: #888;
+            font-size: 0.75rem;
+            text-decoration: line-through;
+            margin-left: 6px;
+        }
         .product-card .info .stock {
             font-size: 0.7rem;
             color: var(--text-secondary);
         }
-        .product-card .sold-out {
-            position: relative;
-        }
-        .product-card .sold-out::after {
-            content: 'ESGOTADO';
+        .product-card .promo-badge {
             position: absolute;
             top: 8px;
             right: 8px;
@@ -574,12 +694,24 @@
             font-weight: 700;
             letter-spacing: 0.5px;
         }
+        .product-card .sold-out::after {
+            content: 'ESGOTADO';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: var(--red-action);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 700;
+        }
 
         /* ===== MODAL ===== */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0,0,0,0.75);
             backdrop-filter: blur(4px);
             display: none;
             align-items: center;
@@ -587,16 +719,14 @@
             z-index: 999;
             padding: 20px;
         }
-        .modal-overlay.open {
-            display: flex;
-        }
+        .modal-overlay.open { display: flex; }
         .modal-box {
             background: var(--bg-secondary);
             border-radius: var(--radius);
             max-width: 400px;
             width: 100%;
             padding: 24px 20px 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
             border: 1px solid #333;
             max-height: 90vh;
             overflow-y: auto;
@@ -621,9 +751,7 @@
             cursor: pointer;
             padding: 0 4px;
         }
-        .modal-box .modal-close:hover {
-            color: #fff;
-        }
+        .modal-box .modal-close:hover { color: #fff; }
 
         /* ===== ADMIN ===== */
         .admin-panel .admin-header {
@@ -640,7 +768,7 @@
             font-size: 1.2rem;
         }
 
-        /* ===== CARRINHO FLUTUANTE ===== */
+        /* ===== CARRINHO ===== */
         .cart-float {
             position: fixed;
             bottom: 80px;
@@ -654,15 +782,13 @@
             align-items: center;
             justify-content: center;
             font-size: 1.4rem;
-            box-shadow: 0 6px 24px rgba(212, 175, 55, 0.4);
+            box-shadow: 0 6px 24px rgba(212,175,55,0.4);
             cursor: pointer;
             border: none;
             transition: var(--transition);
             z-index: 50;
         }
-        .cart-float:hover {
-            transform: scale(1.08);
-        }
+        .cart-float:hover { transform: scale(1.08); }
         .cart-float .badge {
             position: absolute;
             top: -4px;
@@ -698,7 +824,7 @@
             border-left: 4px solid var(--gold);
             padding: 12px 18px;
             border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -706,32 +832,14 @@
             pointer-events: auto;
             border: 1px solid #333;
         }
-        .toast.success {
-            border-left-color: var(--gold);
-        }
-        .toast.error {
-            border-left-color: var(--red-action);
-        }
-        .toast.info {
-            border-left-color: #3498db;
-        }
-        .toast i {
-            font-size: 1.3rem;
-            color: var(--gold);
-        }
-        .toast .msg {
-            flex: 1;
-            font-size: 0.9rem;
-        }
+        .toast.success { border-left-color: var(--gold); }
+        .toast.error { border-left-color: var(--red-action); }
+        .toast.info { border-left-color: #3498db; }
+        .toast i { font-size: 1.3rem; color: var(--gold); }
+        .toast .msg { flex: 1; font-size: 0.9rem; }
         @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== HISTÓRICO ===== */
@@ -743,113 +851,46 @@
             border-bottom: 1px solid #282828;
             font-size: 0.9rem;
         }
-        .history-item:last-child {
-            border-bottom: none;
-        }
+        .history-item:last-child { border-bottom: none; }
         .history-item .status {
             font-size: 0.7rem;
             font-weight: 600;
             padding: 2px 10px;
             border-radius: 20px;
         }
-        .status-pendente {
-            background: #f39c12;
-            color: #0a0a0a;
-        }
-        .status-confirmado {
-            background: #3498db;
-            color: #fff;
-        }
-        .status-realizado {
-            background: #2ecc71;
-            color: #0a0a0a;
-        }
-        .status-cancelado {
-            background: #e74c3c;
-            color: #fff;
-        }
-        .status-falta {
-            background: #95a5a6;
-            color: #0a0a0a;
-        }
+        .status-pendente { background: #f39c12; color: #0a0a0a; }
+        .status-confirmado { background: #3498db; color: #fff; }
+        .status-realizado { background: #2ecc71; color: #0a0a0a; }
+        .status-cancelado { background: #e74c3c; color: #fff; }
+        .status-falta { background: #95a5a6; color: #0a0a0a; }
 
         /* ===== RESPONSIVO ===== */
         @media (max-width: 480px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            .product-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 10px;
-            }
-            .header .logo {
-                font-size: 1rem;
-            }
-            .header .stars-display {
-                font-size: 0.8rem;
-                padding: 2px 10px 2px 8px;
-            }
-            .stars-grid {
-                gap: 4px;
-            }
-            .star-circle {
-                font-size: 0.7rem;
-            }
-            .auth-box {
-                padding: 30px 20px;
-            }
+            .form-row { grid-template-columns: 1fr; }
+            .product-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .header .logo { font-size: 1rem; }
+            .header .stars-display { font-size: 0.8rem; padding: 2px 10px 2px 8px; }
+            .stars-grid { gap: 4px; }
+            .star-circle { font-size: 0.7rem; }
+            .auth-box { padding: 30px 20px; }
         }
         @media (min-width: 481px) {
-            #appWrapper {
-                border-left: 1px solid #2a2a2a;
-                border-right: 1px solid #2a2a2a;
-            }
+            #appWrapper { border-left: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; }
         }
 
-        .mt-8 {
-            margin-top: 8px;
-        }
-        .mt-12 {
-            margin-top: 12px;
-        }
-        .mt-16 {
-            margin-top: 16px;
-        }
-        .mb-8 {
-            margin-bottom: 8px;
-        }
-        .mb-12 {
-            margin-bottom: 12px;
-        }
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .flex-center {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .gap-8 {
-            gap: 8px;
-        }
-        .gap-12 {
-            gap: 12px;
-        }
-        .text-center {
-            text-align: center;
-        }
-        .w-full {
-            width: 100%;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .scroll-y {
-            max-height: 300px;
-            overflow-y: auto;
-        }
+        .mt-8 { margin-top: 8px; }
+        .mt-12 { margin-top: 12px; }
+        .mt-16 { margin-top: 16px; }
+        .mb-8 { margin-bottom: 8px; }
+        .mb-12 { margin-bottom: 12px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex-center { display: flex; align-items: center; gap: 8px; }
+        .gap-8 { gap: 8px; }
+        .gap-12 { gap: 12px; }
+        .text-center { text-align: center; }
+        .w-full { width: 100%; }
+        .hidden { display: none !important; }
+        .scroll-y { max-height: 300px; overflow-y: auto; }
         .tag {
             display: inline-block;
             padding: 2px 10px;
@@ -857,14 +898,8 @@
             font-size: 0.65rem;
             font-weight: 600;
         }
-        .tag-gold {
-            background: var(--gold);
-            color: #0a0a0a;
-        }
-        .tag-burgundy {
-            background: var(--burgundy);
-            color: #fff;
-        }
+        .tag-gold { background: var(--gold); color: #0a0a0a; }
+        .tag-burgundy { background: var(--burgundy); color: #fff; }
 
         .admin-subtabs {
             display: flex;
@@ -892,12 +927,8 @@
             background: #333;
             color: #fff;
         }
-        .admin-section {
-            display: none;
-        }
-        .admin-section.active {
-            display: block;
-        }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
 
         .client-item {
             display: flex;
@@ -906,17 +937,20 @@
             padding: 8px 0;
             border-bottom: 1px solid #282828;
         }
-        .client-item .name {
-            font-weight: 500;
-        }
-        .client-item .stars {
-            color: var(--gold);
-            font-weight: 700;
+        .client-item .name { font-weight: 500; }
+        .client-item .stars { color: var(--gold); font-weight: 700; }
+        .client-item .blocked-badge {
+            background: var(--red-action);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
         }
 
         .config-days {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+            grid-template-columns: repeat(7, 1fr);
             gap: 6px;
             margin-bottom: 12px;
         }
@@ -937,31 +971,9 @@
             border-color: var(--gold);
             color: var(--gold);
         }
-        .config-days label input {
-            display: none;
-        }
-        .config-days label i {
-            font-size: 1.2rem;
-            margin-bottom: 2px;
-        }
+        .config-days label input { display: none; }
+        .config-days label i { font-size: 1.2rem; margin-bottom: 2px; }
 
-        .waitlist-badge {
-            background: #e67e22;
-            color: #fff;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 600;
-        }
-        .birthday-badge {
-            background: linear-gradient(135deg, #f1c40f, #f39c12);
-            color: #0a0a0a;
-            padding: 2px 12px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            display: inline-block;
-        }
         .img-preview {
             max-width: 100%;
             max-height: 150px;
@@ -1019,9 +1031,14 @@
                 <i class="fas fa-cut"></i>
                 <span>Barbearia VIP</span>
             </div>
-            <div class="stars-display" id="headerStars" title="Suas estrelas de fidelidade">
-                <i class="fas fa-star"></i>
-                <span id="headerStarsCount">0</span>
+            <div class="right-controls">
+                <div class="stars-display" id="headerStars" title="Suas estrelas de fidelidade">
+                    <i class="fas fa-star"></i>
+                    <span id="headerStarsCount">0</span>
+                </div>
+                <button class="logout-btn" onclick="logout()" title="Sair / Trocar perfil">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
             </div>
         </header>
 
@@ -1029,6 +1046,14 @@
         <div class="main-content" id="mainContent">
             <!-- HOME (cliente) -->
             <div class="screen active" id="screen-home">
+                <!-- SLIDESHOW -->
+                <div class="slideshow-container" id="slideshowContainer">
+                    <!-- slides serão inseridos via JS -->
+                    <button class="slideshow-btn prev" onclick="changeSlide(-1)">&#10094;</button>
+                    <button class="slideshow-btn next" onclick="changeSlide(1)">&#10095;</button>
+                    <div class="slideshow-dots" id="slideshowDots"></div>
+                </div>
+
                 <div class="card">
                     <div class="card-title"><i class="fas fa-hand-peace"></i> Olá, <span id="homeUserName">Cliente</span>!</div>
                     <p class="text-muted">Bem-vindo à Barbearia VIP. Gerencie seus agendamentos, compre produtos e acumule estrelas!</p>
@@ -1151,6 +1176,7 @@
                     <button data-target="admin-appointments">📅 Agendamentos</button>
                     <button data-target="admin-fidelity">⭐ Fidelidade</button>
                     <button data-target="admin-products">🛍️ Produtos</button>
+                    <button data-target="admin-users">👥 Usuários</button>
                     <button data-target="admin-config">⚙️ Horários</button>
                     <button data-target="admin-starslog">📜 Estrelas</button>
                 </div>
@@ -1174,6 +1200,12 @@
                 <div id="admin-products" class="admin-section">
                     <button class="btn btn-gold btn-sm mb-12" onclick="showProductForm()"><i class="fas fa-plus"></i> Novo Produto</button>
                     <div id="adminProductList"></div>
+                </div>
+                <div id="admin-users" class="admin-section">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-users-cog"></i> Gerenciar Usuários</div>
+                        <div id="userList"></div>
+                    </div>
                 </div>
                 <div id="admin-config" class="admin-section">
                     <div class="card">
@@ -1230,10 +1262,12 @@
     <script>
         // ================================================================
         //  BARBEARIA VIP - CÓDIGO COMPLETO
-        //  - Login unificado (admin e cliente)
-        //  - Tela de cadastro dedicada (acessível sem login)
+        //  - Login unificado (admin, supervisor, cliente)
+        //  - Tela de cadastro dedicada
         //  - Upload de fotos dos produtos direto do celular
-        //  - Clique no logotipo redireciona para a tela principal
+        //  - Slideshow de promoções na home
+        //  - Botão sair no header
+        //  - Bloqueio de usuários pelo admin
         // ================================================================
 
         // ===== CONSTANTES =====
@@ -1246,59 +1280,46 @@
             STARS_HISTORY: 'barbershop_history_stars',
             WAITLIST: 'barbershop_waitlist',
             CURRENT_USER: 'barbershop_current_user',
-            ADMIN_SESSION: 'barbershop_admin_session',
         };
         const ADMIN_CREDENTIALS = { user: 'admin', pass: 'admin123' };
+        const SUPERVISOR_CREDENTIALS = { user: 'supervisor', pass: 'super123' };
         const MAX_PRODUCTS = 50;
         const STAR_GOAL = 10;
 
         // ===== HELPERS =====
         function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-
         function todayStr() { return new Date().toISOString().slice(0, 10); }
-
         function nowISO() { return new Date().toISOString(); }
-
         function formatDate(d) { return new Date(d).toLocaleDateString('pt-BR'); }
-
         function formatTime(d) { return new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
-
         function formatDateTime(d) { return formatDate(d) + ' ' + formatTime(d); }
-
         function getDayOfWeek(d) { return new Date(d).getDay(); }
 
         function getData(key) {
             try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
         }
-
         function setData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-
         function getObj(key) {
             try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; }
         }
-
         function setObj(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-
         function getCurrentUser() { return getObj(STORAGE_KEYS.CURRENT_USER); }
-
         function setCurrentUser(u) { setObj(STORAGE_KEYS.CURRENT_USER, u); }
 
         function isAdmin() {
             const user = getCurrentUser();
-            return user && user.role === 'admin';
+            return user && (user.role === 'admin' || user.role === 'supervisor');
         }
 
         // ===== TOAST =====
         function toast(msg, type = 'success') {
             const container = document.getElementById('toastContainer');
-            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' :
-                'fa-info-circle';
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
             const el = document.createElement('div');
             el.className = `toast ${type}`;
             el.innerHTML = `<i class="fas ${icon}"></i><span class="msg">${msg}</span>`;
             container.appendChild(el);
-            setTimeout(() => { el.style.opacity = '0';
-                setTimeout(() => el.remove(), 300); }, 3500);
+            setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3500);
         }
 
         // ===== MODAL =====
@@ -1307,7 +1328,6 @@
             document.getElementById('modalBody').innerHTML = html;
             document.getElementById('modalOverlay').classList.add('open');
         }
-
         function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
         document.getElementById('modalOverlay').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
@@ -1319,7 +1339,6 @@
             document.getElementById('registerScreen').classList.remove('hidden');
             document.getElementById('registerError').textContent = '';
         }
-
         function showLoginScreen() {
             document.getElementById('registerScreen').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
@@ -1338,7 +1357,7 @@
                 btn.classList.toggle('active', btn.dataset.tab === screen);
             });
             currentScreen = screen;
-            if (screen === 'home') renderHome();
+            if (screen === 'home') { renderHome(); renderSlideshow(); }
             if (screen === 'fidelidade') renderFidelidade();
             if (screen === 'perfil') renderPerfil();
             if (screen === 'lojinha') renderProducts();
@@ -1347,7 +1366,7 @@
             updateCartBadge();
         }
 
-        // ===== IR PARA A TELA PRINCIPAL (HOME ou ADMIN) =====
+        // ===== IR PARA A TELA PRINCIPAL =====
         function goHome() {
             if (isAdmin()) {
                 showAdminPanel();
@@ -1369,10 +1388,10 @@
             renderConfig();
             renderFidelitySearch();
             renderStarsLog();
+            renderUserList();
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.getElementById('admin-dashboard').classList.add('active');
-            document.querySelectorAll('.admin-subtabs button').forEach(b => b.classList.toggle('active', b.dataset.target ===
-                'admin-dashboard'));
+            document.querySelectorAll('.admin-subtabs button').forEach(b => b.classList.toggle('active', b.dataset.target === 'admin-dashboard'));
         }
 
         function hideAdminPanel() {
@@ -1386,6 +1405,7 @@
             });
             currentScreen = 'home';
             renderHome();
+            renderSlideshow();
             updateStarsDisplay();
             updateCartBadge();
         }
@@ -1402,7 +1422,41 @@
                 return;
             }
 
-            // Verifica se é o admin
+            // Verifica supervisor
+            if (login === SUPERVISOR_CREDENTIALS.user && senha === SUPERVISOR_CREDENTIALS.pass) {
+                let users = getData(STORAGE_KEYS.USERS);
+                let supUser = users.find(u => u.role === 'supervisor');
+                if (!supUser) {
+                    supUser = {
+                        id: 'sup1',
+                        nome: 'Supervisor',
+                        email: 'supervisor@barbearia.com',
+                        telefone: '11988888887',
+                        senha: SUPERVISOR_CREDENTIALS.pass,
+                        role: 'supervisor',
+                        estrelas: 0,
+                        vouchers: 0,
+                        data_nascimento: '1985-01-01',
+                        birthday_star_given: {},
+                        bloqueado: false
+                    };
+                    users.push(supUser);
+                    setData(STORAGE_KEYS.USERS, users);
+                }
+                if (supUser.bloqueado) {
+                    errorEl.textContent = 'Usuário bloqueado pelo administrador.';
+                    toast('Acesso negado.', 'error');
+                    return;
+                }
+                setCurrentUser(supUser);
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appWrapper').classList.add('visible');
+                showAdminPanel();
+                toast('Bem-vindo, Supervisor!', 'success');
+                return;
+            }
+
+            // Verifica admin
             if (login === ADMIN_CREDENTIALS.user && senha === ADMIN_CREDENTIALS.pass) {
                 let users = getData(STORAGE_KEYS.USERS);
                 let adminUser = users.find(u => u.role === 'admin');
@@ -1417,10 +1471,16 @@
                         estrelas: 0,
                         vouchers: 0,
                         data_nascimento: '1990-01-01',
-                        birthday_star_given: {}
+                        birthday_star_given: {},
+                        bloqueado: false
                     };
                     users.push(adminUser);
                     setData(STORAGE_KEYS.USERS, users);
+                }
+                if (adminUser.bloqueado) {
+                    errorEl.textContent = 'Usuário bloqueado pelo administrador.';
+                    toast('Acesso negado.', 'error');
+                    return;
                 }
                 setCurrentUser(adminUser);
                 document.getElementById('loginScreen').classList.add('hidden');
@@ -1442,15 +1502,22 @@
                 return;
             }
 
-            if (user.role === 'admin') {
+            if (user.bloqueado) {
+                errorEl.textContent = 'Usuário bloqueado pelo administrador.';
+                toast('Acesso negado.', 'error');
+                return;
+            }
+
+            if (user.role === 'admin' || user.role === 'supervisor') {
                 setCurrentUser(user);
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
                 showAdminPanel();
-                toast('Bem-vindo, Admin!', 'success');
+                toast(`Bem-vindo, ${user.nome}!`, 'success');
                 return;
             }
 
+            // Cliente comum
             setCurrentUser(user);
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('appWrapper').classList.add('visible');
@@ -1459,7 +1526,7 @@
             toast(`Bem-vindo, ${user.nome}!`, 'success');
         }
 
-        // ===== REGISTRO (CADASTRO) =====
+        // ===== REGISTRO =====
         function registerUser() {
             const nome = document.getElementById('regNome').value.trim();
             const email = document.getElementById('regEmail').value.trim();
@@ -1498,12 +1565,12 @@
                 estrelas: 0,
                 vouchers: 0,
                 data_nascimento: nascimento,
-                birthday_star_given: {}
+                birthday_star_given: {},
+                bloqueado: false
             };
             users.push(newUser);
             setData(STORAGE_KEYS.USERS, users);
             toast('✅ Conta criada com sucesso! Faça login.', 'success');
-            // Limpa campos e volta para o login
             document.getElementById('regNome').value = '';
             document.getElementById('regEmail').value = '';
             document.getElementById('regTelefone').value = '';
@@ -1514,17 +1581,21 @@
             document.getElementById('loginPassword').value = senha;
         }
 
-        // ===== ADMIN LOGOUT =====
-        function adminLogout() {
-            setCurrentUser(null);
-            document.getElementById('appWrapper').classList.remove('visible');
-            document.getElementById('loginScreen').classList.remove('hidden');
-            document.getElementById('registerScreen').classList.add('hidden');
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('loginError').textContent = '';
-            toast('Você saiu.', 'info');
+        // ===== LOGOUT =====
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                setCurrentUser(null);
+                document.getElementById('appWrapper').classList.remove('visible');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('registerScreen').classList.add('hidden');
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginError').textContent = '';
+                toast('Você saiu.', 'info');
+            }
         }
+        // adminLogout é igual a logout, mas usamos a mesma função
+        function adminLogout() { logout(); }
 
         // ===== TABS CLIENTE =====
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1549,6 +1620,7 @@
             if (btn.dataset.target === 'admin-fidelity') renderFidelitySearch();
             if (btn.dataset.target === 'admin-starslog') renderStarsLog();
             if (btn.dataset.target === 'admin-config') renderConfig();
+            if (btn.dataset.target === 'admin-users') renderUserList();
         });
 
         // ================================================================
@@ -1567,7 +1639,20 @@
                     estrelas: 0,
                     vouchers: 0,
                     data_nascimento: '1990-01-01',
-                    birthday_star_given: {}
+                    birthday_star_given: {},
+                    bloqueado: false
+                }, {
+                    id: 'sup1',
+                    nome: 'Supervisor',
+                    email: 'supervisor@barbearia.com',
+                    telefone: '11988888887',
+                    senha: 'super123',
+                    role: 'supervisor',
+                    estrelas: 0,
+                    vouchers: 0,
+                    data_nascimento: '1985-01-01',
+                    birthday_star_given: {},
+                    bloqueado: false
                 }, {
                     id: 'cli1',
                     nome: 'João Silva',
@@ -1578,7 +1663,8 @@
                     estrelas: 3,
                     vouchers: 0,
                     data_nascimento: '1995-06-15',
-                    birthday_star_given: {}
+                    birthday_star_given: {},
+                    bloqueado: false
                 }, {
                     id: 'cli2',
                     nome: 'Maria Oliveira',
@@ -1589,7 +1675,8 @@
                     estrelas: 7,
                     vouchers: 0,
                     data_nascimento: '1988-12-01',
-                    birthday_star_given: {}
+                    birthday_star_given: {},
+                    bloqueado: false
                 }, {
                     id: 'cli3',
                     nome: 'Carlos Souza',
@@ -1600,7 +1687,8 @@
                     estrelas: 10,
                     vouchers: 1,
                     data_nascimento: '1992-03-20',
-                    birthday_star_given: {}
+                    birthday_star_given: {},
+                    bloqueado: false
                 }, {
                     id: 'cli4',
                     nome: 'Cliente Teste',
@@ -1611,9 +1699,9 @@
                     estrelas: 0,
                     vouchers: 0,
                     data_nascimento: '2000-01-01',
-                    birthday_star_given: {}
-                }
-                ];
+                    birthday_star_given: {},
+                    bloqueado: false
+                }];
                 setData(STORAGE_KEYS.USERS, users);
             }
 
@@ -1621,17 +1709,31 @@
             if (products.length === 0) {
                 products = [
                     { id: 'p1', nome: 'Shampoo Premium', descricao: 'Shampoo para cabelos masculinos, 250ml',
-                        preco: 29.90, estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200' },
+                        preco: 29.90, estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200',
+                        em_promocao: true, preco_promocional: 19.90 },
                     { id: 'p2', nome: 'Condicionador Revitalizante', descricao: 'Condicionador com óleo de argan, 250ml',
-                        preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200' },
+                        preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200',
+                        em_promocao: false, preco_promocional: 0 },
                     { id: 'p3', nome: 'Pomada Modeladora', descricao: 'Pomada de fixação forte, 100g', preco: 19.90,
-                        estoque: 8, imagem_url: 'https://picsum.photos/seed/pomada/200/200' },
+                        estoque: 8, imagem_url: 'https://picsum.photos/seed/pomada/200/200',
+                        em_promocao: true, preco_promocional: 14.90 },
                     { id: 'p4', nome: 'Navalha Profissional', descricao: 'Navalha com lâminas de reposição',
-                        preco: 45.00, estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200' },
+                        preco: 45.00, estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200',
+                        em_promocao: false, preco_promocional: 0 },
                     { id: 'p5', nome: 'Máscara Capilar', descricao: 'Máscara de hidratação profunda, 300g',
-                        preco: 39.90, estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200' },
+                        preco: 39.90, estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200',
+                        em_promocao: true, preco_promocional: 29.90 },
                 ];
                 setData(STORAGE_KEYS.PRODUCTS, products);
+            } else {
+                // Garantir que produtos existentes tenham os novos campos
+                let updated = false;
+                products = products.map(p => {
+                    if (p.em_promocao === undefined) { p.em_promocao = false; updated = true; }
+                    if (p.preco_promocional === undefined) { p.preco_promocional = 0; updated = true; }
+                    return p;
+                });
+                if (updated) setData(STORAGE_KEYS.PRODUCTS, products);
             }
 
             let appts = getData(STORAGE_KEYS.APPOINTMENTS);
@@ -1671,20 +1773,13 @@
             let config = getData(STORAGE_KEYS.CONFIG);
             if (config.length === 0) {
                 config = [
-                    { dia_semana: 0, ativo: false, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30,
-                    bloqueios: [] },
-                    { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
-                    bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
-                    bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
-                    bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
-                    bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
-                    bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30,
-                    bloqueios: ['12:00', '13:00'] },
+                    { dia_semana: 0, ativo: false, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: [] },
+                    { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
+                    { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
+                    { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
+                    { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
+                    { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
+                    { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
                 ];
                 setData(STORAGE_KEYS.CONFIG, config);
             }
@@ -1692,12 +1787,9 @@
             let starsHist = getData(STORAGE_KEYS.STARS_HISTORY);
             if (starsHist.length === 0) {
                 starsHist = [
-                    { id: 'sh1', cliente_id: 'cli1', appointment_id: 'a1', data_atribuicao: nowISO(),
-                    admin_id: 'admin1' },
-                    { id: 'sh2', cliente_id: 'cli2', appointment_id: null, data_atribuicao: nowISO(),
-                    admin_id: 'admin1' },
-                    { id: 'sh3', cliente_id: 'cli3', appointment_id: null, data_atribuicao: nowISO(),
-                    admin_id: 'admin1' },
+                    { id: 'sh1', cliente_id: 'cli1', appointment_id: 'a1', data_atribuicao: nowISO(), admin_id: 'admin1' },
+                    { id: 'sh2', cliente_id: 'cli2', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' },
+                    { id: 'sh3', cliente_id: 'cli3', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' },
                 ];
                 setData(STORAGE_KEYS.STARS_HISTORY, starsHist);
             }
@@ -1717,56 +1809,35 @@
         //  FUNÇÕES DE ACESSO A DADOS
         // ================================================================
         function getUsers() { return getData(STORAGE_KEYS.USERS); }
-
         function getAppointments() { return getData(STORAGE_KEYS.APPOINTMENTS); }
-
         function getProducts() { return getData(STORAGE_KEYS.PRODUCTS); }
-
         function getOrders() { return getData(STORAGE_KEYS.ORDERS); }
-
         function getConfig() { return getData(STORAGE_KEYS.CONFIG); }
-
         function getStarsHistory() { return getData(STORAGE_KEYS.STARS_HISTORY); }
-
         function getWaitlist() { return getData(STORAGE_KEYS.WAITLIST); }
-
         function saveUsers(u) { setData(STORAGE_KEYS.USERS, u); }
-
         function saveAppointments(a) { setData(STORAGE_KEYS.APPOINTMENTS, a); }
-
         function saveProducts(p) { setData(STORAGE_KEYS.PRODUCTS, p); }
-
         function saveOrders(o) { setData(STORAGE_KEYS.ORDERS, o); }
-
         function saveConfig(c) { setData(STORAGE_KEYS.CONFIG, c); }
-
         function saveStarsHistory(s) { setData(STORAGE_KEYS.STARS_HISTORY, s); }
-
         function saveWaitlist(w) { setData(STORAGE_KEYS.WAITLIST, w); }
 
         function findUserById(id) { return getUsers().find(u => u.id === id); }
-
         function getClientAppointments(clientId) {
-            return getAppointments().filter(a => a.cliente_id === clientId).sort((a, b) => new Date(a.data_hora) - new Date(b
-                .data_hora));
+            return getAppointments().filter(a => a.cliente_id === clientId).sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora));
         }
-
         function getUpcomingAppointments(clientId) {
             const now = new Date();
-            return getClientAppointments(clientId).filter(a => new Date(a.data_hora) >= now && a.status !== 'cancelado' && a
-                .status !== 'realizado' && a.status !== 'falta');
+            return getClientAppointments(clientId).filter(a => new Date(a.data_hora) >= now && a.status !== 'cancelado' && a.status !== 'realizado' && a.status !== 'falta');
         }
 
-        function getConfigForDay(day) {
-            return getConfig().find(c => c.dia_semana === day) || null;
-        }
-
+        function getConfigForDay(day) { return getConfig().find(c => c.dia_semana === day) || null; }
         function getWorkingHours(day) {
             const cfg = getConfigForDay(day);
             if (!cfg || !cfg.ativo) return null;
             return { start: cfg.hora_inicio, end: cfg.hora_fim, duration: cfg.duracao || 30, blocks: cfg.bloqueios || [] };
         }
-
         function generateTimeSlots(dateStr) {
             const day = new Date(dateStr).getDay();
             const wh = getWorkingHours(day);
@@ -1775,20 +1846,17 @@
             const start = wh.start.split(':').map(Number);
             const end = wh.end.split(':').map(Number);
             const dur = wh.duration || 30;
-            let h = start[0],
-                m = start[1];
-            const endMin = end[0] * 60 + end[1];
-            while (h * 60 + m < endMin) {
-                const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+            let h = start[0], m = start[1];
+            const endMin = end[0]*60 + end[1];
+            while (h*60 + m < endMin) {
+                const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
                 const isBlocked = wh.blocks.some(b => b === timeStr);
                 if (!isBlocked) slots.push(timeStr);
                 m += dur;
-                if (m >= 60) { h += Math.floor(m / 60);
-                    m = m % 60; }
+                if (m >= 60) { h += Math.floor(m/60); m = m % 60; }
             }
             return slots;
         }
-
         function isTimeSlotAvailable(dateStr, timeStr) {
             const appts = getAppointments();
             const target = new Date(dateStr + 'T' + timeStr + ':00');
@@ -1799,18 +1867,16 @@
             if (conflicting) return false;
             const now = new Date();
             if (target < now) return false;
-            const diff = (target - now) / (1000 * 60 * 60);
+            const diff = (target - now) / (1000*60*60);
             if (diff < 1) return false;
             return true;
         }
-
         function getAvailableTimes(dateStr) {
             const allSlots = generateTimeSlots(dateStr);
             return allSlots.filter(t => isTimeSlotAvailable(dateStr, t));
         }
 
         function getProductById(id) { return getProducts().find(p => p.id === id); }
-
         function getCartOrders(clientId) {
             return getOrders().filter(o => o.cliente_id === clientId && o.status === 'carrinho');
         }
@@ -1826,6 +1892,76 @@
             } else {
                 document.getElementById('headerStars').style.display = 'none';
             }
+        }
+
+        // ================================================================
+        //  SLIDESHOW
+        // ================================================================
+        let slideIndex = 0;
+        let slideTimer = null;
+
+        function renderSlideshow() {
+            const container = document.getElementById('slideshowContainer');
+            const products = getProducts().filter(p => p.em_promocao && p.estoque > 0);
+            if (products.length === 0) {
+                container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Nenhum produto em promoção no momento.</div>';
+                return;
+            }
+            // Limpa slides antigos, mantém os botões e dots
+            const oldSlides = container.querySelectorAll('.slideshow-slide');
+            oldSlides.forEach(el => el.remove());
+            const oldDots = container.querySelectorAll('.slideshow-dots .dot');
+            oldDots.forEach(el => el.remove());
+
+            products.forEach((p, idx) => {
+                const slide = document.createElement('div');
+                slide.className = 'slideshow-slide' + (idx === 0 ? ' active' : '');
+                const priceDisplay = p.preco_promocional > 0 ?
+                    `<span class="price">R$ ${p.preco_promocional.toFixed(2)}</span> <span class="old-price">R$ ${p.preco.toFixed(2)}</span>` :
+                    `<span class="price">R$ ${p.preco.toFixed(2)}</span>`;
+                slide.innerHTML = `
+                    <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/400/300'}" alt="${p.nome}" />
+                    <div class="slide-info">
+                        <h4>${p.nome}</h4>
+                        <div>${priceDisplay}</div>
+                    </div>
+                `;
+                container.insertBefore(slide, container.querySelector('.slideshow-btn.prev').nextSibling);
+                // Dot
+                const dot = document.createElement('span');
+                dot.className = 'dot' + (idx === 0 ? ' active' : '');
+                dot.dataset.index = idx;
+                dot.onclick = function() { goToSlide(parseInt(this.dataset.index)); };
+                document.getElementById('slideshowDots').appendChild(dot);
+            });
+
+            slideIndex = 0;
+            clearInterval(slideTimer);
+            slideTimer = setInterval(() => { changeSlide(1); }, 5000);
+        }
+
+        function changeSlide(direction) {
+            const slides = document.querySelectorAll('.slideshow-slide');
+            const dots = document.querySelectorAll('.slideshow-dots .dot');
+            if (slides.length === 0) return;
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            slideIndex = (slideIndex + direction + slides.length) % slides.length;
+            slides[slideIndex].classList.add('active');
+            dots[slideIndex].classList.add('active');
+        }
+
+        function goToSlide(index) {
+            const slides = document.querySelectorAll('.slideshow-slide');
+            const dots = document.querySelectorAll('.slideshow-dots .dot');
+            if (slides.length === 0 || index < 0 || index >= slides.length) return;
+            slides.forEach(s => s.classList.remove('active'));
+            dots.forEach(d => d.classList.remove('active'));
+            slideIndex = index;
+            slides[slideIndex].classList.add('active');
+            dots[slideIndex].classList.add('active');
+            clearInterval(slideTimer);
+            slideTimer = setInterval(() => { changeSlide(1); }, 5000);
         }
 
         // ================================================================
@@ -1875,8 +2011,7 @@
             const slots = getAvailableTimes(date);
             if (slots.length === 0) {
                 select.innerHTML = '<option value="">Nenhum horário disponível</option>';
-                document.getElementById('apptFeedback').textContent =
-                    '📋 Todos os horários estão ocupados. Clique em "Entrar na fila de espera" abaixo.';
+                document.getElementById('apptFeedback').textContent = '📋 Todos os horários estão ocupados.';
                 document.getElementById('apptFeedback').style.color = '#f39c12';
                 return;
             }
@@ -1885,7 +2020,7 @@
             document.getElementById('apptFeedback').textContent = '';
         }
 
-        async function confirmAppointment() {
+        function confirmAppointment() {
             const user = getCurrentUser();
             if (!user) { toast('Faça login primeiro.', 'error'); return; }
             const date = document.getElementById('apptDate').value;
@@ -1934,16 +2069,21 @@
                 return;
             }
             empty.style.display = 'none';
-            grid.innerHTML = available.map(p =>
-                `<div class="product-card" onclick="showProductDetail('${p.id}')">
-                    <img src="${p.imagem_url || 'https://picsum.photos/seed/${p.id}/200/200'}" alt="${p.nome}" loading="lazy" />
+            grid.innerHTML = available.map(p => {
+                const promoHtml = p.em_promocao ? `<span class="promo-badge">🔥 PROMO</span>` : '';
+                const priceHtml = p.preco_promocional && p.preco_promocional > 0 ?
+                    `<span class="price">R$ ${p.preco_promocional.toFixed(2)}</span> <span class="old-price">R$ ${p.preco.toFixed(2)}</span>` :
+                    `<span class="price">R$ ${p.preco.toFixed(2)}</span>`;
+                return `<div class="product-card" onclick="showProductDetail('${p.id}')">
+                    <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" alt="${p.nome}" loading="lazy" />
+                    ${promoHtml}
                     <div class="info">
                         <h4>${p.nome}</h4>
-                        <div class="price">R$ ${p.preco.toFixed(2)}</div>
+                        <div>${priceHtml}</div>
                         <div class="stock">${p.estoque} unid.</div>
                     </div>
-                </div>`
-            ).join('');
+                </div>`;
+            }).join('');
         }
 
         function showProductDetail(productId) {
@@ -1952,12 +2092,15 @@
             const user = getCurrentUser();
             if (!user) { toast('Faça login primeiro.', 'error'); return; }
             const inCart = getCartOrders(user.id).some(o => o.produto_id === p.id);
+            const priceDisplay = p.preco_promocional && p.preco_promocional > 0 ?
+                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco_promocional.toFixed(2)}</span> <span style="text-decoration:line-through;color:#888;">R$ ${p.preco.toFixed(2)}</span>` :
+                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco.toFixed(2)}</span>`;
             const html = `
                 <div style="text-align:center;">
-                    <img src="${p.imagem_url || 'https://picsum.photos/seed/${p.id}/200/200'}" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:12px;" />
+                    <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:12px;" />
                     <h4 style="font-size:1.1rem;">${p.nome}</h4>
                     <p class="text-muted">${p.descricao || ''}</p>
-                    <p style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco.toFixed(2)}</p>
+                    <div>${priceDisplay}</div>
                     <p class="text-muted" style="font-size:0.8rem;">Estoque: ${p.estoque}</p>
                     ${p.estoque > 0 ? 
                         (inCart ? '<p class="text-gold"><i class="fas fa-check"></i> Já está no carrinho</p>' :
@@ -2015,17 +2158,17 @@
                 openModal('🛒 Carrinho', '<p class="text-muted">Seu carrinho está vazio.</p>');
                 return;
             }
-            let html =
-                `<div style="max-height:300px;overflow-y:auto;margin-bottom:12px;">`;
+            let html = `<div style="max-height:300px;overflow-y:auto;margin-bottom:12px;">`;
             let total = 0;
             cart.forEach(o => {
                 const p = getProductById(o.produto_id);
                 if (!p) return;
-                total += p.preco;
+                const price = p.preco_promocional && p.preco_promocional > 0 ? p.preco_promocional : p.preco;
+                total += price;
                 html += `
                     <div class="flex-between" style="padding:8px 0;border-bottom:1px solid #282828;">
                         <span>${p.nome}</span>
-                        <span>R$ ${p.preco.toFixed(2)}</span>
+                        <span>R$ ${price.toFixed(2)}</span>
                         <button class="btn btn-red btn-sm" onclick="removeFromCart('${o.id}')"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
@@ -2178,7 +2321,7 @@
                 const canCancel = a.status === 'pendente' || a.status === 'confirmado';
                 const now = new Date();
                 const apptDate = new Date(a.data_hora);
-                const diff = (apptDate - now) / (1000 * 60 * 60);
+                const diff = (apptDate - now) / (1000*60*60);
                 const showCancel = canCancel && diff > 2;
                 return `<div class="history-item">
                     <div>
@@ -2227,20 +2370,6 @@
             renderPerfil();
         }
 
-        // ===== LOGOUT =====
-        function logout() {
-            if (confirm('Deseja realmente sair?')) {
-                setCurrentUser(null);
-                document.getElementById('appWrapper').classList.remove('visible');
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('registerScreen').classList.add('hidden');
-                document.getElementById('loginEmail').value = '';
-                document.getElementById('loginPassword').value = '';
-                document.getElementById('loginError').textContent = '';
-                toast('Você saiu.', 'info');
-            }
-        }
-
         // ================================================================
         //  ADMIN: DASHBOARD
         // ================================================================
@@ -2275,7 +2404,7 @@
                 container.innerHTML = '<p class="text-muted">Nenhum agendamento.</p>';
                 return;
             }
-            container.innerHTML = appts.sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora)).map(a => {
+            container.innerHTML = appts.sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora)).map(a => {
                 const user = users.find(u => u.id === a.cliente_id);
                 const nome = user ? user.nome : 'Desconhecido';
                 const statusClass = 'status-' + a.status;
@@ -2327,7 +2456,7 @@
                         cliente_id: user.id,
                         appointment_id: a.id,
                         data_atribuicao: nowISO(),
-                        admin_id: 'admin1'
+                        admin_id: getCurrentUser().id
                     });
                     saveStarsHistory(hist);
                     toast(`⭐ +1 estrela para ${user.nome}!`, 'success');
@@ -2343,20 +2472,14 @@
             if (!confirm('Cancelar este agendamento?')) return;
             let appts = getAppointments();
             const a = appts.find(x => x.id === apptId);
-            if (a) { a.status = 'cancelado';
-                saveAppointments(appts);
-                toast('Cancelado.', 'info');
-                renderAdminAppointments(); }
+            if (a) { a.status = 'cancelado'; saveAppointments(appts); toast('Cancelado.', 'info'); renderAdminAppointments(); }
         }
 
         function adminMarkNoShow(apptId) {
             if (!confirm('Marcar como falta?')) return;
             let appts = getAppointments();
             const a = appts.find(x => x.id === apptId);
-            if (a) { a.status = 'falta';
-                saveAppointments(appts);
-                toast('Marcado como falta.', 'info');
-                renderAdminAppointments(); }
+            if (a) { a.status = 'falta'; saveAppointments(appts); toast('Marcado como falta.', 'info'); renderAdminAppointments(); }
         }
 
         // ================================================================
@@ -2410,7 +2533,7 @@
                 cliente_id: userId,
                 appointment_id: null,
                 data_atribuicao: nowISO(),
-                admin_id: 'admin1'
+                admin_id: getCurrentUser().id
             });
             saveStarsHistory(hist);
             toast('⭐ Estrela adicionada!', 'success');
@@ -2438,7 +2561,7 @@
         }
 
         // ================================================================
-        //  ADMIN: PRODUTOS (COM UPLOAD DE FOTO)
+        //  ADMIN: PRODUTOS (COM UPLOAD DE FOTO E PROMOÇÃO)
         // ================================================================
         function renderAdminProducts() {
             const products = getProducts();
@@ -2451,6 +2574,7 @@
                 `<div class="history-item" style="flex-wrap:wrap;gap:8px;">
                     <div>
                         <strong>${p.nome}</strong> - R$ ${p.preco.toFixed(2)} - Estoque: ${p.estoque}
+                        ${p.em_promocao ? ' <span class="badge-promo">PROMO</span>' : ''}
                         ${p.estoque === 0 ? ' <span class="badge-burgundy">ESGOTADO</span>' : ''}
                     </div>
                     <div style="display:flex;gap:6px;">
@@ -2475,6 +2599,16 @@
                 <div class="form-row">
                     <div class="form-group"><label>Preço (R$)</label><input type="number" id="pfPreco" step="0.01" value="${p ? p.preco : ''}" /></div>
                     <div class="form-group"><label>Estoque</label><input type="number" id="pfEstoque" value="${p ? p.estoque : ''}" /></div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="pfPromo" ${p && p.em_promocao ? 'checked' : ''} />
+                        <label for="pfPromo">Em promoção</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Preço promocional (R$)</label>
+                    <input type="number" id="pfPrecoPromo" step="0.01" value="${p && p.preco_promocional ? p.preco_promocional : ''}" placeholder="Deixe em branco se não houver" />
                 </div>
                 <div class="form-group">
                     <label>Foto do produto (tire uma foto ou escolha da galeria)</label>
@@ -2512,6 +2646,8 @@
             const desc = document.getElementById('pfDesc').value.trim();
             const preco = parseFloat(document.getElementById('pfPreco').value);
             const estoque = parseInt(document.getElementById('pfEstoque').value);
+            const em_promocao = document.getElementById('pfPromo').checked;
+            const preco_promocional = parseFloat(document.getElementById('pfPrecoPromo').value) || 0;
 
             if (!nome || isNaN(preco) || isNaN(estoque)) {
                 toast('Preencha todos os campos corretamente.', 'error');
@@ -2532,7 +2668,9 @@
                     descricao: desc,
                     preco,
                     estoque,
-                    imagem_url: imagem_url
+                    imagem_url,
+                    em_promocao,
+                    preco_promocional: em_promocao ? preco_promocional : 0
                 });
                 toast('✅ Produto criado!', 'success');
             } else {
@@ -2544,7 +2682,9 @@
                     descricao: desc,
                     preco,
                     estoque,
-                    imagem_url: imagem_url
+                    imagem_url,
+                    em_promocao,
+                    preco_promocional: em_promocao ? preco_promocional : 0
                 };
                 toast('✅ Produto atualizado!', 'success');
             }
@@ -2553,6 +2693,7 @@
             closeModal();
             renderAdminProducts();
             renderProducts();
+            renderSlideshow();
         }
 
         function editProduct(productId) { showProductForm(productId); }
@@ -2565,6 +2706,61 @@
             toast('Produto excluído.', 'info');
             renderAdminProducts();
             renderProducts();
+            renderSlideshow();
+        }
+
+        // ================================================================
+        //  ADMIN: USUÁRIOS (BLOQUEIO)
+        // ================================================================
+        function renderUserList() {
+            const users = getUsers();
+            const container = document.getElementById('userList');
+            if (users.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nenhum usuário cadastrado.</p>';
+                return;
+            }
+            container.innerHTML = users.map(u => {
+                const roleLabel = u.role === 'admin' ? '👑 Admin' : u.role === 'supervisor' ? '⭐ Supervisor' : '👤 Cliente';
+                const blocked = u.bloqueado || false;
+                return `<div class="client-item">
+                    <div>
+                        <span class="name">${u.nome}</span>
+                        <span class="text-muted" style="font-size:0.7rem;margin-left:8px;">${roleLabel}</span>
+                        ${blocked ? '<span class="blocked-badge">BLOQUEADO</span>' : ''}
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">
+                            ${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function toggleBlockUser(userId) {
+            const user = findUserById(userId);
+            if (!user) return;
+            // Não permitir bloquear a si mesmo (admin atual)
+            const current = getCurrentUser();
+            if (current && current.id === userId) {
+                toast('Você não pode bloquear a si mesmo.', 'error');
+                return;
+            }
+            if (user.role === 'admin' && current && current.role !== 'admin') {
+                toast('Apenas administradores podem bloquear outros administradores.', 'error');
+                return;
+            }
+            let users = getUsers();
+            const u = users.find(x => x.id === userId);
+            if (!u) return;
+            u.bloqueado = !u.bloqueado;
+            saveUsers(users);
+            toast(`Usuário ${u.bloqueado ? 'bloqueado' : 'desbloqueado'} com sucesso.`, 'success');
+            renderUserList();
+            // Se o usuário bloqueado for o supervisor, forçar logout se estiver logado
+            if (u.bloqueado && current && current.id === u.id) {
+                logout();
+            }
         }
 
         // ================================================================
@@ -2573,7 +2769,7 @@
         function renderConfig() {
             const config = getConfig();
             const container = document.getElementById('configDays');
-            const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
             container.innerHTML = config.map((c, idx) =>
                 `<label class="${c.ativo ? 'active' : ''}" onclick="toggleDay(${idx})">
                     <input type="checkbox" ${c.ativo ? 'checked' : ''} />
@@ -2626,7 +2822,7 @@
                 container.innerHTML = '<p class="text-muted">Nenhum registro.</p>';
                 return;
             }
-            container.innerHTML = hist.sort((a, b) => new Date(b.data_atribuicao) - new Date(a.data_atribuicao)).map(s => {
+            container.innerHTML = hist.sort((a,b) => new Date(b.data_atribuicao) - new Date(a.data_atribuicao)).map(s => {
                 const user = users.find(u => u.id === s.cliente_id);
                 const nome = user ? user.nome : 'Desconhecido';
                 return `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
@@ -2670,7 +2866,7 @@
             initData();
             const currentUser = getCurrentUser();
             if (currentUser) {
-                if (currentUser.role === 'admin') {
+                if (currentUser.role === 'admin' || currentUser.role === 'supervisor') {
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appWrapper').classList.add('visible');
                     showAdminPanel();
@@ -2727,8 +2923,12 @@
         window.toggleDay = toggleDay;
         window.saveConfig = saveConfig;
         window.renderFidelitySearch = renderFidelitySearch;
+        window.renderUserList = renderUserList;
+        window.toggleBlockUser = toggleBlockUser;
         window.closeModal = closeModal;
         window.updateAvailableTimes = updateAvailableTimes;
+        window.changeSlide = changeSlide;
+        window.goToSlide = goToSlide;
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
