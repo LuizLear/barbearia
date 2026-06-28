@@ -52,8 +52,8 @@
             border-radius: 8px;
         }
 
-        /* ===== TELA DE LOGIN ===== */
-        #loginScreen {
+        /* ===== TELAS DE AUTENTICAÇÃO (LOGIN E REGISTRO) ===== */
+        .auth-screen {
             position: fixed;
             inset: 0;
             z-index: 9999;
@@ -64,12 +64,12 @@
             padding: 20px;
             transition: opacity 0.6s ease, transform 0.6s ease;
         }
-        #loginScreen.hidden {
+        .auth-screen.hidden {
             opacity: 0;
             transform: scale(1.05);
             pointer-events: none;
         }
-        .login-box {
+        .auth-box {
             background: var(--bg-secondary);
             border-radius: var(--radius);
             padding: 40px 30px;
@@ -79,7 +79,7 @@
             border: 1px solid #2a2a2a;
             animation: fadeUp 0.5s ease;
         }
-        .login-box .logo {
+        .auth-box .logo {
             text-align: center;
             font-family: var(--font-title);
             font-weight: 800;
@@ -87,27 +87,27 @@
             color: var(--gold);
             margin-bottom: 8px;
         }
-        .login-box .logo i {
+        .auth-box .logo i {
             font-size: 2.2rem;
             margin-right: 8px;
         }
-        .login-box .subtitle {
+        .auth-box .subtitle {
             text-align: center;
             color: var(--text-secondary);
             margin-bottom: 24px;
             font-size: 0.9rem;
         }
-        .login-box .form-group {
+        .auth-box .form-group {
             margin-bottom: 16px;
         }
-        .login-box .form-group label {
+        .auth-box .form-group label {
             display: block;
             font-weight: 500;
             margin-bottom: 4px;
             color: var(--text-secondary);
             font-size: 0.85rem;
         }
-        .login-box .form-group input {
+        .auth-box .form-group input {
             width: 100%;
             padding: 12px 16px;
             background: #1e1e1e;
@@ -119,11 +119,11 @@
             transition: var(--transition);
             outline: none;
         }
-        .login-box .form-group input:focus {
+        .auth-box .form-group input:focus {
             border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
         }
-        .login-box .btn-gold {
+        .auth-box .btn-gold {
             width: 100%;
             padding: 14px;
             border: none;
@@ -137,30 +137,48 @@
             font-family: var(--font-body);
             margin-top: 8px;
         }
-        .login-box .btn-gold:hover {
+        .auth-box .btn-gold:hover {
             transform: scale(1.02);
             box-shadow: 0 6px 24px rgba(212, 175, 55, 0.3);
         }
-        .login-box .login-error {
+        .auth-box .btn-outline-muted {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid #444;
+            width: 100%;
+            padding: 12px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-body);
+            margin-top: 8px;
+        }
+        .auth-box .btn-outline-muted:hover {
+            border-color: #888;
+            color: #fff;
+        }
+        .auth-box .auth-error {
             color: var(--red-action);
             font-size: 0.85rem;
             text-align: center;
             margin-top: 12px;
             min-height: 24px;
         }
-        .login-box .register-link {
+        .auth-box .auth-link {
             text-align: center;
             margin-top: 16px;
             color: var(--text-secondary);
             font-size: 0.9rem;
         }
-        .login-box .register-link a {
+        .auth-box .auth-link a {
             color: var(--gold);
             text-decoration: none;
             font-weight: 600;
             cursor: pointer;
         }
-        .login-box .register-link a:hover {
+        .auth-box .auth-link a:hover {
             text-decoration: underline;
         }
 
@@ -777,7 +795,7 @@
             .star-circle {
                 font-size: 0.7rem;
             }
-            .login-box {
+            .auth-box {
                 padding: 30px 20px;
             }
         }
@@ -957,8 +975,8 @@
 </head>
 <body>
     <!-- ===== TELA DE LOGIN ===== -->
-    <div id="loginScreen">
-        <div class="login-box">
+    <div id="loginScreen" class="auth-screen">
+        <div class="auth-box">
             <div class="logo"><i class="fas fa-cut"></i> Barbearia VIP</div>
             <div class="subtitle">Acesse sua conta</div>
             <div class="form-group">
@@ -970,10 +988,26 @@
                 <input type="password" id="loginPassword" placeholder="••••••" />
             </div>
             <button class="btn-gold" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Entrar</button>
-            <div id="loginError" class="login-error"></div>
-            <div class="register-link">
-                Não tem conta? <a onclick="showRegisterModal()">Cadastre-se</a>
+            <div id="loginError" class="auth-error"></div>
+            <div class="auth-link">
+                Não tem conta? <a onclick="showRegisterScreen()">Cadastre-se</a>
             </div>
+        </div>
+    </div>
+
+    <!-- ===== TELA DE CADASTRO ===== -->
+    <div id="registerScreen" class="auth-screen hidden">
+        <div class="auth-box">
+            <div class="logo"><i class="fas fa-user-plus"></i> Criar Conta</div>
+            <div class="subtitle">Preencha os dados para se cadastrar</div>
+            <div class="form-group"><label>Nome completo</label><input type="text" id="regNome" placeholder="Seu nome" /></div>
+            <div class="form-group"><label>E-mail</label><input type="email" id="regEmail" placeholder="exemplo@email.com" /></div>
+            <div class="form-group"><label>Telefone</label><input type="text" id="regTelefone" placeholder="11988888888" /></div>
+            <div class="form-group"><label>Senha (mínimo 6 caracteres)</label><input type="password" id="regSenha" placeholder="••••••" /></div>
+            <div class="form-group"><label>Data de Nascimento</label><input type="date" id="regNascimento" /></div>
+            <button class="btn-gold" onclick="registerUser()"><i class="fas fa-user-plus"></i> Cadastrar</button>
+            <div id="registerError" class="auth-error"></div>
+            <button class="btn-outline-muted" onclick="showLoginScreen()"><i class="fas fa-arrow-left"></i> Voltar ao login</button>
         </div>
     </div>
 
@@ -1197,6 +1231,7 @@
         // ================================================================
         //  BARBEARIA VIP - CÓDIGO COMPLETO
         //  - Login unificado (admin e cliente)
+        //  - Tela de cadastro dedicada (acessível sem login)
         //  - Upload de fotos dos produtos direto do celular
         //  - Clique no logotipo redireciona para a tela principal
         // ================================================================
@@ -1278,11 +1313,24 @@
             if (e.target === this) closeModal();
         });
 
+        // ===== NAVEGAÇÃO ENTRE TELAS DE AUTENTICAÇÃO =====
+        function showRegisterScreen() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('registerScreen').classList.remove('hidden');
+            document.getElementById('registerError').textContent = '';
+        }
+
+        function showLoginScreen() {
+            document.getElementById('registerScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginError').textContent = '';
+        }
+
         // ===== NAVEGAÇÃO (cliente) =====
         let currentScreen = 'home';
 
         function navigateTo(screen) {
-            if (isAdmin()) return; // admin não usa navegação por tabs
+            if (isAdmin()) return;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             const target = document.getElementById('screen-' + screen);
             if (target) target.classList.add('active');
@@ -1328,8 +1376,7 @@
         }
 
         function hideAdminPanel() {
-            // Volta para a interface de cliente (se for cliente)
-            if (isAdmin()) return; // admin não deve sair do admin panel
+            if (isAdmin()) return;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-home').classList.add('active');
             document.getElementById('bottomTabs').style.display = 'flex';
@@ -1357,7 +1404,6 @@
 
             // Verifica se é o admin
             if (login === ADMIN_CREDENTIALS.user && senha === ADMIN_CREDENTIALS.pass) {
-                // Busca ou cria o usuário admin no sistema
                 let users = getData(STORAGE_KEYS.USERS);
                 let adminUser = users.find(u => u.role === 'admin');
                 if (!adminUser) {
@@ -1397,7 +1443,6 @@
             }
 
             if (user.role === 'admin') {
-                // Se por acaso o admin logar com email/telefone, também vai para admin
                 setCurrentUser(user);
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
@@ -1406,7 +1451,6 @@
                 return;
             }
 
-            // Cliente comum
             setCurrentUser(user);
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('appWrapper').classList.add('visible');
@@ -1416,41 +1460,31 @@
         }
 
         // ===== REGISTRO (CADASTRO) =====
-        function showRegisterModal() {
-            const html = `
-                <div class="form-group"><label>Nome completo</label><input type="text" id="regNome" placeholder="Seu nome" /></div>
-                <div class="form-group"><label>E-mail</label><input type="email" id="regEmail" placeholder="exemplo@email.com" /></div>
-                <div class="form-group"><label>Telefone</label><input type="text" id="regTelefone" placeholder="11988888888" /></div>
-                <div class="form-group"><label>Senha (mínimo 6 caracteres)</label><input type="password" id="regSenha" placeholder="••••••" /></div>
-                <div class="form-group"><label>Data de Nascimento</label><input type="date" id="regNascimento" /></div>
-                <button class="btn btn-gold btn-block" onclick="registerUser()"><i class="fas fa-user-plus"></i> Criar conta</button>
-            `;
-            openModal('📝 Criar Conta', html);
-        }
-
         function registerUser() {
             const nome = document.getElementById('regNome').value.trim();
             const email = document.getElementById('regEmail').value.trim();
             const telefone = document.getElementById('regTelefone').value.trim();
             const senha = document.getElementById('regSenha').value.trim();
             const nascimento = document.getElementById('regNascimento').value;
+            const errorEl = document.getElementById('registerError');
+            errorEl.textContent = '';
 
             if (!nome || !email || !telefone || !senha || !nascimento) {
-                toast('Preencha todos os campos.', 'error');
+                errorEl.textContent = 'Preencha todos os campos.';
                 return;
             }
             if (senha.length < 6) {
-                toast('A senha deve ter pelo menos 6 caracteres.', 'error');
+                errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
                 return;
             }
 
             let users = getData(STORAGE_KEYS.USERS);
             if (users.find(u => u.email === email)) {
-                toast('E-mail já cadastrado.', 'error');
+                errorEl.textContent = 'E-mail já cadastrado.';
                 return;
             }
             if (users.find(u => u.telefone === telefone)) {
-                toast('Telefone já cadastrado.', 'error');
+                errorEl.textContent = 'Telefone já cadastrado.';
                 return;
             }
 
@@ -1469,10 +1503,15 @@
             users.push(newUser);
             setData(STORAGE_KEYS.USERS, users);
             toast('✅ Conta criada com sucesso! Faça login.', 'success');
-            closeModal();
+            // Limpa campos e volta para o login
+            document.getElementById('regNome').value = '';
+            document.getElementById('regEmail').value = '';
+            document.getElementById('regTelefone').value = '';
+            document.getElementById('regSenha').value = '';
+            document.getElementById('regNascimento').value = '';
+            showLoginScreen();
             document.getElementById('loginEmail').value = email;
             document.getElementById('loginPassword').value = senha;
-            handleLogin(); // tenta logar automaticamente
         }
 
         // ===== ADMIN LOGOUT =====
@@ -1480,6 +1519,7 @@
             setCurrentUser(null);
             document.getElementById('appWrapper').classList.remove('visible');
             document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('registerScreen').classList.add('hidden');
             document.getElementById('loginEmail').value = '';
             document.getElementById('loginPassword').value = '';
             document.getElementById('loginError').textContent = '';
@@ -1512,7 +1552,7 @@
         });
 
         // ================================================================
-        //  INICIALIZAÇÃO DOS DADOS (com dados padrão garantidos)
+        //  INICIALIZAÇÃO DOS DADOS
         // ================================================================
         function initData() {
             let users = getData(STORAGE_KEYS.USERS);
@@ -1561,9 +1601,7 @@
                     vouchers: 1,
                     data_nascimento: '1992-03-20',
                     birthday_star_given: {}
-                },
-                // Cliente com as credenciais solicitadas
-                {
+                }, {
                     id: 'cli4',
                     nome: 'Cliente Teste',
                     email: 'cliente@barbearia.com',
@@ -2195,6 +2233,7 @@
                 setCurrentUser(null);
                 document.getElementById('appWrapper').classList.remove('visible');
                 document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('registerScreen').classList.add('hidden');
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('loginError').textContent = '';
@@ -2643,6 +2682,7 @@
                 }
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('registerScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.remove('visible');
             }
             setInterval(() => {
@@ -2657,7 +2697,8 @@
 
         // ===== EXPOR FUNÇÕES GLOBAIS =====
         window.handleLogin = handleLogin;
-        window.showRegisterModal = showRegisterModal;
+        window.showRegisterScreen = showRegisterScreen;
+        window.showLoginScreen = showLoginScreen;
         window.registerUser = registerUser;
         window.navigateTo = navigateTo;
         window.goHome = goHome;
