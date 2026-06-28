@@ -41,16 +41,9 @@
             line-height: 1.5;
             overflow: hidden;
         }
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--gold);
-            border-radius: 8px;
-        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 8px; }
 
         /* ===== TELAS DE AUTENTICAÇÃO ===== */
         .auth-screen {
@@ -87,19 +80,14 @@
             color: var(--gold);
             margin-bottom: 8px;
         }
-        .auth-box .logo i {
-            font-size: 2.2rem;
-            margin-right: 8px;
-        }
+        .auth-box .logo i { font-size: 2.2rem; margin-right: 8px; }
         .auth-box .subtitle {
             text-align: center;
             color: var(--text-secondary);
             margin-bottom: 24px;
             font-size: 0.9rem;
         }
-        .auth-box .form-group {
-            margin-bottom: 16px;
-        }
+        .auth-box .form-group { margin-bottom: 16px; }
         .auth-box .form-group label {
             display: block;
             font-weight: 500;
@@ -155,10 +143,7 @@
             font-family: var(--font-body);
             margin-top: 8px;
         }
-        .auth-box .btn-outline-muted:hover {
-            border-color: #888;
-            color: #fff;
-        }
+        .auth-box .btn-outline-muted:hover { border-color: #888; color: #fff; }
         .auth-box .auth-error {
             color: var(--red-action);
             font-size: 0.85rem;
@@ -178,9 +163,7 @@
             font-weight: 600;
             cursor: pointer;
         }
-        .auth-box .auth-link a:hover {
-            text-decoration: underline;
-        }
+        .auth-box .auth-link a:hover { text-decoration: underline; }
 
         /* ===== APP WRAPPER ===== */
         #appWrapper {
@@ -194,9 +177,7 @@
             overflow: hidden;
             box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
         }
-        #appWrapper.visible {
-            display: flex;
-        }
+        #appWrapper.visible { display: flex; }
 
         /* ===== HEADER ===== */
         .header {
@@ -222,12 +203,8 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        .header .logo:hover {
-            opacity: 0.8;
-        }
-        .header .logo i {
-            font-size: 1.4rem;
-        }
+        .header .logo:hover { opacity: 0.8; }
+        .header .logo i { font-size: 1.4rem; }
         .header .right-controls {
             display: flex;
             align-items: center;
@@ -246,10 +223,7 @@
             color: var(--gold);
             cursor: default;
         }
-        .header .stars-display i {
-            color: var(--gold);
-            font-size: 1rem;
-        }
+        .header .stars-display i { color: var(--gold); font-size: 1rem; }
         .header .logout-btn {
             background: transparent;
             border: none;
@@ -260,10 +234,7 @@
             padding: 4px 6px;
             border-radius: 8px;
         }
-        .header .logout-btn:hover {
-            color: #fff;
-            background: #2a2a2a;
-        }
+        .header .logout-btn:hover { color: #fff; background: #2a2a2a; }
 
         /* ===== MAIN CONTENT ===== */
         .main-content {
@@ -271,22 +242,11 @@
             overflow-y: auto;
             padding: 16px 16px 80px;
         }
-        .screen {
-            display: none;
-            animation: fadeUp 0.3s ease;
-        }
-        .screen.active {
-            display: block;
-        }
+        .screen { display: none; animation: fadeUp 0.3s ease; }
+        .screen.active { display: block; }
         @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== BOTTOM TABS (CLIENTE) ===== */
@@ -317,20 +277,13 @@
             border-top: 3px solid transparent;
             padding: 4px 0;
         }
-        .bottom-tabs .tab-btn i {
-            font-size: 1.3rem;
-            transition: var(--transition);
-        }
+        .bottom-tabs .tab-btn i { font-size: 1.3rem; transition: var(--transition); }
         .bottom-tabs .tab-btn.active {
             color: var(--gold);
             border-top-color: var(--gold);
         }
-        .bottom-tabs .tab-btn.active i {
-            color: var(--gold);
-        }
-        .bottom-tabs .tab-btn:not(.active):hover {
-            color: #ccc;
-        }
+        .bottom-tabs .tab-btn.active i { color: var(--gold); }
+        .bottom-tabs .tab-btn:not(.active):hover { color: #ccc; }
 
         /* ===== CARDS E ELEMENTOS ===== */
         .card {
@@ -342,9 +295,7 @@
             border: 1px solid #282828;
             transition: var(--transition);
         }
-        .card:hover {
-            border-color: #3a3a3a;
-        }
+        .card:hover { border-color: #3a3a3a; }
         .card-title {
             font-family: var(--font-title);
             font-weight: 700;
@@ -355,18 +306,10 @@
             align-items: center;
             gap: 8px;
         }
-        .card-title i {
-            font-size: 1.1rem;
-        }
-        .text-gold {
-            color: var(--gold);
-        }
-        .text-muted {
-            color: var(--text-secondary);
-        }
-        .text-burgundy {
-            color: var(--burgundy);
-        }
+        .card-title i { font-size: 1.1rem; }
+        .text-gold { color: var(--gold); }
+        .text-muted { color: var(--text-secondary); }
+        .text-burgundy { color: var(--burgundy); }
         .badge-gold {
             background: var(--gold);
             color: #0a0a0a;
@@ -418,9 +361,7 @@
             height: 100%;
             position: relative;
         }
-        .slideshow-slide.active {
-            display: block;
-        }
+        .slideshow-slide.active { display: block; }
         .slideshow-slide img {
             width: 100%;
             height: 100%;
@@ -435,14 +376,8 @@
             background: linear-gradient(transparent, rgba(0,0,0,0.8));
             color: #fff;
         }
-        .slideshow-slide .slide-info h4 {
-            font-size: 1rem;
-            margin-bottom: 4px;
-        }
-        .slideshow-slide .slide-info .price {
-            font-weight: 700;
-            color: var(--gold);
-        }
+        .slideshow-slide .slide-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .slideshow-slide .slide-info .price { font-weight: 700; color: var(--gold); }
         .slideshow-slide .slide-info .old-price {
             text-decoration: line-through;
             color: #aaa;
@@ -463,15 +398,10 @@
             z-index: 2;
             transition: var(--transition);
         }
-        .slideshow-btn:hover {
-            background: rgba(0,0,0,0.8);
-        }
+        .slideshow-btn:hover { background: rgba(0,0,0,0.8); }
         .slideshow-btn.prev { left: 8px; }
         .slideshow-btn.next { right: 8px; }
-        .slideshow-dots {
-            text-align: center;
-            padding: 6px 0;
-        }
+        .slideshow-dots { text-align: center; padding: 6px 0; }
         .slideshow-dots .dot {
             display: inline-block;
             width: 10px;
@@ -482,8 +412,147 @@
             cursor: pointer;
             transition: var(--transition);
         }
-        .slideshow-dots .dot.active {
-            background: var(--gold);
+        .slideshow-dots .dot.active { background: var(--gold); }
+
+        /* ===== STORIES ===== */
+        .stories-row {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px 12px 4px;
+            margin-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .stories-row::-webkit-scrollbar { display: none; }
+        .story-circle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+        .story-circle:hover { transform: scale(1.05); }
+        .story-circle .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid var(--gold);
+            overflow: hidden;
+            background: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--gold);
+        }
+        .story-circle .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .story-circle .story-name {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .story-circle .avatar .fa-plus-circle {
+            font-size: 1.2rem;
+            color: var(--gold);
+        }
+
+        /* ===== STORY VIEWER MODAL ===== */
+        .story-viewer {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .story-viewer.open { display: flex; }
+        .story-viewer .story-media {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+        .story-viewer .story-media video {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+        }
+        .story-viewer .close-story {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .story-viewer .close-story:hover { background: rgba(255,255,255,0.4); }
+        .story-viewer .story-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            padding: 10px 16px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .story-viewer .story-nav:hover { background: rgba(255,255,255,0.4); }
+        .story-viewer .story-nav.prev { left: 10px; }
+        .story-viewer .story-nav.next { right: 10px; }
+        .story-viewer .story-progress {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 4px;
+        }
+        .story-viewer .story-progress .bar {
+            flex: 1;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .story-viewer .story-progress .bar .fill {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .story-viewer .story-user {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
         }
 
         /* ===== BOTÕES ===== */
@@ -511,51 +580,25 @@
             transform: scale(1.02);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
         }
-        .btn-burgundy {
-            background: var(--burgundy);
-            color: #fff;
-        }
-        .btn-burgundy:hover {
-            background: #a00000;
-        }
-        .btn-red {
-            background: var(--red-action);
-            color: #fff;
-        }
-        .btn-red:hover {
-            background: #e74c3c;
-        }
+        .btn-burgundy { background: var(--burgundy); color: #fff; }
+        .btn-burgundy:hover { background: #a00000; }
+        .btn-red { background: var(--red-action); color: #fff; }
+        .btn-red:hover { background: #e74c3c; }
         .btn-outline-gold {
             background: transparent;
             color: var(--gold);
             border: 2px solid var(--gold);
         }
-        .btn-outline-gold:hover {
-            background: var(--gold);
-            color: #0a0a0a;
-        }
+        .btn-outline-gold:hover { background: var(--gold); color: #0a0a0a; }
         .btn-outline-muted {
             background: transparent;
             color: var(--text-secondary);
             border: 2px solid #444;
         }
-        .btn-outline-muted:hover {
-            border-color: #888;
-            color: #fff;
-        }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 0.75rem;
-        }
-        .btn-block {
-            width: 100%;
-            justify-content: center;
-        }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
+        .btn-outline-muted:hover { border-color: #888; color: #fff; }
+        .btn-sm { padding: 6px 14px; font-size: 0.75rem; }
+        .btn-block { width: 100%; justify-content: center; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
         /* ===== FORMULÁRIOS ===== */
         input, select, textarea {
@@ -596,10 +639,7 @@
             accent-color: var(--gold);
             cursor: pointer;
         }
-        .checkbox-group label {
-            margin: 0;
-            cursor: pointer;
-        }
+        .checkbox-group label { margin: 0; cursor: pointer; }
 
         /* ===== ESTRELAS ===== */
         .stars-grid {
@@ -656,9 +696,7 @@
             object-fit: cover;
             background: #1a1a1a;
         }
-        .product-card .info {
-            padding: 10px 12px 14px;
-        }
+        .product-card .info { padding: 10px 12px 14px; }
         .product-card .info h4 {
             font-size: 0.85rem;
             font-weight: 600;
@@ -667,21 +705,14 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .product-card .info .price {
-            color: var(--gold);
-            font-weight: 700;
-            font-size: 0.95rem;
-        }
+        .product-card .info .price { color: var(--gold); font-weight: 700; font-size: 0.95rem; }
         .product-card .info .old-price {
             color: #888;
             font-size: 0.75rem;
             text-decoration: line-through;
             margin-left: 6px;
         }
-        .product-card .info .stock {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-        }
+        .product-card .info .stock { font-size: 0.7rem; color: var(--text-secondary); }
         .product-card .promo-badge {
             position: absolute;
             top: 8px;
@@ -873,6 +904,7 @@
             .stars-grid { gap: 4px; }
             .star-circle { font-size: 0.7rem; }
             .auth-box { padding: 30px 20px; }
+            .story-circle .avatar { width: 50px; height: 50px; }
         }
         @media (min-width: 481px) {
             #appWrapper { border-left: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; }
@@ -983,6 +1015,14 @@
             object-fit: contain;
             background: #1a1a1a;
         }
+        .story-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin: 4px;
+            border: 1px solid #333;
+        }
     </style>
 </head>
 <body>
@@ -1046,9 +1086,11 @@
         <div class="main-content" id="mainContent">
             <!-- HOME (cliente) -->
             <div class="screen active" id="screen-home">
+                <!-- STORIES -->
+                <div id="storiesContainer" class="stories-row"></div>
+
                 <!-- SLIDESHOW -->
                 <div class="slideshow-container" id="slideshowContainer">
-                    <!-- slides serão inseridos via JS -->
                     <button class="slideshow-btn prev" onclick="changeSlide(-1)">&#10094;</button>
                     <button class="slideshow-btn next" onclick="changeSlide(1)">&#10095;</button>
                     <div class="slideshow-dots" id="slideshowDots"></div>
@@ -1176,6 +1218,7 @@
                     <button data-target="admin-appointments">📅 Agendamentos</button>
                     <button data-target="admin-fidelity">⭐ Fidelidade</button>
                     <button data-target="admin-products">🛍️ Produtos</button>
+                    <button data-target="admin-stories">📸 Stories</button>
                     <button data-target="admin-users">👥 Usuários</button>
                     <button data-target="admin-config">⚙️ Horários</button>
                     <button data-target="admin-starslog">📜 Estrelas</button>
@@ -1200,6 +1243,21 @@
                 <div id="admin-products" class="admin-section">
                     <button class="btn btn-gold btn-sm mb-12" onclick="showProductForm()"><i class="fas fa-plus"></i> Novo Produto</button>
                     <div id="adminProductList"></div>
+                </div>
+                <div id="admin-stories" class="admin-section">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-plus-circle"></i> Postar Story</div>
+                        <div class="form-group">
+                            <label>Mídia (imagem ou vídeo)</label>
+                            <input type="file" accept="image/*,video/*" id="storyMediaInput" onchange="previewStoryMedia(event)" />
+                            <div id="storyMediaPreview" style="margin-top:8px;"></div>
+                        </div>
+                        <button class="btn btn-gold btn-block" onclick="postStory()"><i class="fas fa-upload"></i> Publicar Story</button>
+                    </div>
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-list"></i> Stories Ativos</div>
+                        <div id="adminStoryList"><p class="text-muted">Nenhum story ativo.</p></div>
+                    </div>
                 </div>
                 <div id="admin-users" class="admin-section">
                     <div class="card">
@@ -1255,6 +1313,16 @@
             </div>
         </div>
 
+        <!-- STORY VIEWER -->
+        <div class="story-viewer" id="storyViewer">
+            <button class="close-story" onclick="closeStoryViewer()">&times;</button>
+            <button class="story-nav prev" onclick="navigateStory(-1)">&#10094;</button>
+            <button class="story-nav next" onclick="navigateStory(1)">&#10095;</button>
+            <div class="story-user" id="storyUserName"></div>
+            <div id="storyMediaContainer"></div>
+            <div class="story-progress" id="storyProgress"></div>
+        </div>
+
         <!-- TOAST -->
         <div class="toast-container" id="toastContainer"></div>
     </div>
@@ -1265,9 +1333,9 @@
         //  - Login unificado (admin, supervisor, cliente)
         //  - Tela de cadastro dedicada
         //  - Upload de fotos dos produtos direto do celular
-        //  - Slideshow de promoções na home
-        //  - Botão sair no header
-        //  - Bloqueio de usuários pelo admin
+        //  - Slideshow de promoções
+        //  - Stories (admin/supervisor postam, clientes veem)
+        //  - Bloqueio de usuários APENAS pelo supervisor
         // ================================================================
 
         // ===== CONSTANTES =====
@@ -1280,11 +1348,13 @@
             STARS_HISTORY: 'barbershop_history_stars',
             WAITLIST: 'barbershop_waitlist',
             CURRENT_USER: 'barbershop_current_user',
+            STORIES: 'barbershop_stories',
         };
         const ADMIN_CREDENTIALS = { user: 'admin', pass: 'admin123' };
         const SUPERVISOR_CREDENTIALS = { user: 'supervisor', pass: 'super123' };
         const MAX_PRODUCTS = 50;
         const STAR_GOAL = 10;
+        const STORY_EXPIRY_HOURS = 24;
 
         // ===== HELPERS =====
         function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
@@ -1309,6 +1379,10 @@
         function isAdmin() {
             const user = getCurrentUser();
             return user && (user.role === 'admin' || user.role === 'supervisor');
+        }
+        function isSupervisor() {
+            const user = getCurrentUser();
+            return user && user.role === 'supervisor';
         }
 
         // ===== TOAST =====
@@ -1357,7 +1431,7 @@
                 btn.classList.toggle('active', btn.dataset.tab === screen);
             });
             currentScreen = screen;
-            if (screen === 'home') { renderHome(); renderSlideshow(); }
+            if (screen === 'home') { renderHome(); renderSlideshow(); renderStories(); }
             if (screen === 'fidelidade') renderFidelidade();
             if (screen === 'perfil') renderPerfil();
             if (screen === 'lojinha') renderProducts();
@@ -1389,6 +1463,7 @@
             renderFidelitySearch();
             renderStarsLog();
             renderUserList();
+            renderAdminStories();
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.getElementById('admin-dashboard').classList.add('active');
             document.querySelectorAll('.admin-subtabs button').forEach(b => b.classList.toggle('active', b.dataset.target === 'admin-dashboard'));
@@ -1406,6 +1481,7 @@
             currentScreen = 'home';
             renderHome();
             renderSlideshow();
+            renderStories();
             updateStarsDisplay();
             updateCartBadge();
         }
@@ -1444,7 +1520,7 @@
                     setData(STORAGE_KEYS.USERS, users);
                 }
                 if (supUser.bloqueado) {
-                    errorEl.textContent = 'Usuário bloqueado pelo administrador.';
+                    errorEl.textContent = 'Usuário bloqueado pelo supervisor.';
                     toast('Acesso negado.', 'error');
                     return;
                 }
@@ -1478,7 +1554,7 @@
                     setData(STORAGE_KEYS.USERS, users);
                 }
                 if (adminUser.bloqueado) {
-                    errorEl.textContent = 'Usuário bloqueado pelo administrador.';
+                    errorEl.textContent = 'Usuário bloqueado pelo supervisor.';
                     toast('Acesso negado.', 'error');
                     return;
                 }
@@ -1503,7 +1579,7 @@
             }
 
             if (user.bloqueado) {
-                errorEl.textContent = 'Usuário bloqueado pelo administrador.';
+                errorEl.textContent = 'Usuário bloqueado pelo supervisor.';
                 toast('Acesso negado.', 'error');
                 return;
             }
@@ -1594,7 +1670,6 @@
                 toast('Você saiu.', 'info');
             }
         }
-        // adminLogout é igual a logout, mas usamos a mesma função
         function adminLogout() { logout(); }
 
         // ===== TABS CLIENTE =====
@@ -1621,6 +1696,7 @@
             if (btn.dataset.target === 'admin-starslog') renderStarsLog();
             if (btn.dataset.target === 'admin-config') renderConfig();
             if (btn.dataset.target === 'admin-users') renderUserList();
+            if (btn.dataset.target === 'admin-stories') renderAdminStories();
         });
 
         // ================================================================
@@ -1629,104 +1705,29 @@
         function initData() {
             let users = getData(STORAGE_KEYS.USERS);
             if (users.length === 0) {
-                users = [{
-                    id: 'admin1',
-                    nome: 'Administrador',
-                    email: 'admin@barbearia.com',
-                    telefone: '1199999999',
-                    senha: 'admin123',
-                    role: 'admin',
-                    estrelas: 0,
-                    vouchers: 0,
-                    data_nascimento: '1990-01-01',
-                    birthday_star_given: {},
-                    bloqueado: false
-                }, {
-                    id: 'sup1',
-                    nome: 'Supervisor',
-                    email: 'supervisor@barbearia.com',
-                    telefone: '11988888887',
-                    senha: 'super123',
-                    role: 'supervisor',
-                    estrelas: 0,
-                    vouchers: 0,
-                    data_nascimento: '1985-01-01',
-                    birthday_star_given: {},
-                    bloqueado: false
-                }, {
-                    id: 'cli1',
-                    nome: 'João Silva',
-                    email: 'joao@email.com',
-                    telefone: '11988888888',
-                    senha: '123456',
-                    role: 'cliente',
-                    estrelas: 3,
-                    vouchers: 0,
-                    data_nascimento: '1995-06-15',
-                    birthday_star_given: {},
-                    bloqueado: false
-                }, {
-                    id: 'cli2',
-                    nome: 'Maria Oliveira',
-                    email: 'maria@email.com',
-                    telefone: '11977777777',
-                    senha: '123456',
-                    role: 'cliente',
-                    estrelas: 7,
-                    vouchers: 0,
-                    data_nascimento: '1988-12-01',
-                    birthday_star_given: {},
-                    bloqueado: false
-                }, {
-                    id: 'cli3',
-                    nome: 'Carlos Souza',
-                    email: 'carlos@email.com',
-                    telefone: '11966666666',
-                    senha: '123456',
-                    role: 'cliente',
-                    estrelas: 10,
-                    vouchers: 1,
-                    data_nascimento: '1992-03-20',
-                    birthday_star_given: {},
-                    bloqueado: false
-                }, {
-                    id: 'cli4',
-                    nome: 'Cliente Teste',
-                    email: 'cliente@barbearia.com',
-                    telefone: '11900000000',
-                    senha: 'cliente123',
-                    role: 'cliente',
-                    estrelas: 0,
-                    vouchers: 0,
-                    data_nascimento: '2000-01-01',
-                    birthday_star_given: {},
-                    bloqueado: false
-                }];
+                users = [
+                    { id: 'admin1', nome: 'Administrador', email: 'admin@barbearia.com', telefone: '1199999999', senha: 'admin123', role: 'admin', estrelas: 0, vouchers: 0, data_nascimento: '1990-01-01', birthday_star_given: {}, bloqueado: false },
+                    { id: 'sup1', nome: 'Supervisor', email: 'supervisor@barbearia.com', telefone: '11988888887', senha: 'super123', role: 'supervisor', estrelas: 0, vouchers: 0, data_nascimento: '1985-01-01', birthday_star_given: {}, bloqueado: false },
+                    { id: 'cli1', nome: 'João Silva', email: 'joao@email.com', telefone: '11988888888', senha: '123456', role: 'cliente', estrelas: 3, vouchers: 0, data_nascimento: '1995-06-15', birthday_star_given: {}, bloqueado: false },
+                    { id: 'cli2', nome: 'Maria Oliveira', email: 'maria@email.com', telefone: '11977777777', senha: '123456', role: 'cliente', estrelas: 7, vouchers: 0, data_nascimento: '1988-12-01', birthday_star_given: {}, bloqueado: false },
+                    { id: 'cli3', nome: 'Carlos Souza', email: 'carlos@email.com', telefone: '11966666666', senha: '123456', role: 'cliente', estrelas: 10, vouchers: 1, data_nascimento: '1992-03-20', birthday_star_given: {}, bloqueado: false },
+                    { id: 'cli4', nome: 'Cliente Teste', email: 'cliente@barbearia.com', telefone: '11900000000', senha: 'cliente123', role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: '2000-01-01', birthday_star_given: {}, bloqueado: false }
+                ];
                 setData(STORAGE_KEYS.USERS, users);
             }
 
             let products = getData(STORAGE_KEYS.PRODUCTS);
             if (products.length === 0) {
                 products = [
-                    { id: 'p1', nome: 'Shampoo Premium', descricao: 'Shampoo para cabelos masculinos, 250ml',
-                        preco: 29.90, estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200',
-                        em_promocao: true, preco_promocional: 19.90 },
-                    { id: 'p2', nome: 'Condicionador Revitalizante', descricao: 'Condicionador com óleo de argan, 250ml',
-                        preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200',
-                        em_promocao: false, preco_promocional: 0 },
-                    { id: 'p3', nome: 'Pomada Modeladora', descricao: 'Pomada de fixação forte, 100g', preco: 19.90,
-                        estoque: 8, imagem_url: 'https://picsum.photos/seed/pomada/200/200',
-                        em_promocao: true, preco_promocional: 14.90 },
-                    { id: 'p4', nome: 'Navalha Profissional', descricao: 'Navalha com lâminas de reposição',
-                        preco: 45.00, estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200',
-                        em_promocao: false, preco_promocional: 0 },
-                    { id: 'p5', nome: 'Máscara Capilar', descricao: 'Máscara de hidratação profunda, 300g',
-                        preco: 39.90, estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200',
-                        em_promocao: true, preco_promocional: 29.90 },
+                    { id: 'p1', nome: 'Shampoo Premium', descricao: 'Shampoo para cabelos masculinos, 250ml', preco: 29.90, estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200', em_promocao: true, preco_promocional: 19.90 },
+                    { id: 'p2', nome: 'Condicionador Revitalizante', descricao: 'Condicionador com óleo de argan, 250ml', preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200', em_promocao: false, preco_promocional: 0 },
+                    { id: 'p3', nome: 'Pomada Modeladora', descricao: 'Pomada de fixação forte, 100g', preco: 19.90, estoque: 8, imagem_url: 'https://picsum.photos/seed/pomada/200/200', em_promocao: true, preco_promocional: 14.90 },
+                    { id: 'p4', nome: 'Navalha Profissional', descricao: 'Navalha com lâminas de reposição', preco: 45.00, estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200', em_promocao: false, preco_promocional: 0 },
+                    { id: 'p5', nome: 'Máscara Capilar', descricao: 'Máscara de hidratação profunda, 300g', preco: 39.90, estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200', em_promocao: true, preco_promocional: 29.90 }
                 ];
                 setData(STORAGE_KEYS.PRODUCTS, products);
             } else {
-                // Garantir que produtos existentes tenham os novos campos
+                // Garantir campos de promoção
                 let updated = false;
                 products = products.map(p => {
                     if (p.em_promocao === undefined) { p.em_promocao = false; updated = true; }
@@ -1739,34 +1740,13 @@
             let appts = getData(STORAGE_KEYS.APPOINTMENTS);
             if (appts.length === 0) {
                 const now = new Date();
-                const past = new Date(now);
-                past.setDate(past.getDate() - 3);
-                const future = new Date(now);
-                future.setDate(future.getDate() + 2);
-                future.setHours(14, 0, 0, 0);
-                appts = [{
-                    id: 'a1',
-                    cliente_id: 'cli1',
-                    data_hora: past.toISOString(),
-                    servico: 'Corte',
-                    status: 'realizado',
-                    admin_id: null
-                }, {
-                    id: 'a2',
-                    cliente_id: 'cli2',
-                    data_hora: future.toISOString(),
-                    servico: 'Combo',
-                    status: 'confirmado',
-                    admin_id: null
-                }, {
-                    id: 'a3',
-                    cliente_id: 'cli3',
-                    data_hora: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 5, 10, 30, 0, 0)
-                        .toISOString(),
-                    servico: 'Barba',
-                    status: 'pendente',
-                    admin_id: null
-                }];
+                const past = new Date(now); past.setDate(past.getDate() - 3);
+                const future = new Date(now); future.setDate(future.getDate() + 2); future.setHours(14,0,0,0);
+                appts = [
+                    { id: 'a1', cliente_id: 'cli1', data_hora: past.toISOString(), servico: 'Corte', status: 'realizado', admin_id: null },
+                    { id: 'a2', cliente_id: 'cli2', data_hora: future.toISOString(), servico: 'Combo', status: 'confirmado', admin_id: null },
+                    { id: 'a3', cliente_id: 'cli3', data_hora: new Date(now.getFullYear(), now.getMonth(), now.getDate()+5, 10,30,0,0).toISOString(), servico: 'Barba', status: 'pendente', admin_id: null }
+                ];
                 setData(STORAGE_KEYS.APPOINTMENTS, appts);
             }
 
@@ -1774,12 +1754,12 @@
             if (config.length === 0) {
                 config = [
                     { dia_semana: 0, ativo: false, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: [] },
-                    { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
-                    { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: ['12:00', '13:00'] },
+                    { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                    { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                    { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                    { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                    { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                    { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: ['12:00','13:00'] }
                 ];
                 setData(STORAGE_KEYS.CONFIG, config);
             }
@@ -1789,20 +1769,14 @@
                 starsHist = [
                     { id: 'sh1', cliente_id: 'cli1', appointment_id: 'a1', data_atribuicao: nowISO(), admin_id: 'admin1' },
                     { id: 'sh2', cliente_id: 'cli2', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' },
-                    { id: 'sh3', cliente_id: 'cli3', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' },
+                    { id: 'sh3', cliente_id: 'cli3', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' }
                 ];
                 setData(STORAGE_KEYS.STARS_HISTORY, starsHist);
             }
 
-            let orders = getData(STORAGE_KEYS.ORDERS);
-            if (orders.length === 0) {
-                orders = [];
-                setData(STORAGE_KEYS.ORDERS, orders);
-            }
-
-            if (!localStorage.getItem(STORAGE_KEYS.WAITLIST)) {
-                setData(STORAGE_KEYS.WAITLIST, []);
-            }
+            if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) setData(STORAGE_KEYS.ORDERS, []);
+            if (!localStorage.getItem(STORAGE_KEYS.WAITLIST)) setData(STORAGE_KEYS.WAITLIST, []);
+            if (!localStorage.getItem(STORAGE_KEYS.STORIES)) setData(STORAGE_KEYS.STORIES, []);
         }
 
         // ================================================================
@@ -1815,6 +1789,7 @@
         function getConfig() { return getData(STORAGE_KEYS.CONFIG); }
         function getStarsHistory() { return getData(STORAGE_KEYS.STARS_HISTORY); }
         function getWaitlist() { return getData(STORAGE_KEYS.WAITLIST); }
+        function getStories() { return getData(STORAGE_KEYS.STORIES); }
         function saveUsers(u) { setData(STORAGE_KEYS.USERS, u); }
         function saveAppointments(a) { setData(STORAGE_KEYS.APPOINTMENTS, a); }
         function saveProducts(p) { setData(STORAGE_KEYS.PRODUCTS, p); }
@@ -1822,6 +1797,7 @@
         function saveConfig(c) { setData(STORAGE_KEYS.CONFIG, c); }
         function saveStarsHistory(s) { setData(STORAGE_KEYS.STARS_HISTORY, s); }
         function saveWaitlist(w) { setData(STORAGE_KEYS.WAITLIST, w); }
+        function saveStories(s) { setData(STORAGE_KEYS.STORIES, s); }
 
         function findUserById(id) { return getUsers().find(u => u.id === id); }
         function getClientAppointments(clientId) {
@@ -1881,6 +1857,22 @@
             return getOrders().filter(o => o.cliente_id === clientId && o.status === 'carrinho');
         }
 
+        // ===== STORIES: EXPIRATION =====
+        function getActiveStories() {
+            const all = getStories();
+            const now = new Date();
+            const active = all.filter(s => {
+                const created = new Date(s.timestamp);
+                const diffHours = (now - created) / (1000*60*60);
+                return diffHours < STORY_EXPIRY_HOURS;
+            });
+            // Se houver stories expirados, remover do storage
+            if (active.length !== all.length) {
+                saveStories(active);
+            }
+            return active;
+        }
+
         // ================================================================
         //  ATUALIZA ESTRELAS NO HEADER
         // ================================================================
@@ -1903,15 +1895,19 @@
         function renderSlideshow() {
             const container = document.getElementById('slideshowContainer');
             const products = getProducts().filter(p => p.em_promocao && p.estoque > 0);
-            if (products.length === 0) {
-                container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-secondary);">Nenhum produto em promoção no momento.</div>';
-                return;
-            }
-            // Limpa slides antigos, mantém os botões e dots
+            // Limpa slides antigos, mantém botões e dots container
             const oldSlides = container.querySelectorAll('.slideshow-slide');
             oldSlides.forEach(el => el.remove());
             const oldDots = container.querySelectorAll('.slideshow-dots .dot');
             oldDots.forEach(el => el.remove());
+
+            if (products.length === 0) {
+                const msg = document.createElement('div');
+                msg.style.cssText = 'padding:20px;text-align:center;color:var(--text-secondary);';
+                msg.textContent = 'Nenhum produto em promoção no momento.';
+                container.insertBefore(msg, container.querySelector('.slideshow-btn.prev').nextSibling);
+                return;
+            }
 
             products.forEach((p, idx) => {
                 const slide = document.createElement('div');
@@ -1927,7 +1923,6 @@
                     </div>
                 `;
                 container.insertBefore(slide, container.querySelector('.slideshow-btn.prev').nextSibling);
-                // Dot
                 const dot = document.createElement('span');
                 dot.className = 'dot' + (idx === 0 ? ' active' : '');
                 dot.dataset.index = idx;
@@ -1962,6 +1957,202 @@
             dots[slideIndex].classList.add('active');
             clearInterval(slideTimer);
             slideTimer = setInterval(() => { changeSlide(1); }, 5000);
+        }
+
+        // ================================================================
+        //  STORIES - VISUALIZAÇÃO (CLIENTE)
+        // ================================================================
+        function renderStories() {
+            const container = document.getElementById('storiesContainer');
+            const activeStories = getActiveStories();
+            if (activeStories.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+            // Agrupar stories por usuário (quem postou)
+            const groups = {};
+            activeStories.forEach(s => {
+                if (!groups[s.userId]) groups[s.userId] = [];
+                groups[s.userId].push(s);
+            });
+            let html = '';
+            Object.keys(groups).forEach(userId => {
+                const user = findUserById(userId);
+                const name = user ? user.nome : 'Desconhecido';
+                const firstStory = groups[userId][0];
+                const mediaType = firstStory.tipo;
+                const mediaSrc = firstStory.media;
+                const avatarHtml = mediaType === 'image' ?
+                    `<img src="${mediaSrc}" alt="${name}" />` :
+                    `<video src="${mediaSrc}" muted style="width:100%;height:100%;object-fit:cover;"></video>`;
+                html += `
+                    <div class="story-circle" onclick="openStoryViewer('${userId}')">
+                        <div class="avatar">${avatarHtml}</div>
+                        <span class="story-name">${name}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ===== STORY VIEWER =====
+        let currentStoryUser = null;
+        let currentStoryIndex = 0;
+        let storyViewerTimer = null;
+
+        function openStoryViewer(userId) {
+            const stories = getActiveStories().filter(s => s.userId === userId);
+            if (stories.length === 0) { toast('Nenhum story disponível.', 'info'); return; }
+            currentStoryUser = userId;
+            currentStoryIndex = 0;
+            document.getElementById('storyViewer').classList.add('open');
+            showStory(stories);
+            startStoryTimer(stories);
+        }
+
+        function showStory(stories) {
+            const story = stories[currentStoryIndex];
+            if (!story) { closeStoryViewer(); return; }
+            const container = document.getElementById('storyMediaContainer');
+            const user = findUserById(story.userId);
+            document.getElementById('storyUserName').textContent = user ? user.nome : 'Desconhecido';
+            // Construir progresso
+            let progressHtml = '';
+            stories.forEach((s, idx) => {
+                const pct = idx < currentStoryIndex ? 100 : (idx === currentStoryIndex ? 0 : 0);
+                progressHtml += `<div class="bar"><div class="fill" id="progressFill-${idx}" style="width:${pct}%;"></div></div>`;
+            });
+            document.getElementById('storyProgress').innerHTML = progressHtml;
+
+            // Mostrar mídia
+            if (story.tipo === 'image') {
+                container.innerHTML = `<img src="${story.media}" class="story-media" />`;
+            } else {
+                container.innerHTML = `<video src="${story.media}" class="story-media" controls autoplay muted></video>`;
+            }
+            // Iniciar progresso (simulação)
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                const fill = document.getElementById(`progressFill-${currentStoryIndex}`);
+                if (fill) fill.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    // Avançar automaticamente
+                    setTimeout(() => {
+                        if (currentStoryIndex < stories.length - 1) {
+                            currentStoryIndex++;
+                            showStory(stories);
+                        } else {
+                            closeStoryViewer();
+                        }
+                    }, 500);
+                }
+            }, 50); // 5 segundos para 100% (50ms * 100 = 5000ms)
+            // Armazenar intervalo para limpar
+            storyViewerTimer = interval;
+        }
+
+        function startStoryTimer(stories) {
+            // já implementado dentro de showStory
+        }
+
+        function navigateStory(direction) {
+            const stories = getActiveStories().filter(s => s.userId === currentStoryUser);
+            if (stories.length === 0) return;
+            clearInterval(storyViewerTimer);
+            const newIndex = currentStoryIndex + direction;
+            if (newIndex < 0 || newIndex >= stories.length) {
+                closeStoryViewer();
+                return;
+            }
+            currentStoryIndex = newIndex;
+            showStory(stories);
+        }
+
+        function closeStoryViewer() {
+            document.getElementById('storyViewer').classList.remove('open');
+            clearInterval(storyViewerTimer);
+            currentStoryUser = null;
+            currentStoryIndex = 0;
+        }
+
+        // ================================================================
+        //  ADMIN: STORIES (POSTAR E GERENCIAR)
+        // ================================================================
+        let pendingStoryMedia = null;
+
+        function previewStoryMedia(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                pendingStoryMedia = { data: base64, type: file.type.startsWith('video') ? 'video' : 'image' };
+                const preview = document.getElementById('storyMediaPreview');
+                if (pendingStoryMedia.type === 'image') {
+                    preview.innerHTML = `<img src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" />`;
+                } else {
+                    preview.innerHTML = `<video src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" controls></video>`;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function postStory() {
+            if (!pendingStoryMedia) { toast('Selecione uma mídia primeiro.', 'error'); return; }
+            const user = getCurrentUser();
+            if (!user) { toast('Faça login.', 'error'); return; }
+            const story = {
+                id: uid(),
+                userId: user.id,
+                media: pendingStoryMedia.data,
+                tipo: pendingStoryMedia.type,
+                timestamp: nowISO()
+            };
+            const stories = getStories();
+            stories.push(story);
+            saveStories(stories);
+            toast('✅ Story publicado!', 'success');
+            pendingStoryMedia = null;
+            document.getElementById('storyMediaInput').value = '';
+            document.getElementById('storyMediaPreview').innerHTML = '';
+            renderAdminStories();
+            renderStories(); // atualiza para clientes
+        }
+
+        function renderAdminStories() {
+            const stories = getActiveStories();
+            const container = document.getElementById('adminStoryList');
+            if (stories.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nenhum story ativo.</p>';
+                return;
+            }
+            container.innerHTML = stories.map(s => {
+                const user = findUserById(s.userId);
+                const nome = user ? user.nome : 'Desconhecido';
+                const mediaHtml = s.tipo === 'image' ?
+                    `<img src="${s.media}" class="story-preview" />` :
+                    `<video src="${s.media}" class="story-preview" muted></video>`;
+                return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #282828;">
+                    ${mediaHtml}
+                    <div style="flex:1;">
+                        <strong>${nome}</strong><br>
+                        <span class="text-muted" style="font-size:0.7rem;">${formatDateTime(s.timestamp)}</span>
+                    </div>
+                    <button class="btn btn-red btn-sm" onclick="deleteStory('${s.id}')"><i class="fas fa-trash"></i></button>
+                </div>`;
+            }).join('');
+        }
+
+        function deleteStory(storyId) {
+            if (!confirm('Excluir este story?')) return;
+            let stories = getStories();
+            stories = stories.filter(s => s.id !== storyId);
+            saveStories(stories);
+            toast('Story excluído.', 'info');
+            renderAdminStories();
+            renderStories();
         }
 
         // ================================================================
@@ -2561,7 +2752,7 @@
         }
 
         // ================================================================
-        //  ADMIN: PRODUTOS (COM UPLOAD DE FOTO E PROMOÇÃO)
+        //  ADMIN: PRODUTOS
         // ================================================================
         function renderAdminProducts() {
             const products = getProducts();
@@ -2693,7 +2884,7 @@
             closeModal();
             renderAdminProducts();
             renderProducts();
-            renderSlideshow();
+            renderSlideshow(); // atualiza slideshow com promoções
         }
 
         function editProduct(productId) { showProductForm(productId); }
@@ -2710,7 +2901,7 @@
         }
 
         // ================================================================
-        //  ADMIN: USUÁRIOS (BLOQUEIO)
+        //  ADMIN: USUÁRIOS (BLOQUEIO APENAS SUPERVISOR)
         // ================================================================
         function renderUserList() {
             const users = getUsers();
@@ -2719,9 +2910,17 @@
                 container.innerHTML = '<p class="text-muted">Nenhum usuário cadastrado.</p>';
                 return;
             }
+            const currentUser = getCurrentUser();
+            const canBlock = currentUser && currentUser.role === 'supervisor';
+
             container.innerHTML = users.map(u => {
                 const roleLabel = u.role === 'admin' ? '👑 Admin' : u.role === 'supervisor' ? '⭐ Supervisor' : '👤 Cliente';
                 const blocked = u.bloqueado || false;
+                const blockBtn = canBlock ?
+                    `<button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">
+                        ${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}
+                    </button>` :
+                    '';
                 return `<div class="client-item">
                     <div>
                         <span class="name">${u.nome}</span>
@@ -2729,27 +2928,26 @@
                         ${blocked ? '<span class="blocked-badge">BLOQUEADO</span>' : ''}
                     </div>
                     <div style="display:flex;gap:6px;">
-                        <button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">
-                            ${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}
-                        </button>
+                        ${blockBtn}
                     </div>
                 </div>`;
             }).join('');
         }
 
         function toggleBlockUser(userId) {
+            // Apenas supervisor pode bloquear
+            if (!isSupervisor()) {
+                toast('Apenas o supervisor pode bloquear usuários.', 'error');
+                return;
+            }
             const user = findUserById(userId);
             if (!user) return;
-            // Não permitir bloquear a si mesmo (admin atual)
             const current = getCurrentUser();
             if (current && current.id === userId) {
                 toast('Você não pode bloquear a si mesmo.', 'error');
                 return;
             }
-            if (user.role === 'admin' && current && current.role !== 'admin') {
-                toast('Apenas administradores podem bloquear outros administradores.', 'error');
-                return;
-            }
+            // Supervisor pode bloquear qualquer um, inclusive admin
             let users = getUsers();
             const u = users.find(x => x.id === userId);
             if (!u) return;
@@ -2757,7 +2955,7 @@
             saveUsers(users);
             toast(`Usuário ${u.bloqueado ? 'bloqueado' : 'desbloqueado'} com sucesso.`, 'success');
             renderUserList();
-            // Se o usuário bloqueado for o supervisor, forçar logout se estiver logado
+            // Se o usuário bloqueado for o próprio supervisor ou admin logado, força logout
             if (u.bloqueado && current && current.id === u.id) {
                 logout();
             }
@@ -2884,7 +3082,7 @@
             setInterval(() => {
                 if (document.getElementById('loginScreen').classList.contains('hidden')) {
                     updateStarsDisplay();
-                    if (currentScreen === 'home') renderHome();
+                    if (currentScreen === 'home') { renderHome(); renderStories(); }
                     if (currentScreen === 'fidelidade') renderFidelidade();
                     if (currentScreen === 'agendamento') updateAvailableTimes();
                 }
@@ -2929,6 +3127,12 @@
         window.updateAvailableTimes = updateAvailableTimes;
         window.changeSlide = changeSlide;
         window.goToSlide = goToSlide;
+        window.postStory = postStory;
+        window.previewStoryMedia = previewStoryMedia;
+        window.deleteStory = deleteStory;
+        window.openStoryViewer = openStoryViewer;
+        window.closeStoryViewer = closeStoryViewer;
+        window.navigateStory = navigateStory;
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
