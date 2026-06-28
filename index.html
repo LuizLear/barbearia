@@ -953,6 +953,16 @@
             font-weight: 700;
             display: inline-block;
         }
+        /* preview da imagem */
+        .img-preview {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 1px solid #333;
+            object-fit: contain;
+            background: #1a1a1a;
+        }
     </style>
 </head>
 <body>
@@ -1201,7 +1211,7 @@
         //  BARBEARIA VIP - CÓDIGO COMPLETO (CORRIGIDO)
         //  - Tela de login funcional com cadastro
         //  - Credenciais padrão garantidas
-        //  - UI moderna
+        //  - Upload de fotos dos produtos direto do celular
         // ================================================================
 
         // ===== CONSTANTES =====
@@ -1553,7 +1563,21 @@
                     vouchers: 1,
                     data_nascimento: '1992-03-20',
                     birthday_star_given: {}
-                }];
+                },
+                // NOVO CLIENTE COM AS CREDENCIAIS SOLICITADAS
+                {
+                    id: 'cli4',
+                    nome: 'Cliente Teste',
+                    email: 'cliente@barbearia.com',
+                    telefone: '11900000000',
+                    senha: 'cliente123',
+                    role: 'cliente',
+                    estrelas: 0,
+                    vouchers: 0,
+                    data_nascimento: '2000-01-01',
+                    birthday_star_given: {}
+                }
+                ];
                 setData(STORAGE_KEYS.USERS, users);
             }
 
@@ -1654,7 +1678,7 @@
         }
 
         // ================================================================
-        //  FUNÇÕES DE ACESSO A DADOS (mantidas)
+        //  FUNÇÕES DE ACESSO A DADOS
         // ================================================================
         function getUsers() { return getData(STORAGE_KEYS.USERS); }
 
@@ -2377,7 +2401,7 @@
         }
 
         // ================================================================
-        //  ADMIN: PRODUTOS
+        //  ADMIN: PRODUTOS (COM UPLOAD DE FOTO)
         // ================================================================
         function renderAdminProducts() {
             const products = getProducts();
@@ -2400,9 +2424,16 @@
             ).join('');
         }
 
+        // Variável global para armazenar a imagem em base64 durante o preenchimento do formulário
+        let pendingImageBase64 = null;
+
         function showProductForm(productId) {
             const p = productId ? getProductById(productId) : null;
             const isEdit = !!p;
+            // Se for edição, exibe a imagem atual
+            const currentImage = p ? p.imagem_url : '';
+            pendingImageBase64 = currentImage; // inicia com a atual
+
             const html = `
                 <div class="form-group"><label>Nome</label><input type="text" id="pfNome" value="${p ? p.nome : ''}" /></div>
                 <div class="form-group"><label>Descrição</label><input type="text" id="pfDesc" value="${p ? p.descricao : ''}" /></div>
@@ -2410,10 +2441,37 @@
                     <div class="form-group"><label>Preço (R$)</label><input type="number" id="pfPreco" step="0.01" value="${p ? p.preco : ''}" /></div>
                     <div class="form-group"><label>Estoque</label><input type="number" id="pfEstoque" value="${p ? p.estoque : ''}" /></div>
                 </div>
-                <div class="form-group"><label>URL da Imagem</label><input type="text" id="pfImg" value="${p ? p.imagem_url : ''}" placeholder="https://..." /></div>
+                <div class="form-group">
+                    <label>Foto do produto (tire uma foto ou escolha da galeria)</label>
+                    <input type="file" accept="image/*" capture="environment" id="pfImage" onchange="previewProductImage(event)" />
+                    <img id="pfImagePreview" class="img-preview" src="${currentImage || ''}" style="${currentImage ? '' : 'display:none;'}" />
+                </div>
                 <button class="btn btn-gold btn-block" onclick="saveProductForm('${productId || ''}')"><i class="fas fa-save"></i> Salvar</button>
             `;
             openModal(isEdit ? '✏️ Editar Produto' : '➕ Novo Produto', html);
+            // Se houver imagem, mostra o preview
+            if (currentImage) {
+                const preview = document.getElementById('pfImagePreview');
+                if (preview) preview.style.display = 'block';
+            }
+        }
+
+        // Função para preview da imagem selecionada
+        function previewProductImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                pendingImageBase64 = base64; // armazena para salvar depois
+                const preview = document.getElementById('pfImagePreview');
+                if (preview) {
+                    preview.src = base64;
+                    preview.style.display = 'block';
+                }
+                toast('📸 Imagem carregada!', 'success');
+            };
+            reader.readAsDataURL(file);
         }
 
         function saveProductForm(productId) {
@@ -2421,10 +2479,18 @@
             const desc = document.getElementById('pfDesc').value.trim();
             const preco = parseFloat(document.getElementById('pfPreco').value);
             const estoque = parseInt(document.getElementById('pfEstoque').value);
-            const img = document.getElementById('pfImg').value.trim();
-            if (!nome || isNaN(preco) || isNaN(estoque)) { toast('Preencha todos os campos corretamente.', 'error'); return; }
+
+            if (!nome || isNaN(preco) || isNaN(estoque)) {
+                toast('Preencha todos os campos corretamente.', 'error');
+                return;
+            }
+
+            // Se não houver imagem nova e não for edição, usa um placeholder
+            let imagem_url = pendingImageBase64 || 'https://picsum.photos/seed/' + uid() + '/200/200';
+
             let products = getProducts();
             if (!productId) {
+                // Criar novo
                 if (products.length >= MAX_PRODUCTS) {
                     toast(`Limite de ${MAX_PRODUCTS} produtos atingido.`, 'error');
                     return;
@@ -2435,17 +2501,25 @@
                     descricao: desc,
                     preco,
                     estoque,
-                    imagem_url: img || 'https://picsum.photos/seed/' + uid() + '/200/200'
+                    imagem_url: imagem_url
                 });
                 toast('✅ Produto criado!', 'success');
             } else {
+                // Editar existente
                 const idx = products.findIndex(p => p.id === productId);
                 if (idx === -1) return;
-                products[idx] = { ...products[idx], nome, descricao: desc, preco, estoque, imagem_url: img || products[idx]
-                        .imagem_url };
+                products[idx] = {
+                    ...products[idx],
+                    nome,
+                    descricao: desc,
+                    preco,
+                    estoque,
+                    imagem_url: imagem_url // atualiza com a nova imagem (ou mantém a anterior se não alterou)
+                };
                 toast('✅ Produto atualizado!', 'success');
             }
             saveProducts(products);
+            pendingImageBase64 = null; // limpa
             closeModal();
             renderAdminProducts();
             renderProducts();
@@ -2620,6 +2694,7 @@
         window.editProduct = editProduct;
         window.deleteProduct = deleteProduct;
         window.saveProductForm = saveProductForm;
+        window.previewProductImage = previewProductImage;
         window.toggleDay = toggleDay;
         window.saveConfig = saveConfig;
         window.renderFidelitySearch = renderFidelitySearch;
