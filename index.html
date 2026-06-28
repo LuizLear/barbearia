@@ -10,11 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
         /* ===== RESET E VARIÁVEIS ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
             --bg-primary: #0a0a0a;
             --bg-secondary: #121212;
@@ -31,869 +27,222 @@
             --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        html,
-        body {
-            height: 100%;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            font-family: var(--font-body);
-            font-size: 15px;
-            line-height: 1.5;
-            overflow: hidden;
-        }
+        html, body { height: 100%; background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); font-size: 15px; line-height: 1.5; overflow: hidden; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: var(--bg-secondary); }
         ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 8px; }
 
         /* ===== TELAS DE AUTENTICAÇÃO ===== */
-        .auth-screen {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle at 30% 30%, #1a1a1a, #0a0a0a);
-            padding: 20px;
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-        .auth-screen.hidden {
-            opacity: 0;
-            transform: scale(1.05);
-            pointer-events: none;
-        }
-        .auth-box {
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            padding: 40px 30px;
-            max-width: 380px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
-            border: 1px solid #2a2a2a;
-            animation: fadeUp 0.5s ease;
-        }
-        .auth-box .logo {
-            text-align: center;
-            font-family: var(--font-title);
-            font-weight: 800;
-            font-size: 1.8rem;
-            color: var(--gold);
-            margin-bottom: 8px;
-        }
+        .auth-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 30% 30%, #1a1a1a, #0a0a0a); padding: 20px; transition: opacity 0.6s ease, transform 0.6s ease; }
+        .auth-screen.hidden { opacity: 0; transform: scale(1.05); pointer-events: none; }
+        .auth-box { background: var(--bg-secondary); border-radius: var(--radius); padding: 40px 30px; max-width: 380px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid #2a2a2a; animation: fadeUp 0.5s ease; }
+        .auth-box .logo { text-align: center; font-family: var(--font-title); font-weight: 800; font-size: 1.8rem; color: var(--gold); margin-bottom: 8px; }
         .auth-box .logo i { font-size: 2.2rem; margin-right: 8px; }
-        .auth-box .subtitle {
-            text-align: center;
-            color: var(--text-secondary);
-            margin-bottom: 24px;
-            font-size: 0.9rem;
-        }
+        .auth-box .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 24px; font-size: 0.9rem; }
         .auth-box .form-group { margin-bottom: 16px; }
-        .auth-box .form-group label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 4px;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-        .auth-box .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: #1e1e1e;
-            border: 1px solid #333;
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: var(--font-body);
-            font-size: 0.95rem;
-            transition: var(--transition);
-            outline: none;
-        }
-        .auth-box .form-group input:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
-        }
-        .auth-box .btn-gold {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: #0a0a0a;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: var(--font-body);
-            margin-top: 8px;
-        }
-        .auth-box .btn-gold:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 24px rgba(212, 175, 55, 0.3);
-        }
-        .auth-box .btn-outline-muted {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 2px solid #444;
-            width: 100%;
-            padding: 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: var(--font-body);
-            margin-top: 8px;
-        }
+        .auth-box .form-group label { display: block; font-weight: 500; margin-bottom: 4px; color: var(--text-secondary); font-size: 0.85rem; }
+        .auth-box .form-group input { width: 100%; padding: 12px 16px; background: #1e1e1e; border: 1px solid #333; border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; transition: var(--transition); outline: none; }
+        .auth-box .form-group input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
+        .auth-box .btn-gold { width: 100%; padding: 14px; border: none; border-radius: 30px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0a0a; font-weight: 700; font-size: 1rem; cursor: pointer; transition: var(--transition); font-family: var(--font-body); margin-top: 8px; }
+        .auth-box .btn-gold:hover { transform: scale(1.02); box-shadow: 0 6px 24px rgba(212,175,55,0.3); }
+        .auth-box .btn-outline-muted { background: transparent; color: var(--text-secondary); border: 2px solid #444; width: 100%; padding: 12px; border-radius: 30px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); font-family: var(--font-body); margin-top: 8px; }
         .auth-box .btn-outline-muted:hover { border-color: #888; color: #fff; }
-        .auth-box .auth-error {
-            color: var(--red-action);
-            font-size: 0.85rem;
-            text-align: center;
-            margin-top: 12px;
-            min-height: 24px;
-        }
-        .auth-box .auth-link {
-            text-align: center;
-            margin-top: 16px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-        .auth-box .auth-link a {
-            color: var(--gold);
-            text-decoration: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
+        .auth-box .auth-error { color: var(--red-action); font-size: 0.85rem; text-align: center; margin-top: 12px; min-height: 24px; }
+        .auth-box .auth-link { text-align: center; margin-top: 16px; color: var(--text-secondary); font-size: 0.9rem; }
+        .auth-box .auth-link a { color: var(--gold); text-decoration: none; font-weight: 600; cursor: pointer; }
         .auth-box .auth-link a:hover { text-decoration: underline; }
 
         /* ===== APP WRAPPER ===== */
-        #appWrapper {
-            display: none;
-            flex-direction: column;
-            height: 100vh;
-            max-width: 480px;
-            margin: 0 auto;
-            background: var(--bg-primary);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
-        }
+        #appWrapper { display: none; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; background: var(--bg-primary); position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.8); }
         #appWrapper.visible { display: flex; }
 
         /* ===== HEADER ===== */
-        .header {
-            background: var(--bg-secondary);
-            padding: 12px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #2a2a2a;
-            flex-shrink: 0;
-            min-height: 60px;
-            z-index: 10;
-        }
-        .header .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: var(--font-title);
-            font-weight: 800;
-            font-size: 1.2rem;
-            color: var(--gold);
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
+        .header { background: var(--bg-secondary); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2a2a; flex-shrink: 0; min-height: 60px; z-index: 10; }
+        .header .logo { display: flex; align-items: center; gap: 8px; font-family: var(--font-title); font-weight: 800; font-size: 1.2rem; color: var(--gold); letter-spacing: 0.5px; cursor: pointer; transition: var(--transition); }
         .header .logo:hover { opacity: 0.8; }
         .header .logo i { font-size: 1.4rem; }
-        .header .right-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .header .stars-display {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: #1e1e1e;
-            padding: 4px 14px 4px 10px;
-            border-radius: 30px;
-            border: 1px solid #333;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--gold);
-            cursor: default;
-        }
+        .header .right-controls { display: flex; align-items: center; gap: 10px; }
+        .header .stars-display { display: flex; align-items: center; gap: 6px; background: #1e1e1e; padding: 4px 14px 4px 10px; border-radius: 30px; border: 1px solid #333; font-size: 0.95rem; font-weight: 600; color: var(--gold); cursor: default; }
         .header .stars-display i { color: var(--gold); font-size: 1rem; }
-        .header .logout-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: var(--transition);
-            padding: 4px 6px;
-            border-radius: 8px;
-        }
+        .header .logout-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; transition: var(--transition); padding: 4px 6px; border-radius: 8px; }
         .header .logout-btn:hover { color: #fff; background: #2a2a2a; }
+        .header .chat-notification { position: relative; display: inline-block; }
+        .header .chat-notification .badge { position: absolute; top: -6px; right: -6px; background: var(--red-action); color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 0.6rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
         /* ===== MAIN CONTENT ===== */
-        .main-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px 16px 80px;
-        }
+        .main-content { flex: 1; overflow-y: auto; padding: 16px 16px 80px; }
         .screen { display: none; animation: fadeUp 0.3s ease; }
         .screen.active { display: block; }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ===== BOTTOM TABS (CLIENTE) ===== */
-        .bottom-tabs {
-            display: flex;
-            background: var(--bg-secondary);
-            border-top: 1px solid #2a2a2a;
-            flex-shrink: 0;
-            height: 64px;
-            z-index: 10;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .bottom-tabs .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 0.65rem;
-            font-family: var(--font-body);
-            font-weight: 500;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            cursor: pointer;
-            transition: var(--transition);
-            border-top: 3px solid transparent;
-            padding: 4px 0;
-        }
+        .bottom-tabs { display: flex; background: var(--bg-secondary); border-top: 1px solid #2a2a2a; flex-shrink: 0; height: 64px; z-index: 10; padding-bottom: env(safe-area-inset-bottom); }
+        .bottom-tabs .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-secondary); font-size: 0.65rem; font-family: var(--font-body); font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; transition: var(--transition); border-top: 3px solid transparent; padding: 4px 0; }
         .bottom-tabs .tab-btn i { font-size: 1.3rem; transition: var(--transition); }
-        .bottom-tabs .tab-btn.active {
-            color: var(--gold);
-            border-top-color: var(--gold);
-        }
+        .bottom-tabs .tab-btn.active { color: var(--gold); border-top-color: var(--gold); }
         .bottom-tabs .tab-btn.active i { color: var(--gold); }
         .bottom-tabs .tab-btn:not(.active):hover { color: #ccc; }
 
         /* ===== CARDS E ELEMENTOS ===== */
-        .card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 18px 20px;
-            margin-bottom: 16px;
-            box-shadow: var(--shadow);
-            border: 1px solid #282828;
-            transition: var(--transition);
-        }
+        .card { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--shadow); border: 1px solid #282828; transition: var(--transition); }
         .card:hover { border-color: #3a3a3a; }
-        .card-title {
-            font-family: var(--font-title);
-            font-weight: 700;
-            font-size: 1.1rem;
-            color: var(--gold);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .card-title { font-family: var(--font-title); font-weight: 700; font-size: 1.1rem; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .card-title i { font-size: 1.1rem; }
         .text-gold { color: var(--gold); }
         .text-muted { color: var(--text-secondary); }
         .text-burgundy { color: var(--burgundy); }
-        .badge-gold {
-            background: var(--gold);
-            color: #0a0a0a;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            display: inline-block;
-        }
-        .badge-burgundy {
-            background: var(--burgundy);
-            color: #fff;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-weight: 600;
-            font-size: 0.7rem;
-            display: inline-block;
-        }
-        .badge-promo {
-            background: #e74c3c;
-            color: #fff;
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 0.7rem;
-            display: inline-block;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
+        .badge-gold { background: var(--gold); color: #0a0a0a; padding: 2px 12px; border-radius: 30px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; display: inline-block; }
+        .badge-burgundy { background: var(--burgundy); color: #fff; padding: 2px 12px; border-radius: 30px; font-weight: 600; font-size: 0.7rem; display: inline-block; }
+        .badge-promo { background: #e74c3c; color: #fff; padding: 2px 12px; border-radius: 30px; font-weight: 700; font-size: 0.7rem; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* ===== SLIDESHOW ===== */
-        .slideshow-container {
-            position: relative;
-            width: 100%;
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 16px;
-            background: #111;
-            aspect-ratio: 16/9;
-        }
-        .slideshow-slide {
-            display: none;
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
+        .slideshow-container { position: relative; width: 100%; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; background: #111; aspect-ratio: 16/9; }
+        .slideshow-slide { display: none; width: 100%; height: 100%; position: relative; }
         .slideshow-slide.active { display: block; }
-        .slideshow-slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .slideshow-slide .slide-info {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 16px;
-            background: linear-gradient(transparent, rgba(0,0,0,0.8));
-            color: #fff;
-        }
+        .slideshow-slide img { width: 100%; height: 100%; object-fit: cover; }
+        .slideshow-slide .slide-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: #fff; }
         .slideshow-slide .slide-info h4 { font-size: 1rem; margin-bottom: 4px; }
         .slideshow-slide .slide-info .price { font-weight: 700; color: var(--gold); }
-        .slideshow-slide .slide-info .old-price {
-            text-decoration: line-through;
-            color: #aaa;
-            font-size: 0.8rem;
-            margin-left: 8px;
-        }
-        .slideshow-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0,0,0,0.5);
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            cursor: pointer;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            z-index: 2;
-            transition: var(--transition);
-        }
+        .slideshow-slide .slide-info .old-price { text-decoration: line-through; color: #aaa; font-size: 0.8rem; margin-left: 8px; }
+        .slideshow-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; padding: 8px 12px; cursor: pointer; border-radius: 50%; font-size: 1.2rem; z-index: 2; transition: var(--transition); }
         .slideshow-btn:hover { background: rgba(0,0,0,0.8); }
         .slideshow-btn.prev { left: 8px; }
         .slideshow-btn.next { right: 8px; }
         .slideshow-dots { text-align: center; padding: 6px 0; }
-        .slideshow-dots .dot {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #555;
-            margin: 0 4px;
-            cursor: pointer;
-            transition: var(--transition);
-        }
+        .slideshow-dots .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #555; margin: 0 4px; cursor: pointer; transition: var(--transition); }
         .slideshow-dots .dot.active { background: var(--gold); }
 
         /* ===== STORIES ===== */
-        .stories-row {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 8px 4px 12px 4px;
-            margin-bottom: 12px;
-            scrollbar-width: none;
-        }
+        .stories-row { display: flex; gap: 12px; overflow-x: auto; padding: 8px 4px 12px 4px; margin-bottom: 12px; scrollbar-width: none; }
         .stories-row::-webkit-scrollbar { display: none; }
-        .story-circle {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: var(--transition);
-        }
+        .story-circle { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0; transition: var(--transition); }
         .story-circle:hover { transform: scale(1.05); }
-        .story-circle .avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: 3px solid var(--gold);
-            overflow: hidden;
-            background: #222;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: var(--gold);
-        }
-        .story-circle .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .story-circle .story-name {
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            text-align: center;
-            max-width: 60px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .story-circle .avatar .fa-plus-circle {
-            font-size: 1.2rem;
-            color: var(--gold);
-        }
+        .story-circle .avatar { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--gold); overflow: hidden; background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--gold); }
+        .story-circle .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .story-circle .story-name { font-size: 0.65rem; color: var(--text-secondary); text-align: center; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        /* ===== STORY VIEWER MODAL ===== */
-        .story-viewer {
-            position: fixed;
-            inset: 0;
-            background: #000;
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+        /* ===== STORY VIEWER ===== */
+        .story-viewer { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .story-viewer.open { display: flex; }
-        .story-viewer .story-media {
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 12px;
-            object-fit: contain;
-        }
-        .story-viewer .story-media video {
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 12px;
-        }
-        .story-viewer .close-story {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: #fff;
-            font-size: 1.8rem;
-            cursor: pointer;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition);
-        }
+        .story-viewer .story-media { max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain; }
+        .story-viewer .story-media video { max-width: 100%; max-height: 80vh; border-radius: 12px; }
+        .story-viewer .close-story { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 1.8rem; cursor: pointer; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
         .story-viewer .close-story:hover { background: rgba(255,255,255,0.4); }
-        .story-viewer .story-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: #fff;
-            font-size: 1.8rem;
-            padding: 10px 16px;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
+        .story-viewer .story-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 1.8rem; padding: 10px 16px; cursor: pointer; border-radius: 50%; transition: var(--transition); }
         .story-viewer .story-nav:hover { background: rgba(255,255,255,0.4); }
         .story-viewer .story-nav.prev { left: 10px; }
         .story-viewer .story-nav.next { right: 10px; }
-        .story-viewer .story-progress {
-            position: absolute;
-            bottom: 30px;
-            left: 20px;
-            right: 20px;
-            display: flex;
-            gap: 4px;
-        }
-        .story-viewer .story-progress .bar {
-            flex: 1;
-            height: 3px;
-            background: rgba(255,255,255,0.3);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .story-viewer .story-progress .bar .fill {
-            height: 100%;
-            background: #fff;
-            width: 0%;
-            transition: width 0.1s linear;
-        }
-        .story-viewer .story-user {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: #fff;
-            font-weight: 600;
-            font-size: 1.1rem;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8);
-        }
+        .story-viewer .story-progress { position: absolute; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 4px; }
+        .story-viewer .story-progress .bar { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 4px; overflow: hidden; }
+        .story-viewer .story-progress .bar .fill { height: 100%; background: #fff; width: 0%; transition: width 0.1s linear; }
+        .story-viewer .story-user { position: absolute; top: 20px; left: 20px; color: #fff; font-weight: 600; font-size: 1.1rem; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
 
-        /* ===== BOTÕES ===== */
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 30px;
-            font-family: var(--font-body);
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            min-width: 44px;
-        }
-        .btn-gold {
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: #0a0a0a;
-        }
-        .btn-gold:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.3);
-        }
+        /* ===== CHAT ===== */
+        .chat-container { display: flex; flex-direction: column; height: 100%; max-height: 70vh; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 8px 0; display: flex; flex-direction: column; gap: 8px; }
+        .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 16px; word-wrap: break-word; font-size: 0.9rem; }
+        .chat-message.sent { align-self: flex-end; background: var(--gold); color: #0a0a0a; border-bottom-right-radius: 4px; }
+        .chat-message.received { align-self: flex-start; background: #2a2a2a; color: var(--text-primary); border-bottom-left-radius: 4px; }
+        .chat-message .time { font-size: 0.6rem; opacity: 0.7; margin-top: 4px; display: block; }
+        .chat-input-row { display: flex; gap: 8px; margin-top: 8px; }
+        .chat-input-row input { flex: 1; padding: 10px 14px; border-radius: 30px; border: 1px solid #333; background: #222; color: #fff; outline: none; }
+        .chat-input-row button { padding: 10px 18px; border: none; border-radius: 30px; background: var(--gold); color: #0a0a0a; font-weight: 600; cursor: pointer; transition: var(--transition); }
+        .chat-input-row button:hover { transform: scale(1.02); }
+
+        /* ===== BOTÕES GERAIS ===== */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border: none; border-radius: 30px; font-family: var(--font-body); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: var(--transition); text-decoration: none; min-width: 44px; }
+        .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0a0a; }
+        .btn-gold:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(212,175,55,0.3); }
         .btn-burgundy { background: var(--burgundy); color: #fff; }
         .btn-burgundy:hover { background: #a00000; }
         .btn-red { background: var(--red-action); color: #fff; }
         .btn-red:hover { background: #e74c3c; }
-        .btn-outline-gold {
-            background: transparent;
-            color: var(--gold);
-            border: 2px solid var(--gold);
-        }
+        .btn-outline-gold { background: transparent; color: var(--gold); border: 2px solid var(--gold); }
         .btn-outline-gold:hover { background: var(--gold); color: #0a0a0a; }
-        .btn-outline-muted {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 2px solid #444;
-        }
+        .btn-outline-muted { background: transparent; color: var(--text-secondary); border: 2px solid #444; }
         .btn-outline-muted:hover { border-color: #888; color: #fff; }
         .btn-sm { padding: 6px 14px; font-size: 0.75rem; }
         .btn-block { width: 100%; justify-content: center; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
         /* ===== FORMULÁRIOS ===== */
-        input, select, textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: #222;
-            border: 1px solid #333;
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: var(--font-body);
-            font-size: 0.95rem;
-            transition: var(--transition);
-            outline: none;
-        }
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--gold);
-            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
-        }
+        input, select, textarea { width: 100%; padding: 12px 16px; background: #222; border: 1px solid #333; border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; transition: var(--transition); outline: none; }
+        input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
         input::placeholder, textarea::placeholder { color: #666; }
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 4px;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
+        label { display: block; font-weight: 500; margin-bottom: 4px; color: var(--text-secondary); font-size: 0.85rem; }
         .form-group { margin-bottom: 14px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 6px 0;
-        }
-        .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            accent-color: var(--gold);
-            cursor: pointer;
-        }
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
+        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; }
         .checkbox-group label { margin: 0; cursor: pointer; }
 
         /* ===== ESTRELAS ===== */
-        .stars-grid {
-            display: grid;
-            grid-template-columns: repeat(10, 1fr);
-            gap: 6px;
-            max-width: 360px;
-            margin: 12px auto;
-        }
-        .star-circle {
-            aspect-ratio: 1;
-            border-radius: 50%;
-            background: #2a2a2a;
-            border: 2px solid #3a3a3a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            color: #555;
-            transition: var(--transition);
-            font-weight: 700;
-        }
-        .star-circle.earned {
-            background: var(--gold);
-            border-color: var(--gold);
-            color: #0a0a0a;
-            box-shadow: 0 0 16px rgba(212,175,55,0.3);
-        }
+        .stars-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; max-width: 360px; margin: 12px auto; }
+        .star-circle { aspect-ratio: 1; border-radius: 50%; background: #2a2a2a; border: 2px solid #3a3a3a; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #555; transition: var(--transition); font-weight: 700; }
+        .star-circle.earned { background: var(--gold); border-color: var(--gold); color: #0a0a0a; box-shadow: 0 0 16px rgba(212,175,55,0.3); }
         .star-circle.earned i { color: #0a0a0a; }
         .star-circle i { font-size: 1rem; }
 
         /* ===== PRODUTOS ===== */
-        .product-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .product-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            overflow: hidden;
-            border: 1px solid #282828;
-            transition: var(--transition);
-            cursor: pointer;
-            position: relative;
-        }
-        .product-card:hover {
-            border-color: var(--gold);
-            transform: translateY(-2px);
-        }
-        .product-card img {
-            width: 100%;
-            aspect-ratio: 1/1;
-            object-fit: cover;
-            background: #1a1a1a;
-        }
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .product-card { background: var(--bg-card); border-radius: var(--radius); overflow: hidden; border: 1px solid #282828; transition: var(--transition); cursor: pointer; position: relative; }
+        .product-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+        .product-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #1a1a1a; }
         .product-card .info { padding: 10px 12px 14px; }
-        .product-card .info h4 {
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .product-card .info h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .product-card .info .price { color: var(--gold); font-weight: 700; font-size: 0.95rem; }
-        .product-card .info .old-price {
-            color: #888;
-            font-size: 0.75rem;
-            text-decoration: line-through;
-            margin-left: 6px;
-        }
+        .product-card .info .old-price { color: #888; font-size: 0.75rem; text-decoration: line-through; margin-left: 6px; }
         .product-card .info .stock { font-size: 0.7rem; color: var(--text-secondary); }
-        .product-card .promo-badge {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: var(--red-action);
-            color: #fff;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-        .product-card .sold-out::after {
-            content: 'ESGOTADO';
-            position: absolute;
-            top: 8px;
-            left: 8px;
-            background: var(--red-action);
-            color: #fff;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            font-weight: 700;
-        }
+        .product-card .promo-badge { position: absolute; top: 8px; right: 8px; background: var(--red-action); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.5px; }
+        .product-card .sold-out::after { content: 'ESGOTADO'; position: absolute; top: 8px; left: 8px; background: var(--red-action); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 700; }
 
         /* ===== MODAL ===== */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(4px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-            padding: 20px;
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
         .modal-overlay.open { display: flex; }
-        .modal-box {
-            background: var(--bg-secondary);
-            border-radius: var(--radius);
-            max-width: 400px;
-            width: 100%;
-            padding: 24px 20px 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            border: 1px solid #333;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: fadeUp 0.25s ease;
-        }
-        .modal-box .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .modal-box .modal-header h3 {
-            font-family: var(--font-title);
-            font-weight: 700;
-            color: var(--gold);
-        }
-        .modal-box .modal-close {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 0 4px;
-        }
+        .modal-box { background: var(--bg-secondary); border-radius: var(--radius); max-width: 400px; width: 100%; padding: 24px 20px 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid #333; max-height: 90vh; overflow-y: auto; animation: fadeUp 0.25s ease; }
+        .modal-box .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-box .modal-header h3 { font-family: var(--font-title); font-weight: 700; color: var(--gold); }
+        .modal-box .modal-close { background: transparent; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 0 4px; }
         .modal-box .modal-close:hover { color: #fff; }
 
         /* ===== ADMIN ===== */
-        .admin-panel .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .admin-panel .admin-header h2 {
-            font-family: var(--font-title);
-            color: var(--gold);
-            font-size: 1.2rem;
-        }
+        .admin-panel .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
+        .admin-panel .admin-header h2 { font-family: var(--font-title); color: var(--gold); font-size: 1.2rem; }
+        .admin-subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+        .admin-subtabs button { background: #222; border: none; color: var(--text-secondary); padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: var(--transition); font-family: var(--font-body); }
+        .admin-subtabs button.active { background: var(--gold); color: #0a0a0a; }
+        .admin-subtabs button:hover:not(.active) { background: #333; color: #fff; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
 
         /* ===== CARRINHO ===== */
-        .cart-float {
-            position: fixed;
-            bottom: 80px;
-            right: 16px;
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
-            color: #0a0a0a;
-            border-radius: 50%;
-            width: 56px;
-            height: 56px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            box-shadow: 0 6px 24px rgba(212,175,55,0.4);
-            cursor: pointer;
-            border: none;
-            transition: var(--transition);
-            z-index: 50;
-        }
+        .cart-float { position: fixed; bottom: 80px; right: 16px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0a0a; border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 6px 24px rgba(212,175,55,0.4); cursor: pointer; border: none; transition: var(--transition); z-index: 50; }
         .cart-float:hover { transform: scale(1.08); }
-        .cart-float .badge {
-            position: absolute;
-            top: -4px;
-            right: -4px;
-            background: var(--red-action);
-            color: #fff;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .cart-float .badge { position: absolute; top: -4px; right: -4px; background: var(--red-action); color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
 
         /* ===== TOAST ===== */
-        .toast-container {
-            position: fixed;
-            top: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            max-width: 400px;
-            width: 90%;
-            pointer-events: none;
-        }
-        .toast {
-            background: var(--bg-card);
-            border-left: 4px solid var(--gold);
-            padding: 12px 18px;
-            border-radius: 12px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: slideDown 0.35s ease;
-            pointer-events: auto;
-            border: 1px solid #333;
-        }
+        .toast-container { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: 400px; width: 90%; pointer-events: none; }
+        .toast { background: var(--bg-card); border-left: 4px solid var(--gold); padding: 12px 18px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 12px; animation: slideDown 0.35s ease; pointer-events: auto; border: 1px solid #333; }
         .toast.success { border-left-color: var(--gold); }
         .toast.error { border-left-color: var(--red-action); }
         .toast.info { border-left-color: #3498db; }
         .toast i { font-size: 1.3rem; color: var(--gold); }
         .toast .msg { flex: 1; font-size: 0.9rem; }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* ===== HISTÓRICO ===== */
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #282828;
-            font-size: 0.9rem;
-        }
+        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #282828; font-size: 0.9rem; }
         .history-item:last-child { border-bottom: none; }
-        .history-item .status {
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 2px 10px;
-            border-radius: 20px;
-        }
+        .history-item .status { font-size: 0.7rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; }
         .status-pendente { background: #f39c12; color: #0a0a0a; }
         .status-confirmado { background: #3498db; color: #fff; }
         .status-realizado { background: #2ecc71; color: #0a0a0a; }
         .status-cancelado { background: #e74c3c; color: #fff; }
         .status-falta { background: #95a5a6; color: #0a0a0a; }
+        .status-aguardando { background: #f39c12; color: #0a0a0a; }
+        .status-pronto { background: #2ecc71; color: #0a0a0a; }
+        .status-entregue { background: #3498db; color: #fff; }
 
         /* ===== RESPONSIVO ===== */
         @media (max-width: 480px) {
@@ -906,9 +255,7 @@
             .auth-box { padding: 30px 20px; }
             .story-circle .avatar { width: 50px; height: 50px; }
         }
-        @media (min-width: 481px) {
-            #appWrapper { border-left: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; }
-        }
+        @media (min-width: 481px) { #appWrapper { border-left: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; } }
 
         .mt-8 { margin-top: 8px; }
         .mt-12 { margin-top: 12px; }
@@ -923,106 +270,25 @@
         .w-full { width: 100%; }
         .hidden { display: none !important; }
         .scroll-y { max-height: 300px; overflow-y: auto; }
-        .tag {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.65rem;
-            font-weight: 600;
-        }
+        .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; }
         .tag-gold { background: var(--gold); color: #0a0a0a; }
         .tag-burgundy { background: var(--burgundy); color: #fff; }
 
-        .admin-subtabs {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-        .admin-subtabs button {
-            background: #222;
-            border: none;
-            color: var(--text-secondary);
-            padding: 6px 14px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition);
-            font-family: var(--font-body);
-        }
-        .admin-subtabs button.active {
-            background: var(--gold);
-            color: #0a0a0a;
-        }
-        .admin-subtabs button:hover:not(.active) {
-            background: #333;
-            color: #fff;
-        }
-        .admin-section { display: none; }
-        .admin-section.active { display: block; }
-
-        .client-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px solid #282828;
-        }
+        .client-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #282828; }
         .client-item .name { font-weight: 500; }
         .client-item .stars { color: var(--gold); font-weight: 700; }
-        .client-item .blocked-badge {
-            background: var(--red-action);
-            color: #fff;
-            padding: 2px 10px;
-            border-radius: 20px;
-            font-size: 0.6rem;
-            font-weight: 600;
-        }
+        .client-item .blocked-badge { background: var(--red-action); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 600; }
 
-        .config-days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .config-days label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.65rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 6px 0;
-            border-radius: 8px;
-            background: #1a1a1a;
-            border: 1px solid #2a2a2a;
-            transition: var(--transition);
-        }
-        .config-days label.active {
-            border-color: var(--gold);
-            color: var(--gold);
-        }
+        .config-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 12px; }
+        .config-days label { display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; color: var(--text-secondary); cursor: pointer; padding: 6px 0; border-radius: 8px; background: #1a1a1a; border: 1px solid #2a2a2a; transition: var(--transition); }
+        .config-days label.active { border-color: var(--gold); color: var(--gold); }
         .config-days label input { display: none; }
         .config-days label i { font-size: 1.2rem; margin-bottom: 2px; }
 
-        .img-preview {
-            max-width: 100%;
-            max-height: 150px;
-            border-radius: 8px;
-            margin-top: 8px;
-            border: 1px solid #333;
-            object-fit: contain;
-            background: #1a1a1a;
-        }
-        .story-preview {
-            width: 80px;
-            height: 80px;
-            border-radius: 12px;
-            object-fit: cover;
-            margin: 4px;
-            border: 1px solid #333;
-        }
+        .img-preview { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 8px; border: 1px solid #333; object-fit: contain; background: #1a1a1a; }
+        .story-preview { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin: 4px; border: 1px solid #333; }
+        .order-item { padding: 10px 0; border-bottom: 1px solid #282828; }
+        .order-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -1041,9 +307,7 @@
             </div>
             <button class="btn-gold" onclick="handleLogin()"><i class="fas fa-sign-in-alt"></i> Entrar</button>
             <div id="loginError" class="auth-error"></div>
-            <div class="auth-link">
-                Não tem conta? <a onclick="showRegisterScreen()">Cadastre-se</a>
-            </div>
+            <div class="auth-link">Não tem conta? <a onclick="showRegisterScreen()">Cadastre-se</a></div>
         </div>
     </div>
 
@@ -1086,16 +350,12 @@
         <div class="main-content" id="mainContent">
             <!-- HOME (cliente) -->
             <div class="screen active" id="screen-home">
-                <!-- STORIES -->
-                <div id="storiesContainer" class="stories-row"></div>
-
-                <!-- SLIDESHOW -->
+                <div class="stories-row" id="storiesContainer"></div>
                 <div class="slideshow-container" id="slideshowContainer">
                     <button class="slideshow-btn prev" onclick="changeSlide(-1)">&#10094;</button>
                     <button class="slideshow-btn next" onclick="changeSlide(1)">&#10095;</button>
                     <div class="slideshow-dots" id="slideshowDots"></div>
                 </div>
-
                 <div class="card">
                     <div class="card-title"><i class="fas fa-hand-peace"></i> Olá, <span id="homeUserName">Cliente</span>!</div>
                     <p class="text-muted">Bem-vindo à Barbearia VIP. Gerencie seus agendamentos, compre produtos e acumule estrelas!</p>
@@ -1103,20 +363,17 @@
                         <button class="btn btn-gold btn-sm" onclick="navigateTo('agendamento')"><i class="fas fa-calendar-plus"></i> Agendar</button>
                         <button class="btn btn-outline-gold btn-sm" onclick="navigateTo('lojinha')"><i class="fas fa-store"></i> Lojinha</button>
                         <button class="btn btn-outline-gold btn-sm" onclick="navigateTo('fidelidade')"><i class="fas fa-star"></i> Fidelidade</button>
+                        <button class="btn btn-outline-gold btn-sm" onclick="navigateTo('chat')"><i class="fas fa-comment-dots"></i> Chat</button>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-title"><i class="fas fa-clock"></i> Próximos Agendamentos</div>
-                    <div id="homeUpcomingAppointments">
-                        <p class="text-muted" style="font-size:0.9rem;">Nenhum agendamento futuro.</p>
-                    </div>
+                    <div id="homeUpcomingAppointments"><p class="text-muted" style="font-size:0.9rem;">Nenhum agendamento futuro.</p></div>
                 </div>
                 <div class="card">
                     <div class="card-title"><i class="fas fa-gift"></i> Destaque</div>
                     <p class="text-muted">Acumule 10 estrelas e ganhe um <strong class="text-gold">corte grátis</strong>!</p>
-                    <div class="flex-center mt-8">
-                        <span class="badge-gold"><i class="fas fa-star"></i> Fidelidade VIP</span>
-                    </div>
+                    <div class="flex-center mt-8"><span class="badge-gold"><i class="fas fa-star"></i> Fidelidade VIP</span></div>
                 </div>
             </div>
 
@@ -1126,10 +383,7 @@
                     <i class="fas fa-calendar-check"></i> Agendar Serviço
                 </h2>
                 <div class="card">
-                    <div class="form-group">
-                        <label>Data</label>
-                        <input type="date" id="apptDate" min="" />
-                    </div>
+                    <div class="form-group"><label>Data</label><input type="date" id="apptDate" min="" /></div>
                     <div class="form-group">
                         <label>Horário</label>
                         <select id="apptTime"><option value="">Carregando horários...</option></select>
@@ -1156,12 +410,8 @@
             <!-- LOJINHA -->
             <div class="screen" id="screen-lojinha">
                 <div class="flex-between mb-12">
-                    <h2 style="font-family:var(--font-title);color:var(--gold);font-size:1.2rem;">
-                        <i class="fas fa-store"></i> Lojinha
-                    </h2>
-                    <button class="btn btn-gold btn-sm" onclick="showCartModal()">
-                        <i class="fas fa-shopping-cart"></i> Carrinho
-                    </button>
+                    <h2 style="font-family:var(--font-title);color:var(--gold);font-size:1.2rem;"><i class="fas fa-store"></i> Lojinha</h2>
+                    <button class="btn btn-gold btn-sm" onclick="showCartModal()"><i class="fas fa-shopping-cart"></i> Carrinho</button>
                 </div>
                 <div class="product-grid" id="productGrid"></div>
                 <p id="productGridEmpty" class="text-muted text-center mt-16">Nenhum produto disponível.</p>
@@ -1207,6 +457,22 @@
                 <button class="btn btn-red btn-block mt-8" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
             </div>
 
+            <!-- CHAT (CLIENTE) -->
+            <div class="screen" id="screen-chat">
+                <h2 style="font-family:var(--font-title);color:var(--gold);font-size:1.2rem;margin-bottom:12px;">
+                    <i class="fas fa-comment-dots"></i> Chat com a Barbearia
+                </h2>
+                <div class="card" style="flex:1;display:flex;flex-direction:column;min-height:400px;">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chatMessages"></div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chatInput" placeholder="Digite sua mensagem..." />
+                            <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ADMIN PANEL -->
             <div class="screen admin-panel" id="screen-admin-panel">
                 <div class="admin-header">
@@ -1219,6 +485,8 @@
                     <button data-target="admin-fidelity">⭐ Fidelidade</button>
                     <button data-target="admin-products">🛍️ Produtos</button>
                     <button data-target="admin-stories">📸 Stories</button>
+                    <button data-target="admin-orders">📦 Pedidos</button>
+                    <button data-target="admin-chat">💬 Chat</button>
                     <button data-target="admin-users">👥 Usuários</button>
                     <button data-target="admin-config">⚙️ Horários</button>
                     <button data-target="admin-starslog">📜 Estrelas</button>
@@ -1259,6 +527,18 @@
                         <div id="adminStoryList"><p class="text-muted">Nenhum story ativo.</p></div>
                     </div>
                 </div>
+                <div id="admin-orders" class="admin-section">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-box"></i> Pedidos da Loja</div>
+                        <div id="adminOrderList"></div>
+                    </div>
+                </div>
+                <div id="admin-chat" class="admin-section">
+                    <div class="card">
+                        <div class="card-title"><i class="fas fa-comments"></i> Conversas com Clientes</div>
+                        <div id="adminChatList"></div>
+                    </div>
+                </div>
                 <div id="admin-users" class="admin-section">
                     <div class="card">
                         <div class="card-title"><i class="fas fa-users-cog"></i> Gerenciar Usuários</div>
@@ -1293,6 +573,7 @@
             <button class="tab-btn" data-tab="agendamento"><i class="fas fa-calendar-plus"></i><span>Agendar</span></button>
             <button class="tab-btn" data-tab="lojinha"><i class="fas fa-store"></i><span>Lojinha</span></button>
             <button class="tab-btn" data-tab="fidelidade"><i class="fas fa-star"></i><span>Fidelidade</span></button>
+            <button class="tab-btn" data-tab="chat"><i class="fas fa-comment-dots"></i><span>Chat</span></button>
             <button class="tab-btn" data-tab="perfil"><i class="fas fa-user"></i><span>Perfil</span></button>
         </div>
 
@@ -1331,11 +612,9 @@
         // ================================================================
         //  BARBEARIA VIP - CÓDIGO COMPLETO
         //  - Login unificado (admin, supervisor, cliente)
-        //  - Tela de cadastro dedicada
-        //  - Upload de fotos dos produtos direto do celular
-        //  - Slideshow de promoções
-        //  - Stories (admin/supervisor postam, clientes veem)
-        //  - Bloqueio de usuários APENAS pelo supervisor
+        //  - Chat ao vivo (cliente <-> admin/supervisor)
+        //  - Pedidos da loja (admin pode marcar como pronto/entregue)
+        //  - Stories, slideshow, fidelidade, etc.
         // ================================================================
 
         // ===== CONSTANTES =====
@@ -1349,6 +628,7 @@
             WAITLIST: 'barbershop_waitlist',
             CURRENT_USER: 'barbershop_current_user',
             STORIES: 'barbershop_stories',
+            CHAT_MESSAGES: 'barbershop_chat_messages',
         };
         const ADMIN_CREDENTIALS = { user: 'admin', pass: 'admin123' };
         const SUPERVISOR_CREDENTIALS = { user: 'supervisor', pass: 'super123' };
@@ -1363,15 +643,10 @@
         function formatDate(d) { return new Date(d).toLocaleDateString('pt-BR'); }
         function formatTime(d) { return new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
         function formatDateTime(d) { return formatDate(d) + ' ' + formatTime(d); }
-        function getDayOfWeek(d) { return new Date(d).getDay(); }
 
-        function getData(key) {
-            try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; }
-        }
+        function getData(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
         function setData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-        function getObj(key) {
-            try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; }
-        }
+        function getObj(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
         function setObj(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
         function getCurrentUser() { return getObj(STORAGE_KEYS.CURRENT_USER); }
         function setCurrentUser(u) { setObj(STORAGE_KEYS.CURRENT_USER, u); }
@@ -1436,17 +711,14 @@
             if (screen === 'perfil') renderPerfil();
             if (screen === 'lojinha') renderProducts();
             if (screen === 'agendamento') renderAgendamento();
+            if (screen === 'chat') renderChatMessages();
             updateStarsDisplay();
             updateCartBadge();
         }
 
         // ===== IR PARA A TELA PRINCIPAL =====
         function goHome() {
-            if (isAdmin()) {
-                showAdminPanel();
-            } else {
-                navigateTo('home');
-            }
+            if (isAdmin()) { showAdminPanel(); } else { navigateTo('home'); }
         }
 
         // ===== ADMIN PANEL =====
@@ -1464,6 +736,8 @@
             renderStarsLog();
             renderUserList();
             renderAdminStories();
+            renderAdminOrders();
+            renderAdminChatList();
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
             document.getElementById('admin-dashboard').classList.add('active');
             document.querySelectorAll('.admin-subtabs button').forEach(b => b.classList.toggle('active', b.dataset.target === 'admin-dashboard'));
@@ -1479,11 +753,8 @@
                 btn.classList.toggle('active', btn.dataset.tab === 'home');
             });
             currentScreen = 'home';
-            renderHome();
-            renderSlideshow();
-            renderStories();
-            updateStarsDisplay();
-            updateCartBadge();
+            renderHome(); renderSlideshow(); renderStories();
+            updateStarsDisplay(); updateCartBadge();
         }
 
         // ===== LOGIN UNIFICADO =====
@@ -1492,114 +763,63 @@
             const senha = document.getElementById('loginPassword').value.trim();
             const errorEl = document.getElementById('loginError');
             errorEl.textContent = '';
+            if (!login || !senha) { errorEl.textContent = 'Preencha todos os campos.'; return; }
 
-            if (!login || !senha) {
-                errorEl.textContent = 'Preencha todos os campos.';
-                return;
-            }
-
-            // Verifica supervisor
+            // Supervisor
             if (login === SUPERVISOR_CREDENTIALS.user && senha === SUPERVISOR_CREDENTIALS.pass) {
                 let users = getData(STORAGE_KEYS.USERS);
                 let supUser = users.find(u => u.role === 'supervisor');
                 if (!supUser) {
-                    supUser = {
-                        id: 'sup1',
-                        nome: 'Supervisor',
-                        email: 'supervisor@barbearia.com',
-                        telefone: '11988888887',
-                        senha: SUPERVISOR_CREDENTIALS.pass,
-                        role: 'supervisor',
-                        estrelas: 0,
-                        vouchers: 0,
-                        data_nascimento: '1985-01-01',
-                        birthday_star_given: {},
-                        bloqueado: false
-                    };
+                    supUser = { id: 'sup1', nome: 'Supervisor', email: 'supervisor@barbearia.com', telefone: '11988888887', senha: SUPERVISOR_CREDENTIALS.pass, role: 'supervisor', estrelas: 0, vouchers: 0, data_nascimento: '1985-01-01', birthday_star_given: {}, bloqueado: false };
                     users.push(supUser);
                     setData(STORAGE_KEYS.USERS, users);
                 }
-                if (supUser.bloqueado) {
-                    errorEl.textContent = 'Usuário bloqueado pelo supervisor.';
-                    toast('Acesso negado.', 'error');
-                    return;
-                }
+                if (supUser.bloqueado) { errorEl.textContent = 'Usuário bloqueado pelo supervisor.'; toast('Acesso negado.','error'); return; }
                 setCurrentUser(supUser);
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
                 showAdminPanel();
-                toast('Bem-vindo, Supervisor!', 'success');
+                toast('Bem-vindo, Supervisor!','success');
                 return;
             }
 
-            // Verifica admin
+            // Admin
             if (login === ADMIN_CREDENTIALS.user && senha === ADMIN_CREDENTIALS.pass) {
                 let users = getData(STORAGE_KEYS.USERS);
                 let adminUser = users.find(u => u.role === 'admin');
                 if (!adminUser) {
-                    adminUser = {
-                        id: 'admin1',
-                        nome: 'Administrador',
-                        email: 'admin@barbearia.com',
-                        telefone: '1199999999',
-                        senha: ADMIN_CREDENTIALS.pass,
-                        role: 'admin',
-                        estrelas: 0,
-                        vouchers: 0,
-                        data_nascimento: '1990-01-01',
-                        birthday_star_given: {},
-                        bloqueado: false
-                    };
+                    adminUser = { id: 'admin1', nome: 'Administrador', email: 'admin@barbearia.com', telefone: '1199999999', senha: ADMIN_CREDENTIALS.pass, role: 'admin', estrelas: 0, vouchers: 0, data_nascimento: '1990-01-01', birthday_star_given: {}, bloqueado: false };
                     users.push(adminUser);
                     setData(STORAGE_KEYS.USERS, users);
                 }
-                if (adminUser.bloqueado) {
-                    errorEl.textContent = 'Usuário bloqueado pelo supervisor.';
-                    toast('Acesso negado.', 'error');
-                    return;
-                }
+                if (adminUser.bloqueado) { errorEl.textContent = 'Usuário bloqueado pelo supervisor.'; toast('Acesso negado.','error'); return; }
                 setCurrentUser(adminUser);
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
                 showAdminPanel();
-                toast('Bem-vindo, Admin!', 'success');
+                toast('Bem-vindo, Admin!','success');
                 return;
             }
 
-            // Busca cliente normal
+            // Cliente
             const users = getData(STORAGE_KEYS.USERS);
-            const user = users.find(u =>
-                (u.email === login || u.telefone === login) && u.senha === senha
-            );
-
-            if (!user) {
-                errorEl.textContent = 'Credenciais inválidas. Verifique e tente novamente.';
-                toast('Login falhou.', 'error');
-                return;
-            }
-
-            if (user.bloqueado) {
-                errorEl.textContent = 'Usuário bloqueado pelo supervisor.';
-                toast('Acesso negado.', 'error');
-                return;
-            }
-
+            const user = users.find(u => (u.email === login || u.telefone === login) && u.senha === senha);
+            if (!user) { errorEl.textContent = 'Credenciais inválidas.'; toast('Login falhou.','error'); return; }
+            if (user.bloqueado) { errorEl.textContent = 'Usuário bloqueado pelo supervisor.'; toast('Acesso negado.','error'); return; }
             if (user.role === 'admin' || user.role === 'supervisor') {
                 setCurrentUser(user);
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
                 showAdminPanel();
-                toast(`Bem-vindo, ${user.nome}!`, 'success');
+                toast(`Bem-vindo, ${user.nome}!`,'success');
                 return;
             }
-
-            // Cliente comum
             setCurrentUser(user);
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('appWrapper').classList.add('visible');
             checkBirthdayBonus();
             navigateTo('home');
-            toast(`Bem-vindo, ${user.nome}!`, 'success');
+            toast(`Bem-vindo, ${user.nome}!`,'success');
         }
 
         // ===== REGISTRO =====
@@ -1611,42 +831,15 @@
             const nascimento = document.getElementById('regNascimento').value;
             const errorEl = document.getElementById('registerError');
             errorEl.textContent = '';
-
-            if (!nome || !email || !telefone || !senha || !nascimento) {
-                errorEl.textContent = 'Preencha todos os campos.';
-                return;
-            }
-            if (senha.length < 6) {
-                errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.';
-                return;
-            }
-
+            if (!nome || !email || !telefone || !senha || !nascimento) { errorEl.textContent = 'Preencha todos os campos.'; return; }
+            if (senha.length < 6) { errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.'; return; }
             let users = getData(STORAGE_KEYS.USERS);
-            if (users.find(u => u.email === email)) {
-                errorEl.textContent = 'E-mail já cadastrado.';
-                return;
-            }
-            if (users.find(u => u.telefone === telefone)) {
-                errorEl.textContent = 'Telefone já cadastrado.';
-                return;
-            }
-
-            const newUser = {
-                id: uid(),
-                nome,
-                email,
-                telefone,
-                senha,
-                role: 'cliente',
-                estrelas: 0,
-                vouchers: 0,
-                data_nascimento: nascimento,
-                birthday_star_given: {},
-                bloqueado: false
-            };
+            if (users.find(u => u.email === email)) { errorEl.textContent = 'E-mail já cadastrado.'; return; }
+            if (users.find(u => u.telefone === telefone)) { errorEl.textContent = 'Telefone já cadastrado.'; return; }
+            const newUser = { id: uid(), nome, email, telefone, senha, role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: nascimento, birthday_star_given: {}, bloqueado: false };
             users.push(newUser);
             setData(STORAGE_KEYS.USERS, users);
-            toast('✅ Conta criada com sucesso! Faça login.', 'success');
+            toast('✅ Conta criada! Faça login.','success');
             document.getElementById('regNome').value = '';
             document.getElementById('regEmail').value = '';
             document.getElementById('regTelefone').value = '';
@@ -1667,7 +860,7 @@
                 document.getElementById('loginEmail').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('loginError').textContent = '';
-                toast('Você saiu.', 'info');
+                toast('Você saiu.','info');
             }
         }
         function adminLogout() { logout(); }
@@ -1697,6 +890,8 @@
             if (btn.dataset.target === 'admin-config') renderConfig();
             if (btn.dataset.target === 'admin-users') renderUserList();
             if (btn.dataset.target === 'admin-stories') renderAdminStories();
+            if (btn.dataset.target === 'admin-orders') renderAdminOrders();
+            if (btn.dataset.target === 'admin-chat') renderAdminChatList();
         });
 
         // ================================================================
@@ -1727,7 +922,6 @@
                 ];
                 setData(STORAGE_KEYS.PRODUCTS, products);
             } else {
-                // Garantir campos de promoção
                 let updated = false;
                 products = products.map(p => {
                     if (p.em_promocao === undefined) { p.em_promocao = false; updated = true; }
@@ -1777,6 +971,7 @@
             if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) setData(STORAGE_KEYS.ORDERS, []);
             if (!localStorage.getItem(STORAGE_KEYS.WAITLIST)) setData(STORAGE_KEYS.WAITLIST, []);
             if (!localStorage.getItem(STORAGE_KEYS.STORIES)) setData(STORAGE_KEYS.STORIES, []);
+            if (!localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES)) setData(STORAGE_KEYS.CHAT_MESSAGES, []);
         }
 
         // ================================================================
@@ -1790,6 +985,7 @@
         function getStarsHistory() { return getData(STORAGE_KEYS.STARS_HISTORY); }
         function getWaitlist() { return getData(STORAGE_KEYS.WAITLIST); }
         function getStories() { return getData(STORAGE_KEYS.STORIES); }
+        function getChatMessages() { return getData(STORAGE_KEYS.CHAT_MESSAGES); }
         function saveUsers(u) { setData(STORAGE_KEYS.USERS, u); }
         function saveAppointments(a) { setData(STORAGE_KEYS.APPOINTMENTS, a); }
         function saveProducts(p) { setData(STORAGE_KEYS.PRODUCTS, p); }
@@ -1798,6 +994,7 @@
         function saveStarsHistory(s) { setData(STORAGE_KEYS.STARS_HISTORY, s); }
         function saveWaitlist(w) { setData(STORAGE_KEYS.WAITLIST, w); }
         function saveStories(s) { setData(STORAGE_KEYS.STORIES, s); }
+        function saveChatMessages(c) { setData(STORAGE_KEYS.CHAT_MESSAGES, c); }
 
         function findUserById(id) { return getUsers().find(u => u.id === id); }
         function getClientAppointments(clientId) {
@@ -1866,41 +1063,212 @@
                 const diffHours = (now - created) / (1000*60*60);
                 return diffHours < STORY_EXPIRY_HOURS;
             });
-            // Se houver stories expirados, remover do storage
-            if (active.length !== all.length) {
-                saveStories(active);
-            }
+            if (active.length !== all.length) saveStories(active);
             return active;
         }
 
         // ================================================================
-        //  ATUALIZA ESTRELAS NO HEADER
+        //  CHAT
         // ================================================================
-        function updateStarsDisplay() {
+        function getChatMessagesForUser(userId) {
+            return getChatMessages().filter(m => m.userId === userId || m.adminId === userId);
+        }
+
+        function renderChatMessages() {
             const user = getCurrentUser();
-            if (user && user.role === 'cliente') {
-                document.getElementById('headerStarsCount').textContent = user.estrelas || 0;
-                document.getElementById('headerStars').style.display = 'flex';
-            } else {
-                document.getElementById('headerStars').style.display = 'none';
+            if (!user || user.role !== 'cliente') return;
+            const messages = getChatMessages().filter(m => m.userId === user.id);
+            const container = document.getElementById('chatMessages');
+            if (messages.length === 0) {
+                container.innerHTML = '<p class="text-muted" style="text-align:center;padding:20px;">Nenhuma mensagem. Envie uma mensagem para a barbearia!</p>';
+                return;
             }
+            container.innerHTML = messages.map(m => {
+                const isSent = m.sender === 'cliente';
+                return `<div class="chat-message ${isSent ? 'sent' : 'received'}">
+                    ${m.text}
+                    <span class="time">${formatTime(m.timestamp)}</span>
+                </div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendChatMessage() {
+            const user = getCurrentUser();
+            if (!user) { toast('Faça login primeiro.','error'); return; }
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            const msg = {
+                id: uid(),
+                userId: user.id,
+                text: text,
+                timestamp: nowISO(),
+                sender: 'cliente',
+                read: false
+            };
+            const msgs = getChatMessages();
+            msgs.push(msg);
+            saveChatMessages(msgs);
+            input.value = '';
+            renderChatMessages();
+            // Notificar admin (apenas via badge)
+            updateAdminChatList();
+        }
+
+        // ===== ADMIN CHAT LIST =====
+        function renderAdminChatList() {
+            if (!isAdmin()) return;
+            const msgs = getChatMessages();
+            const users = getUsers();
+            const clients = users.filter(u => u.role === 'cliente');
+            const container = document.getElementById('adminChatList');
+            if (clients.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nenhum cliente.</p>';
+                return;
+            }
+            container.innerHTML = clients.map(c => {
+                const userMsgs = msgs.filter(m => m.userId === c.id);
+                const lastMsg = userMsgs.length > 0 ? userMsgs[userMsgs.length-1] : null;
+                const unread = userMsgs.filter(m => !m.read && m.sender === 'cliente').length;
+                return `<div class="client-item" onclick="openAdminChat('${c.id}')" style="cursor:pointer;">
+                    <div>
+                        <span class="name">${c.nome}</span>
+                        <span class="text-muted" style="font-size:0.7rem;margin-left:8px;">${c.telefone}</span>
+                        ${unread > 0 ? `<span class="badge-gold" style="font-size:0.6rem;margin-left:4px;">${unread} nova(s)</span>` : ''}
+                    </div>
+                    <div class="text-muted" style="font-size:0.7rem;">
+                        ${lastMsg ? formatTime(lastMsg.timestamp) : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function updateAdminChatList() { if (isAdmin()) renderAdminChatList(); }
+
+        function openAdminChat(userId) {
+            const user = findUserById(userId);
+            if (!user) return;
+            const msgs = getChatMessages().filter(m => m.userId === userId);
+            // Marcar mensagens como lidas
+            let allMsgs = getChatMessages();
+            allMsgs = allMsgs.map(m => {
+                if (m.userId === userId && m.sender === 'cliente') m.read = true;
+                return m;
+            });
+            saveChatMessages(allMsgs);
+            const html = `
+                <div class="chat-container" style="height:400px;">
+                    <div style="font-weight:600;margin-bottom:8px;">${user.nome}</div>
+                    <div class="chat-messages" id="adminChatMessages" style="flex:1;overflow-y:auto;padding:8px 0;display:flex;flex-direction:column;gap:8px;max-height:300px;">
+                        ${msgs.map(m => {
+                            const isSent = m.sender === 'admin' || m.sender === 'supervisor';
+                            return `<div class="chat-message ${isSent ? 'sent' : 'received'}">
+                                ${m.text}
+                                <span class="time">${formatTime(m.timestamp)}</span>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                    <div class="chat-input-row">
+                        <input type="text" id="adminChatInput" placeholder="Digite sua resposta..." />
+                        <button onclick="sendAdminChatMessage('${userId}')"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            `;
+            openModal(`💬 Chat com ${user.nome}`, html);
+            // Scroll para o fim
+            setTimeout(() => {
+                const el = document.getElementById('adminChatMessages');
+                if (el) el.scrollTop = el.scrollHeight;
+            }, 100);
+        }
+
+        function sendAdminChatMessage(userId) {
+            const input = document.getElementById('adminChatInput');
+            const text = input.value.trim();
+            if (!text) return;
+            const admin = getCurrentUser();
+            const msg = {
+                id: uid(),
+                userId: userId,
+                text: text,
+                timestamp: nowISO(),
+                sender: admin.role,
+                read: true
+            };
+            const msgs = getChatMessages();
+            msgs.push(msg);
+            saveChatMessages(msgs);
+            input.value = '';
+            // Atualizar visualização
+            const container = document.getElementById('adminChatMessages');
+            if (container) {
+                const div = document.createElement('div');
+                div.className = 'chat-message sent';
+                div.innerHTML = `${text}<span class="time">${formatTime(nowISO())}</span>`;
+                container.appendChild(div);
+                container.scrollTop = container.scrollHeight;
+            }
+            // Atualizar lista de conversas
+            renderAdminChatList();
+            // Se o cliente estiver logado, atualiza o chat dele também (opcional)
+        }
+
+        // ================================================================
+        //  PEDIDOS (ADMIN)
+        // ================================================================
+        function renderAdminOrders() {
+            const orders = getOrders().filter(o => o.status !== 'carrinho' && o.status !== 'aguardando_retirada');
+            const container = document.getElementById('adminOrderList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nenhum pedido pendente.</p>';
+                return;
+            }
+            container.innerHTML = orders.map(o => {
+                const user = findUserById(o.cliente_id);
+                const nome = user ? user.nome : 'Desconhecido';
+                const p = getProductById(o.produto_id);
+                const prodNome = p ? p.nome : 'Produto removido';
+                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
+                const statusLabel = o.status === 'pronto_retirada' ? 'Pronto para retirada' : o.status === 'entregue' ? 'Entregue' : 'Aguardando';
+                const canMark = o.status === 'aguardando_retirada' || o.status === 'pronto_retirada';
+                return `<div class="order-item">
+                    <div class="flex-between">
+                        <div>
+                            <strong>${prodNome}</strong> - ${nome}
+                            <span class="status ${statusClass}" style="margin-left:8px;">${statusLabel}</span>
+                        </div>
+                        <div style="display:flex;gap:6px;">
+                            ${o.status === 'aguardando_retirada' ? `<button class="btn btn-gold btn-sm" onclick="updateOrderStatus('${o.id}','pronto_retirada')"><i class="fas fa-check"></i> Pronto</button>` : ''}
+                            ${o.status === 'pronto_retirada' ? `<button class="btn btn-outline-gold btn-sm" onclick="updateOrderStatus('${o.id}','entregue')"><i class="fas fa-truck"></i> Entregue</button>` : ''}
+                        </div>
+                    </div>
+                    <div class="text-muted" style="font-size:0.7rem;">${formatDateTime(o.data_pedido)}</div>
+                </div>`;
+            }).join('');
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            let orders = getOrders();
+            const idx = orders.findIndex(o => o.id === orderId);
+            if (idx === -1) return;
+            orders[idx].status = newStatus;
+            saveOrders(orders);
+            toast(`Status atualizado para ${newStatus === 'pronto_retirada' ? 'Pronto para retirada' : 'Entregue'}.`,'success');
+            renderAdminOrders();
         }
 
         // ================================================================
         //  SLIDESHOW
         // ================================================================
-        let slideIndex = 0;
-        let slideTimer = null;
-
+        let slideIndex = 0, slideTimer = null;
         function renderSlideshow() {
             const container = document.getElementById('slideshowContainer');
             const products = getProducts().filter(p => p.em_promocao && p.estoque > 0);
-            // Limpa slides antigos, mantém botões e dots container
             const oldSlides = container.querySelectorAll('.slideshow-slide');
             oldSlides.forEach(el => el.remove());
             const oldDots = container.querySelectorAll('.slideshow-dots .dot');
             oldDots.forEach(el => el.remove());
-
             if (products.length === 0) {
                 const msg = document.createElement('div');
                 msg.style.cssText = 'padding:20px;text-align:center;color:var(--text-secondary);';
@@ -1908,20 +1276,14 @@
                 container.insertBefore(msg, container.querySelector('.slideshow-btn.prev').nextSibling);
                 return;
             }
-
             products.forEach((p, idx) => {
                 const slide = document.createElement('div');
                 slide.className = 'slideshow-slide' + (idx === 0 ? ' active' : '');
                 const priceDisplay = p.preco_promocional > 0 ?
                     `<span class="price">R$ ${p.preco_promocional.toFixed(2)}</span> <span class="old-price">R$ ${p.preco.toFixed(2)}</span>` :
                     `<span class="price">R$ ${p.preco.toFixed(2)}</span>`;
-                slide.innerHTML = `
-                    <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/400/300'}" alt="${p.nome}" />
-                    <div class="slide-info">
-                        <h4>${p.nome}</h4>
-                        <div>${priceDisplay}</div>
-                    </div>
-                `;
+                slide.innerHTML = `<img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/400/300'}" alt="${p.nome}" />
+                    <div class="slide-info"><h4>${p.nome}</h4><div>${priceDisplay}</div></div>`;
                 container.insertBefore(slide, container.querySelector('.slideshow-btn.prev').nextSibling);
                 const dot = document.createElement('span');
                 dot.className = 'dot' + (idx === 0 ? ' active' : '');
@@ -1929,12 +1291,10 @@
                 dot.onclick = function() { goToSlide(parseInt(this.dataset.index)); };
                 document.getElementById('slideshowDots').appendChild(dot);
             });
-
             slideIndex = 0;
             clearInterval(slideTimer);
             slideTimer = setInterval(() => { changeSlide(1); }, 5000);
         }
-
         function changeSlide(direction) {
             const slides = document.querySelectorAll('.slideshow-slide');
             const dots = document.querySelectorAll('.slideshow-dots .dot');
@@ -1945,7 +1305,6 @@
             slides[slideIndex].classList.add('active');
             dots[slideIndex].classList.add('active');
         }
-
         function goToSlide(index) {
             const slides = document.querySelectorAll('.slideshow-slide');
             const dots = document.querySelectorAll('.slideshow-dots .dot');
@@ -1965,16 +1324,9 @@
         function renderStories() {
             const container = document.getElementById('storiesContainer');
             const activeStories = getActiveStories();
-            if (activeStories.length === 0) {
-                container.innerHTML = '';
-                return;
-            }
-            // Agrupar stories por usuário (quem postou)
+            if (activeStories.length === 0) { container.innerHTML = ''; return; }
             const groups = {};
-            activeStories.forEach(s => {
-                if (!groups[s.userId]) groups[s.userId] = [];
-                groups[s.userId].push(s);
-            });
+            activeStories.forEach(s => { if (!groups[s.userId]) groups[s.userId] = []; groups[s.userId].push(s); });
             let html = '';
             Object.keys(groups).forEach(userId => {
                 const user = findUserById(userId);
@@ -1985,52 +1337,40 @@
                 const avatarHtml = mediaType === 'image' ?
                     `<img src="${mediaSrc}" alt="${name}" />` :
                     `<video src="${mediaSrc}" muted style="width:100%;height:100%;object-fit:cover;"></video>`;
-                html += `
-                    <div class="story-circle" onclick="openStoryViewer('${userId}')">
-                        <div class="avatar">${avatarHtml}</div>
-                        <span class="story-name">${name}</span>
-                    </div>
-                `;
+                html += `<div class="story-circle" onclick="openStoryViewer('${userId}')">
+                    <div class="avatar">${avatarHtml}</div>
+                    <span class="story-name">${name}</span>
+                </div>`;
             });
             container.innerHTML = html;
         }
 
-        // ===== STORY VIEWER =====
-        let currentStoryUser = null;
-        let currentStoryIndex = 0;
-        let storyViewerTimer = null;
-
+        let currentStoryUser = null, currentStoryIndex = 0, storyViewerTimer = null;
         function openStoryViewer(userId) {
             const stories = getActiveStories().filter(s => s.userId === userId);
-            if (stories.length === 0) { toast('Nenhum story disponível.', 'info'); return; }
+            if (stories.length === 0) { toast('Nenhum story disponível.','info'); return; }
             currentStoryUser = userId;
             currentStoryIndex = 0;
             document.getElementById('storyViewer').classList.add('open');
             showStory(stories);
-            startStoryTimer(stories);
         }
-
         function showStory(stories) {
             const story = stories[currentStoryIndex];
             if (!story) { closeStoryViewer(); return; }
             const container = document.getElementById('storyMediaContainer');
             const user = findUserById(story.userId);
             document.getElementById('storyUserName').textContent = user ? user.nome : 'Desconhecido';
-            // Construir progresso
             let progressHtml = '';
             stories.forEach((s, idx) => {
                 const pct = idx < currentStoryIndex ? 100 : (idx === currentStoryIndex ? 0 : 0);
                 progressHtml += `<div class="bar"><div class="fill" id="progressFill-${idx}" style="width:${pct}%;"></div></div>`;
             });
             document.getElementById('storyProgress').innerHTML = progressHtml;
-
-            // Mostrar mídia
             if (story.tipo === 'image') {
                 container.innerHTML = `<img src="${story.media}" class="story-media" />`;
             } else {
                 container.innerHTML = `<video src="${story.media}" class="story-media" controls autoplay muted></video>`;
             }
-            // Iniciar progresso (simulação)
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 1;
@@ -2038,38 +1378,25 @@
                 if (fill) fill.style.width = progress + '%';
                 if (progress >= 100) {
                     clearInterval(interval);
-                    // Avançar automaticamente
                     setTimeout(() => {
                         if (currentStoryIndex < stories.length - 1) {
                             currentStoryIndex++;
                             showStory(stories);
-                        } else {
-                            closeStoryViewer();
-                        }
+                        } else { closeStoryViewer(); }
                     }, 500);
                 }
-            }, 50); // 5 segundos para 100% (50ms * 100 = 5000ms)
-            // Armazenar intervalo para limpar
+            }, 50);
             storyViewerTimer = interval;
         }
-
-        function startStoryTimer(stories) {
-            // já implementado dentro de showStory
-        }
-
         function navigateStory(direction) {
             const stories = getActiveStories().filter(s => s.userId === currentStoryUser);
             if (stories.length === 0) return;
             clearInterval(storyViewerTimer);
             const newIndex = currentStoryIndex + direction;
-            if (newIndex < 0 || newIndex >= stories.length) {
-                closeStoryViewer();
-                return;
-            }
+            if (newIndex < 0 || newIndex >= stories.length) { closeStoryViewer(); return; }
             currentStoryIndex = newIndex;
             showStory(stories);
         }
-
         function closeStoryViewer() {
             document.getElementById('storyViewer').classList.remove('open');
             clearInterval(storyViewerTimer);
@@ -2078,10 +1405,9 @@
         }
 
         // ================================================================
-        //  ADMIN: STORIES (POSTAR E GERENCIAR)
+        //  ADMIN: STORIES
         // ================================================================
         let pendingStoryMedia = null;
-
         function previewStoryMedia(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2098,59 +1424,42 @@
             };
             reader.readAsDataURL(file);
         }
-
         function postStory() {
-            if (!pendingStoryMedia) { toast('Selecione uma mídia primeiro.', 'error'); return; }
+            if (!pendingStoryMedia) { toast('Selecione uma mídia primeiro.','error'); return; }
             const user = getCurrentUser();
-            if (!user) { toast('Faça login.', 'error'); return; }
-            const story = {
-                id: uid(),
-                userId: user.id,
-                media: pendingStoryMedia.data,
-                tipo: pendingStoryMedia.type,
-                timestamp: nowISO()
-            };
+            if (!user) { toast('Faça login.','error'); return; }
+            const story = { id: uid(), userId: user.id, media: pendingStoryMedia.data, tipo: pendingStoryMedia.type, timestamp: nowISO() };
             const stories = getStories();
             stories.push(story);
             saveStories(stories);
-            toast('✅ Story publicado!', 'success');
+            toast('✅ Story publicado!','success');
             pendingStoryMedia = null;
             document.getElementById('storyMediaInput').value = '';
             document.getElementById('storyMediaPreview').innerHTML = '';
             renderAdminStories();
-            renderStories(); // atualiza para clientes
+            renderStories();
         }
-
         function renderAdminStories() {
             const stories = getActiveStories();
             const container = document.getElementById('adminStoryList');
-            if (stories.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum story ativo.</p>';
-                return;
-            }
+            if (stories.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum story ativo.</p>'; return; }
             container.innerHTML = stories.map(s => {
                 const user = findUserById(s.userId);
                 const nome = user ? user.nome : 'Desconhecido';
-                const mediaHtml = s.tipo === 'image' ?
-                    `<img src="${s.media}" class="story-preview" />` :
-                    `<video src="${s.media}" class="story-preview" muted></video>`;
+                const mediaHtml = s.tipo === 'image' ? `<img src="${s.media}" class="story-preview" />` : `<video src="${s.media}" class="story-preview" muted></video>`;
                 return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #282828;">
                     ${mediaHtml}
-                    <div style="flex:1;">
-                        <strong>${nome}</strong><br>
-                        <span class="text-muted" style="font-size:0.7rem;">${formatDateTime(s.timestamp)}</span>
-                    </div>
+                    <div style="flex:1;"><strong>${nome}</strong><br><span class="text-muted" style="font-size:0.7rem;">${formatDateTime(s.timestamp)}</span></div>
                     <button class="btn btn-red btn-sm" onclick="deleteStory('${s.id}')"><i class="fas fa-trash"></i></button>
                 </div>`;
             }).join('');
         }
-
         function deleteStory(storyId) {
             if (!confirm('Excluir este story?')) return;
             let stories = getStories();
             stories = stories.filter(s => s.id !== storyId);
             saveStories(stories);
-            toast('Story excluído.', 'info');
+            toast('Story excluído.','info');
             renderAdminStories();
             renderStories();
         }
@@ -2192,9 +1501,7 @@
                 `Você está na fila de espera (${userWait.length} cliente(s) na frente).` :
                 'Nenhum cliente na fila.';
         }
-
         document.getElementById('apptDate').addEventListener('change', updateAvailableTimes);
-
         function updateAvailableTimes() {
             const date = document.getElementById('apptDate').value;
             const select = document.getElementById('apptTime');
@@ -2206,40 +1513,23 @@
                 document.getElementById('apptFeedback').style.color = '#f39c12';
                 return;
             }
-            select.innerHTML = '<option value="">Selecione um horário</option>' +
-                slots.map(t => `<option value="${t}">${t}</option>`).join('');
+            select.innerHTML = '<option value="">Selecione um horário</option>' + slots.map(t => `<option value="${t}">${t}</option>`).join('');
             document.getElementById('apptFeedback').textContent = '';
         }
-
         function confirmAppointment() {
             const user = getCurrentUser();
-            if (!user) { toast('Faça login primeiro.', 'error'); return; }
+            if (!user) { toast('Faça login primeiro.','error'); return; }
             const date = document.getElementById('apptDate').value;
             const time = document.getElementById('apptTime').value;
             const service = document.getElementById('apptService').value;
-            if (!date || !time) { toast('Selecione data e horário.', 'error'); return; }
+            if (!date || !time) { toast('Selecione data e horário.','error'); return; }
             const upcoming = getUpcomingAppointments(user.id);
-            if (upcoming.length > 0) {
-                toast('Você já tem um agendamento futuro pendente ou confirmado.', 'error');
-                return;
-            }
-            if (!isTimeSlotAvailable(date, time)) {
-                toast('Horário indisponível. Escolha outro.', 'error');
-                updateAvailableTimes();
-                return;
-            }
+            if (upcoming.length > 0) { toast('Você já tem um agendamento futuro.','error'); return; }
+            if (!isTimeSlotAvailable(date, time)) { toast('Horário indisponível.','error'); updateAvailableTimes(); return; }
             const appts = getAppointments();
-            const newAppt = {
-                id: uid(),
-                cliente_id: user.id,
-                data_hora: date + 'T' + time + ':00',
-                servico: service,
-                status: 'pendente',
-                admin_id: null
-            };
-            appts.push(newAppt);
+            appts.push({ id: uid(), cliente_id: user.id, data_hora: date + 'T' + time + ':00', servico: service, status: 'pendente', admin_id: null });
             saveAppointments(appts);
-            toast('✅ Agendamento confirmado! Aguarde a confirmação do barbeiro.', 'success');
+            toast('✅ Agendamento confirmado!','success');
             document.getElementById('apptFeedback').textContent = '✅ Agendado com sucesso!';
             document.getElementById('apptFeedback').style.color = '#2ecc71';
             updateAvailableTimes();
@@ -2254,11 +1544,7 @@
             const grid = document.getElementById('productGrid');
             const empty = document.getElementById('productGridEmpty');
             const available = products.filter(p => p.estoque > 0);
-            if (available.length === 0) {
-                grid.innerHTML = '';
-                empty.style.display = 'block';
-                return;
-            }
+            if (available.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
             empty.style.display = 'none';
             grid.innerHTML = available.map(p => {
                 const promoHtml = p.em_promocao ? `<span class="promo-badge">🔥 PROMO</span>` : '';
@@ -2268,66 +1554,46 @@
                 return `<div class="product-card" onclick="showProductDetail('${p.id}')">
                     <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" alt="${p.nome}" loading="lazy" />
                     ${promoHtml}
-                    <div class="info">
-                        <h4>${p.nome}</h4>
-                        <div>${priceHtml}</div>
-                        <div class="stock">${p.estoque} unid.</div>
-                    </div>
+                    <div class="info"><h4>${p.nome}</h4><div>${priceHtml}</div><div class="stock">${p.estoque} unid.</div></div>
                 </div>`;
             }).join('');
         }
-
         function showProductDetail(productId) {
             const p = getProductById(productId);
             if (!p) return;
             const user = getCurrentUser();
-            if (!user) { toast('Faça login primeiro.', 'error'); return; }
+            if (!user) { toast('Faça login primeiro.','error'); return; }
             const inCart = getCartOrders(user.id).some(o => o.produto_id === p.id);
             const priceDisplay = p.preco_promocional && p.preco_promocional > 0 ?
                 `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco_promocional.toFixed(2)}</span> <span style="text-decoration:line-through;color:#888;">R$ ${p.preco.toFixed(2)}</span>` :
                 `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco.toFixed(2)}</span>`;
-            const html = `
-                <div style="text-align:center;">
-                    <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:12px;" />
-                    <h4 style="font-size:1.1rem;">${p.nome}</h4>
-                    <p class="text-muted">${p.descricao || ''}</p>
-                    <div>${priceDisplay}</div>
-                    <p class="text-muted" style="font-size:0.8rem;">Estoque: ${p.estoque}</p>
-                    ${p.estoque > 0 ? 
-                        (inCart ? '<p class="text-gold"><i class="fas fa-check"></i> Já está no carrinho</p>' :
-                        `<button class="btn btn-gold btn-block mt-8" onclick="addToCart('${p.id}')"><i class="fas fa-cart-plus"></i> Adicionar ao carrinho</button>`) :
-                        '<p class="text-muted" style="color:var(--red-action);">ESGOTADO</p>'
-                    }
-                </div>
-            `;
+            const html = `<div style="text-align:center;">
+                <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:12px;" />
+                <h4 style="font-size:1.1rem;">${p.nome}</h4>
+                <p class="text-muted">${p.descricao || ''}</p>
+                <div>${priceDisplay}</div>
+                <p class="text-muted" style="font-size:0.8rem;">Estoque: ${p.estoque}</p>
+                ${p.estoque > 0 ? (inCart ? '<p class="text-gold"><i class="fas fa-check"></i> Já está no carrinho</p>' :
+                `<button class="btn btn-gold btn-block mt-8" onclick="addToCart('${p.id}')"><i class="fas fa-cart-plus"></i> Adicionar ao carrinho</button>`) :
+                '<p class="text-muted" style="color:var(--red-action);">ESGOTADO</p>'}
+            </div>`;
             openModal(p.nome, html);
         }
-
         function addToCart(productId) {
             const user = getCurrentUser();
-            if (!user) { toast('Faça login.', 'error'); return; }
+            if (!user) { toast('Faça login.','error'); return; }
             const p = getProductById(productId);
-            if (!p || p.estoque <= 0) { toast('Produto esgotado.', 'error'); return; }
+            if (!p || p.estoque <= 0) { toast('Produto esgotado.','error'); return; }
             const orders = getOrders();
             if (orders.some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status === 'carrinho')) {
-                toast('Já está no carrinho.', 'info');
-                return;
+                toast('Já está no carrinho.','info'); return;
             }
-            const newOrder = {
-                id: uid(),
-                cliente_id: user.id,
-                produto_id: p.id,
-                quantidade: 1,
-                status: 'carrinho',
-                data_pedido: nowISO()
-            };
-            orders.push(newOrder);
+            orders.push({ id: uid(), cliente_id: user.id, produto_id: p.id, quantidade: 1, status: 'carrinho', data_pedido: nowISO() });
             saveOrders(orders);
-            toast('🛒 Produto adicionado ao carrinho!', 'success');
+            toast('🛒 Produto adicionado ao carrinho!','success');
             updateCartBadge();
             closeModal();
         }
-
         function updateCartBadge() {
             const user = getCurrentUser();
             if (!user || user.role !== 'cliente') { document.getElementById('cartFloat').style.display = 'none'; return; }
@@ -2340,15 +1606,11 @@
                 document.getElementById('cartFloat').style.display = 'none';
             }
         }
-
         function showCartModal() {
             const user = getCurrentUser();
-            if (!user) { toast('Faça login.', 'error'); return; }
+            if (!user) { toast('Faça login.','error'); return; }
             const cart = getCartOrders(user.id);
-            if (cart.length === 0) {
-                openModal('🛒 Carrinho', '<p class="text-muted">Seu carrinho está vazio.</p>');
-                return;
-            }
+            if (cart.length === 0) { openModal('🛒 Carrinho','<p class="text-muted">Seu carrinho está vazio.</p>'); return; }
             let html = `<div style="max-height:300px;overflow-y:auto;margin-bottom:12px;">`;
             let total = 0;
             cart.forEach(o => {
@@ -2356,59 +1618,42 @@
                 if (!p) return;
                 const price = p.preco_promocional && p.preco_promocional > 0 ? p.preco_promocional : p.preco;
                 total += price;
-                html += `
-                    <div class="flex-between" style="padding:8px 0;border-bottom:1px solid #282828;">
-                        <span>${p.nome}</span>
-                        <span>R$ ${price.toFixed(2)}</span>
-                        <button class="btn btn-red btn-sm" onclick="removeFromCart('${o.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
+                html += `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid #282828;">
+                    <span>${p.nome}</span><span>R$ ${price.toFixed(2)}</span>
+                    <button class="btn btn-red btn-sm" onclick="removeFromCart('${o.id}')"><i class="fas fa-trash"></i></button>
+                </div>`;
             });
-            html += `</div>
-                <div class="flex-between" style="font-size:1.1rem;font-weight:700;border-top:2px solid #333;padding-top:12px;">
-                    <span>Total:</span>
-                    <span class="text-gold">R$ ${total.toFixed(2)}</span>
-                </div>
-                <button class="btn btn-gold btn-block mt-12" onclick="finalizeOrder()"><i class="fas fa-check"></i> Finalizar Pedido</button>
-            `;
+            html += `</div><div class="flex-between" style="font-size:1.1rem;font-weight:700;border-top:2px solid #333;padding-top:12px;">
+                <span>Total:</span><span class="text-gold">R$ ${total.toFixed(2)}</span>
+            </div><button class="btn btn-gold btn-block mt-12" onclick="finalizeOrder()"><i class="fas fa-check"></i> Finalizar Pedido</button>`;
             openModal('🛒 Meu Carrinho', html);
         }
-
         function removeFromCart(orderId) {
             let orders = getOrders();
             orders = orders.filter(o => o.id !== orderId);
             saveOrders(orders);
-            toast('Item removido.', 'info');
+            toast('Item removido.','info');
             updateCartBadge();
             showCartModal();
         }
-
         function finalizeOrder() {
             const user = getCurrentUser();
             if (!user) return;
             let orders = getOrders();
             const cart = orders.filter(o => o.cliente_id === user.id && o.status === 'carrinho');
-            if (cart.length === 0) { toast('Carrinho vazio.', 'error'); return; }
+            if (cart.length === 0) { toast('Carrinho vazio.','error'); return; }
             let hasError = false;
-            cart.forEach(o => {
-                const p = getProductById(o.produto_id);
-                if (!p || p.estoque < o.quantidade) { hasError = true; }
-            });
-            if (hasError) { toast('Algum produto está com estoque insuficiente.', 'error'); return; }
+            cart.forEach(o => { const p = getProductById(o.produto_id); if (!p || p.estoque < o.quantidade) hasError = true; });
+            if (hasError) { toast('Algum produto com estoque insuficiente.','error'); return; }
             let products = getProducts();
-            cart.forEach(o => {
-                const p = products.find(p => p.id === o.produto_id);
-                if (p) p.estoque -= o.quantidade;
-            });
+            cart.forEach(o => { const p = products.find(p => p.id === o.produto_id); if (p) p.estoque -= o.quantidade; });
             saveProducts(products);
             orders = orders.map(o => {
-                if (o.cliente_id === user.id && o.status === 'carrinho') {
-                    return { ...o, status: 'aguardando_retirada' };
-                }
+                if (o.cliente_id === user.id && o.status === 'carrinho') return { ...o, status: 'aguardando_retirada' };
                 return o;
             });
             saveOrders(orders);
-            toast('✅ Pedido finalizado! Aguarde a retirada.', 'success');
+            toast('✅ Pedido finalizado! Aguarde a retirada.','success');
             updateCartBadge();
             closeModal();
             renderProducts();
@@ -2426,23 +1671,17 @@
             let html = '';
             for (let i = 0; i < STAR_GOAL; i++) {
                 const earned = i < stars;
-                html += `<div class="star-circle ${earned ? 'earned' : ''}">
-                    <i class="fas ${earned ? 'fa-star' : 'fa-star'}"></i>
-                </div>`;
+                html += `<div class="star-circle ${earned ? 'earned' : ''}"><i class="fas ${earned ? 'fa-star' : 'fa-star'}"></i></div>`;
             }
             grid.innerHTML = html;
             const remaining = Math.max(0, STAR_GOAL - stars);
             document.getElementById('fidelidadeText').innerHTML =
                 `Você tem <strong class="text-gold">${stars}</strong> estrelas. Faltam <strong>${remaining}</strong> para ganhar um corte grátis!`;
             const freeBadge = document.getElementById('freeCutBadge');
-            if (stars >= STAR_GOAL || vouchers > 0) {
-                freeBadge.classList.remove('hidden');
-            } else {
-                freeBadge.classList.add('hidden');
-            }
+            if (stars >= STAR_GOAL || vouchers > 0) freeBadge.classList.remove('hidden');
+            else freeBadge.classList.add('hidden');
             renderStarsHistory();
         }
-
         function useFreeCut() {
             const user = getCurrentUser();
             if (!user) return;
@@ -2454,29 +1693,25 @@
                 u.vouchers = (u.vouchers || 0) + 1;
                 saveUsers(users);
                 setCurrentUser({ ...u });
-                toast('🎉 Corte grátis resgatado! Apresente na barbearia.', 'success');
+                toast('🎉 Corte grátis resgatado!','success');
                 renderFidelidade();
                 updateStarsDisplay();
             } else if (u.vouchers > 0) {
                 u.vouchers -= 1;
                 saveUsers(users);
                 setCurrentUser({ ...u });
-                toast('🎉 Voucher utilizado!', 'success');
+                toast('🎉 Voucher utilizado!','success');
                 renderFidelidade();
             } else {
-                toast('Você não tem estrelas suficientes nem vouchers.', 'error');
+                toast('Sem estrelas ou vouchers.','error');
             }
         }
-
         function renderStarsHistory() {
             const user = getCurrentUser();
             if (!user) return;
             const history = getStarsHistory().filter(s => s.cliente_id === user.id);
             const container = document.getElementById('starsHistoryList');
-            if (history.length === 0) {
-                container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhuma estrela registrada.</p>';
-                return;
-            }
+            if (history.length === 0) { container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhuma estrela registrada.</p>'; return; }
             container.innerHTML = history.map(s =>
                 `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
                     <span><i class="fas fa-star text-gold"></i> +1 estrela</span>
@@ -2497,16 +1732,12 @@
             document.getElementById('profileNascimento').value = user.data_nascimento || '';
             renderProfileHistory();
         }
-
         function renderProfileHistory() {
             const user = getCurrentUser();
             if (!user) return;
             const appts = getClientAppointments(user.id);
             const container = document.getElementById('profileHistory');
-            if (appts.length === 0) {
-                container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhum agendamento.</p>';
-                return;
-            }
+            if (appts.length === 0) { container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhum agendamento.</p>'; return; }
             container.innerHTML = appts.map(a => {
                 const statusClass = 'status-' + a.status;
                 const canCancel = a.status === 'pendente' || a.status === 'confirmado';
@@ -2515,27 +1746,23 @@
                 const diff = (apptDate - now) / (1000*60*60);
                 const showCancel = canCancel && diff > 2;
                 return `<div class="history-item">
-                    <div>
-                        <div>${formatDateTime(a.data_hora)} - ${a.servico}</div>
-                        <span class="status ${statusClass}">${a.status}</span>
-                    </div>
+                    <div><div>${formatDateTime(a.data_hora)} - ${a.servico}</div>
+                    <span class="status ${statusClass}">${a.status}</span></div>
                     ${showCancel ? `<button class="btn btn-red btn-sm" onclick="cancelAppointment('${a.id}')"><i class="fas fa-times"></i> Cancelar</button>` : ''}
                 </div>`;
             }).join('');
         }
-
         function cancelAppointment(apptId) {
-            if (!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+            if (!confirm('Cancelar este agendamento?')) return;
             let appts = getAppointments();
             const idx = appts.findIndex(a => a.id === apptId);
             if (idx === -1) return;
             appts[idx].status = 'cancelado';
             saveAppointments(appts);
-            toast('Agendamento cancelado.', 'info');
+            toast('Agendamento cancelado.','info');
             renderPerfil();
             renderHome();
         }
-
         function saveProfile() {
             const user = getCurrentUser();
             if (!user) return;
@@ -2543,21 +1770,18 @@
             const telefone = document.getElementById('profileTelefone').value.trim();
             const email = document.getElementById('profileEmail').value.trim();
             const nascimento = document.getElementById('profileNascimento').value;
-            if (!nome || !telefone || !email) { toast('Preencha todos os campos.', 'error'); return; }
+            if (!nome || !telefone || !email) { toast('Preencha todos os campos.','error'); return; }
             let users = getUsers();
             const u = users.find(x => x.id === user.id);
             if (!u) return;
             const existing = users.find(x => x.email === email && x.id !== user.id);
-            if (existing) { toast('E-mail já cadastrado por outro usuário.', 'error'); return; }
+            if (existing) { toast('E-mail já cadastrado por outro usuário.','error'); return; }
             const existingTel = users.find(x => x.telefone === telefone && x.id !== user.id);
-            if (existingTel) { toast('Telefone já cadastrado por outro usuário.', 'error'); return; }
-            u.nome = nome;
-            u.telefone = telefone;
-            u.email = email;
-            u.data_nascimento = nascimento;
+            if (existingTel) { toast('Telefone já cadastrado por outro usuário.','error'); return; }
+            u.nome = nome; u.telefone = telefone; u.email = email; u.data_nascimento = nascimento;
             saveUsers(users);
             setCurrentUser({ ...u });
-            toast('✅ Perfil atualizado!', 'success');
+            toast('✅ Perfil atualizado!','success');
             renderPerfil();
         }
 
@@ -2574,10 +1798,7 @@
             const clientes = users.filter(u => u.role === 'cliente');
             const estoqueBaixo = products.filter(p => p.estoque <= 3);
             const mesAtual = new Date().getMonth();
-            const estrelasMes = starsHist.filter(s => {
-                const d = new Date(s.data_atribuicao);
-                return d.getMonth() === mesAtual;
-            });
+            const estrelasMes = starsHist.filter(s => { const d = new Date(s.data_atribuicao); return d.getMonth() === mesAtual; });
             document.getElementById('adminDashHoje').textContent = hojeAppts.length;
             document.getElementById('adminDashClientes').textContent = clientes.length;
             document.getElementById('adminDashEstoque').textContent = estoqueBaixo.length;
@@ -2585,26 +1806,21 @@
         }
 
         // ================================================================
-        //  ADMIN: GERENCIAR AGENDAMENTOS
+        //  ADMIN: AGENDAMENTOS
         // ================================================================
         function renderAdminAppointments() {
             const appts = getAppointments();
             const users = getUsers();
             const container = document.getElementById('adminApptList');
-            if (appts.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum agendamento.</p>';
-                return;
-            }
+            if (appts.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum agendamento.</p>'; return; }
             container.innerHTML = appts.sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora)).map(a => {
                 const user = users.find(u => u.id === a.cliente_id);
                 const nome = user ? user.nome : 'Desconhecido';
                 const statusClass = 'status-' + a.status;
                 const isPending = a.status === 'pendente' || a.status === 'confirmado';
                 return `<div class="history-item" style="flex-wrap:wrap;gap:8px;">
-                    <div>
-                        <strong>${nome}</strong> - ${formatDateTime(a.data_hora)} - ${a.servico}
-                        <span class="status ${statusClass}">${a.status}</span>
-                    </div>
+                    <div><strong>${nome}</strong> - ${formatDateTime(a.data_hora)} - ${a.servico}
+                        <span class="status ${statusClass}">${a.status}</span></div>
                     <div style="display:flex;gap:6px;flex-wrap:wrap;">
                         ${isPending ? `<button class="btn btn-gold btn-sm" onclick="adminCompleteAppointment('${a.id}')"><i class="fas fa-check"></i> Concluir</button>` : ''}
                         ${a.status === 'pendente' ? `<button class="btn btn-outline-gold btn-sm" onclick="adminConfirmAppointment('${a.id}')"><i class="fas fa-thumbs-up"></i> Confirmar</button>` : ''}
@@ -2614,43 +1830,32 @@
                 </div>`;
             }).join('');
         }
-
         function adminConfirmAppointment(apptId) {
             let appts = getAppointments();
             const a = appts.find(x => x.id === apptId);
             if (!a) return;
             a.status = 'confirmado';
             saveAppointments(appts);
-            toast('Agendamento confirmado!', 'success');
+            toast('Agendamento confirmado!','success');
             renderAdminAppointments();
         }
-
         function adminCompleteAppointment(apptId) {
             let appts = getAppointments();
             const a = appts.find(x => x.id === apptId);
             if (!a) return;
             const user = findUserById(a.cliente_id);
-            if (!user) { toast('Cliente não encontrado.', 'error'); return; }
+            if (!user) { toast('Cliente não encontrado.','error'); return; }
             if (confirm(`Dar 1 estrela para ${user.nome}?`)) {
                 let users = getUsers();
                 const u = users.find(x => x.id === user.id);
                 if (u) {
                     u.estrelas = (u.estrelas || 0) + 1;
-                    if (u.estrelas >= STAR_GOAL) {
-                        u.vouchers = (u.vouchers || 0) + 1;
-                        toast('🎉 Cliente atingiu 10 estrelas! Voucher gerado!', 'success');
-                    }
+                    if (u.estrelas >= STAR_GOAL) { u.vouchers = (u.vouchers || 0) + 1; toast('🎉 Cliente atingiu 10 estrelas! Voucher gerado!','success'); }
                     saveUsers(users);
                     let hist = getStarsHistory();
-                    hist.push({
-                        id: uid(),
-                        cliente_id: user.id,
-                        appointment_id: a.id,
-                        data_atribuicao: nowISO(),
-                        admin_id: getCurrentUser().id
-                    });
+                    hist.push({ id: uid(), cliente_id: user.id, appointment_id: a.id, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
                     saveStarsHistory(hist);
-                    toast(`⭐ +1 estrela para ${user.nome}!`, 'success');
+                    toast(`⭐ +1 estrela para ${user.nome}!`,'success');
                 }
             }
             a.status = 'realizado';
@@ -2658,19 +1863,17 @@
             renderAdminAppointments();
             renderAdminDashboard();
         }
-
         function adminCancelAppointment(apptId) {
             if (!confirm('Cancelar este agendamento?')) return;
             let appts = getAppointments();
             const a = appts.find(x => x.id === apptId);
-            if (a) { a.status = 'cancelado'; saveAppointments(appts); toast('Cancelado.', 'info'); renderAdminAppointments(); }
+            if (a) { a.status = 'cancelado'; saveAppointments(appts); toast('Cancelado.','info'); renderAdminAppointments(); }
         }
-
         function adminMarkNoShow(apptId) {
             if (!confirm('Marcar como falta?')) return;
             let appts = getAppointments();
             const a = appts.find(x => x.id === apptId);
-            if (a) { a.status = 'falta'; saveAppointments(appts); toast('Marcado como falta.', 'info'); renderAdminAppointments(); }
+            if (a) { a.status = 'falta'; saveAppointments(appts); toast('Marcado como falta.','info'); renderAdminAppointments(); }
         }
 
         // ================================================================
@@ -2680,23 +1883,12 @@
             const query = document.getElementById('fidelitySearch').value.trim().toLowerCase();
             const users = getUsers().filter(u => u.role === 'cliente');
             let filtered = users;
-            if (query) {
-                filtered = users.filter(u =>
-                    u.nome.toLowerCase().includes(query) ||
-                    u.telefone.includes(query)
-                );
-            }
+            if (query) filtered = users.filter(u => u.nome.toLowerCase().includes(query) || u.telefone.includes(query));
             const container = document.getElementById('fidelityResults');
-            if (filtered.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum cliente encontrado.</p>';
-                return;
-            }
+            if (filtered.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum cliente encontrado.</p>'; return; }
             container.innerHTML = filtered.map(u =>
                 `<div class="client-item">
-                    <div>
-                        <span class="name">${u.nome}</span>
-                        <span class="text-muted" style="font-size:0.8rem;">${u.telefone}</span>
-                    </div>
+                    <div><span class="name">${u.nome}</span><span class="text-muted" style="font-size:0.8rem;">${u.telefone}</span></div>
                     <div class="flex-center">
                         <span class="stars"><i class="fas fa-star"></i> ${u.estrelas || 0}</span>
                         ${u.estrelas >= STAR_GOAL ? '<span class="badge-gold" style="font-size:0.6rem;">VALE</span>' : ''}
@@ -2706,32 +1898,21 @@
                 </div>`
             ).join('');
         }
-
         function adminAddStar(userId) {
             let users = getUsers();
             const u = users.find(x => x.id === userId);
             if (!u) return;
-            if (u.estrelas >= STAR_GOAL) { toast('Cliente já tem 10 estrelas!', 'error'); return; }
+            if (u.estrelas >= STAR_GOAL) { toast('Cliente já tem 10 estrelas!','error'); return; }
             u.estrelas = (u.estrelas || 0) + 1;
-            if (u.estrelas >= STAR_GOAL) {
-                u.vouchers = (u.vouchers || 0) + 1;
-                toast('🎉 10 estrelas! Voucher gerado!', 'success');
-            }
+            if (u.estrelas >= STAR_GOAL) { u.vouchers = (u.vouchers || 0) + 1; toast('🎉 10 estrelas! Voucher gerado!','success'); }
             saveUsers(users);
             let hist = getStarsHistory();
-            hist.push({
-                id: uid(),
-                cliente_id: userId,
-                appointment_id: null,
-                data_atribuicao: nowISO(),
-                admin_id: getCurrentUser().id
-            });
+            hist.push({ id: uid(), cliente_id: userId, appointment_id: null, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
             saveStarsHistory(hist);
-            toast('⭐ Estrela adicionada!', 'success');
+            toast('⭐ Estrela adicionada!','success');
             renderFidelitySearch();
             renderAdminDashboard();
         }
-
         function adminRedeemVoucher(userId) {
             let users = getUsers();
             const u = users.find(x => x.id === userId);
@@ -2740,14 +1921,12 @@
                 u.estrelas -= STAR_GOAL;
                 u.vouchers = (u.vouchers || 0) + 1;
                 saveUsers(users);
-                toast('Voucher resgatado!', 'success');
+                toast('Voucher resgatado!','success');
             } else if (u.vouchers > 0) {
                 u.vouchers -= 1;
                 saveUsers(users);
-                toast('Voucher utilizado!', 'success');
-            } else {
-                toast('Cliente não tem estrelas suficientes nem vouchers.', 'error');
-            }
+                toast('Voucher utilizado!','success');
+            } else { toast('Cliente não tem estrelas ou vouchers.','error'); }
             renderFidelitySearch();
         }
 
@@ -2757,14 +1936,10 @@
         function renderAdminProducts() {
             const products = getProducts();
             const container = document.getElementById('adminProductList');
-            if (products.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum produto cadastrado.</p>';
-                return;
-            }
+            if (products.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum produto cadastrado.</p>'; return; }
             container.innerHTML = products.map(p =>
                 `<div class="history-item" style="flex-wrap:wrap;gap:8px;">
-                    <div>
-                        <strong>${p.nome}</strong> - R$ ${p.preco.toFixed(2)} - Estoque: ${p.estoque}
+                    <div><strong>${p.nome}</strong> - R$ ${p.preco.toFixed(2)} - Estoque: ${p.estoque}
                         ${p.em_promocao ? ' <span class="badge-promo">PROMO</span>' : ''}
                         ${p.estoque === 0 ? ' <span class="badge-burgundy">ESGOTADO</span>' : ''}
                     </div>
@@ -2775,15 +1950,12 @@
                 </div>`
             ).join('');
         }
-
         let pendingImageBase64 = null;
-
         function showProductForm(productId) {
             const p = productId ? getProductById(productId) : null;
             const isEdit = !!p;
             const currentImage = p ? p.imagem_url : '';
             pendingImageBase64 = currentImage;
-
             const html = `
                 <div class="form-group"><label>Nome</label><input type="text" id="pfNome" value="${p ? p.nome : ''}" /></div>
                 <div class="form-group"><label>Descrição</label><input type="text" id="pfDesc" value="${p ? p.descricao : ''}" /></div>
@@ -2791,30 +1963,15 @@
                     <div class="form-group"><label>Preço (R$)</label><input type="number" id="pfPreco" step="0.01" value="${p ? p.preco : ''}" /></div>
                     <div class="form-group"><label>Estoque</label><input type="number" id="pfEstoque" value="${p ? p.estoque : ''}" /></div>
                 </div>
-                <div class="form-group">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="pfPromo" ${p && p.em_promocao ? 'checked' : ''} />
-                        <label for="pfPromo">Em promoção</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Preço promocional (R$)</label>
-                    <input type="number" id="pfPrecoPromo" step="0.01" value="${p && p.preco_promocional ? p.preco_promocional : ''}" placeholder="Deixe em branco se não houver" />
-                </div>
-                <div class="form-group">
-                    <label>Foto do produto (tire uma foto ou escolha da galeria)</label>
-                    <input type="file" accept="image/*" capture="environment" id="pfImage" onchange="previewProductImage(event)" />
-                    <img id="pfImagePreview" class="img-preview" src="${currentImage || ''}" style="${currentImage ? '' : 'display:none;'}" />
-                </div>
+                <div class="form-group"><div class="checkbox-group"><input type="checkbox" id="pfPromo" ${p && p.em_promocao ? 'checked' : ''} /><label for="pfPromo">Em promoção</label></div></div>
+                <div class="form-group"><label>Preço promocional (R$)</label><input type="number" id="pfPrecoPromo" step="0.01" value="${p && p.preco_promocional ? p.preco_promocional : ''}" placeholder="Deixe em branco se não houver" /></div>
+                <div class="form-group"><label>Foto do produto</label><input type="file" accept="image/*" capture="environment" id="pfImage" onchange="previewProductImage(event)" />
+                <img id="pfImagePreview" class="img-preview" src="${currentImage || ''}" style="${currentImage ? '' : 'display:none;'}" /></div>
                 <button class="btn btn-gold btn-block" onclick="saveProductForm('${productId || ''}')"><i class="fas fa-save"></i> Salvar</button>
             `;
             openModal(isEdit ? '✏️ Editar Produto' : '➕ Novo Produto', html);
-            if (currentImage) {
-                const preview = document.getElementById('pfImagePreview');
-                if (preview) preview.style.display = 'block';
-            }
+            if (currentImage) { const preview = document.getElementById('pfImagePreview'); if (preview) preview.style.display = 'block'; }
         }
-
         function previewProductImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2823,15 +1980,11 @@
                 const base64 = e.target.result;
                 pendingImageBase64 = base64;
                 const preview = document.getElementById('pfImagePreview');
-                if (preview) {
-                    preview.src = base64;
-                    preview.style.display = 'block';
-                }
-                toast('📸 Imagem carregada!', 'success');
+                if (preview) { preview.src = base64; preview.style.display = 'block'; }
+                toast('📸 Imagem carregada!','success');
             };
             reader.readAsDataURL(file);
         }
-
         function saveProductForm(productId) {
             const nome = document.getElementById('pfNome').value.trim();
             const desc = document.getElementById('pfDesc').value.trim();
@@ -2839,62 +1992,33 @@
             const estoque = parseInt(document.getElementById('pfEstoque').value);
             const em_promocao = document.getElementById('pfPromo').checked;
             const preco_promocional = parseFloat(document.getElementById('pfPrecoPromo').value) || 0;
-
-            if (!nome || isNaN(preco) || isNaN(estoque)) {
-                toast('Preencha todos os campos corretamente.', 'error');
-                return;
-            }
-
+            if (!nome || isNaN(preco) || isNaN(estoque)) { toast('Preencha todos os campos corretamente.','error'); return; }
             let imagem_url = pendingImageBase64 || 'https://picsum.photos/seed/' + uid() + '/200/200';
-
             let products = getProducts();
             if (!productId) {
-                if (products.length >= MAX_PRODUCTS) {
-                    toast(`Limite de ${MAX_PRODUCTS} produtos atingido.`, 'error');
-                    return;
-                }
-                products.push({
-                    id: uid(),
-                    nome,
-                    descricao: desc,
-                    preco,
-                    estoque,
-                    imagem_url,
-                    em_promocao,
-                    preco_promocional: em_promocao ? preco_promocional : 0
-                });
-                toast('✅ Produto criado!', 'success');
+                if (products.length >= MAX_PRODUCTS) { toast(`Limite de ${MAX_PRODUCTS} produtos.`,'error'); return; }
+                products.push({ id: uid(), nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 });
+                toast('✅ Produto criado!','success');
             } else {
                 const idx = products.findIndex(p => p.id === productId);
                 if (idx === -1) return;
-                products[idx] = {
-                    ...products[idx],
-                    nome,
-                    descricao: desc,
-                    preco,
-                    estoque,
-                    imagem_url,
-                    em_promocao,
-                    preco_promocional: em_promocao ? preco_promocional : 0
-                };
-                toast('✅ Produto atualizado!', 'success');
+                products[idx] = { ...products[idx], nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 };
+                toast('✅ Produto atualizado!','success');
             }
             saveProducts(products);
             pendingImageBase64 = null;
             closeModal();
             renderAdminProducts();
             renderProducts();
-            renderSlideshow(); // atualiza slideshow com promoções
+            renderSlideshow();
         }
-
         function editProduct(productId) { showProductForm(productId); }
-
         function deleteProduct(productId) {
             if (!confirm('Excluir este produto permanentemente?')) return;
             let products = getProducts();
             products = products.filter(p => p.id !== productId);
             saveProducts(products);
-            toast('Produto excluído.', 'info');
+            toast('Produto excluído.','info');
             renderAdminProducts();
             renderProducts();
             renderSlideshow();
@@ -2906,59 +2030,35 @@
         function renderUserList() {
             const users = getUsers();
             const container = document.getElementById('userList');
-            if (users.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum usuário cadastrado.</p>';
-                return;
-            }
+            if (users.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum usuário cadastrado.</p>'; return; }
             const currentUser = getCurrentUser();
             const canBlock = currentUser && currentUser.role === 'supervisor';
-
             container.innerHTML = users.map(u => {
                 const roleLabel = u.role === 'admin' ? '👑 Admin' : u.role === 'supervisor' ? '⭐ Supervisor' : '👤 Cliente';
                 const blocked = u.bloqueado || false;
                 const blockBtn = canBlock ?
-                    `<button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">
-                        ${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}
-                    </button>` :
+                    `<button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}</button>` :
                     '';
                 return `<div class="client-item">
-                    <div>
-                        <span class="name">${u.nome}</span>
-                        <span class="text-muted" style="font-size:0.7rem;margin-left:8px;">${roleLabel}</span>
-                        ${blocked ? '<span class="blocked-badge">BLOQUEADO</span>' : ''}
-                    </div>
-                    <div style="display:flex;gap:6px;">
-                        ${blockBtn}
-                    </div>
+                    <div><span class="name">${u.nome}</span><span class="text-muted" style="font-size:0.7rem;margin-left:8px;">${roleLabel}</span>${blocked ? ' <span class="blocked-badge">BLOQUEADO</span>' : ''}</div>
+                    <div style="display:flex;gap:6px;">${blockBtn}</div>
                 </div>`;
             }).join('');
         }
-
         function toggleBlockUser(userId) {
-            // Apenas supervisor pode bloquear
-            if (!isSupervisor()) {
-                toast('Apenas o supervisor pode bloquear usuários.', 'error');
-                return;
-            }
+            if (!isSupervisor()) { toast('Apenas o supervisor pode bloquear usuários.','error'); return; }
             const user = findUserById(userId);
             if (!user) return;
             const current = getCurrentUser();
-            if (current && current.id === userId) {
-                toast('Você não pode bloquear a si mesmo.', 'error');
-                return;
-            }
-            // Supervisor pode bloquear qualquer um, inclusive admin
+            if (current && current.id === userId) { toast('Você não pode bloquear a si mesmo.','error'); return; }
             let users = getUsers();
             const u = users.find(x => x.id === userId);
             if (!u) return;
             u.bloqueado = !u.bloqueado;
             saveUsers(users);
-            toast(`Usuário ${u.bloqueado ? 'bloqueado' : 'desbloqueado'} com sucesso.`, 'success');
+            toast(`Usuário ${u.bloqueado ? 'bloqueado' : 'desbloqueado'} com sucesso.`,'success');
             renderUserList();
-            // Se o usuário bloqueado for o próprio supervisor ou admin logado, força logout
-            if (u.bloqueado && current && current.id === u.id) {
-                logout();
-            }
+            if (u.bloqueado && current && current.id === u.id) logout();
         }
 
         // ================================================================
@@ -2979,17 +2079,14 @@
             document.getElementById('configOpen').value = active.hora_inicio || '09:00';
             document.getElementById('configClose').value = active.hora_fim || '20:00';
             document.getElementById('configDuration').value = active.duracao || 30;
-            const blocks = active.bloqueios || [];
-            document.getElementById('configBlocks').value = blocks.join(',');
+            document.getElementById('configBlocks').value = (active.bloqueios || []).join(',');
         }
-
         function toggleDay(idx) {
             let config = getConfig();
             config[idx].ativo = !config[idx].ativo;
             saveConfig(config);
             renderConfig();
         }
-
         function saveConfig() {
             const open = document.getElementById('configOpen').value;
             const close = document.getElementById('configClose').value;
@@ -2997,15 +2094,9 @@
             const blocksRaw = document.getElementById('configBlocks').value;
             const blocks = blocksRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
             let config = getConfig();
-            config = config.map(c => ({
-                ...c,
-                hora_inicio: open,
-                hora_fim: close,
-                duracao: duration,
-                bloqueios: blocks
-            }));
+            config = config.map(c => ({ ...c, hora_inicio: open, hora_fim: close, duracao: duration, bloqueios: blocks }));
             saveConfig(config);
-            toast('✅ Configurações salvas!', 'success');
+            toast('✅ Configurações salvas!','success');
             renderConfig();
         }
 
@@ -3016,10 +2107,7 @@
             const hist = getStarsHistory();
             const users = getUsers();
             const container = document.getElementById('starsLogList');
-            if (hist.length === 0) {
-                container.innerHTML = '<p class="text-muted">Nenhum registro.</p>';
-                return;
-            }
+            if (hist.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum registro.</p>'; return; }
             container.innerHTML = hist.sort((a,b) => new Date(b.data_atribuicao) - new Date(a.data_atribuicao)).map(s => {
                 const user = users.find(u => u.id === s.cliente_id);
                 const nome = user ? user.nome : 'Desconhecido';
@@ -3052,9 +2140,22 @@
             u.birthday_star_given[yearKey] = true;
             saveUsers(users);
             setCurrentUser({ ...u });
-            toast('🎂 Feliz Aniversário! Você ganhou 1 estrela extra! ⭐', 'success');
+            toast('🎂 Feliz Aniversário! Você ganhou 1 estrela extra! ⭐','success');
             updateStarsDisplay();
             renderFidelidade();
+        }
+
+        // ================================================================
+        //  ATUALIZA ESTRELAS NO HEADER
+        // ================================================================
+        function updateStarsDisplay() {
+            const user = getCurrentUser();
+            if (user && user.role === 'cliente') {
+                document.getElementById('headerStarsCount').textContent = user.estrelas || 0;
+                document.getElementById('headerStars').style.display = 'flex';
+            } else {
+                document.getElementById('headerStars').style.display = 'none';
+            }
         }
 
         // ================================================================
@@ -3085,8 +2186,10 @@
                     if (currentScreen === 'home') { renderHome(); renderStories(); }
                     if (currentScreen === 'fidelidade') renderFidelidade();
                     if (currentScreen === 'agendamento') updateAvailableTimes();
+                    if (currentScreen === 'chat') renderChatMessages();
+                    if (isAdmin()) { renderAdminChatList(); renderAdminOrders(); }
                 }
-            }, 30000);
+            }, 10000);
         }
 
         // ===== EXPOR FUNÇÕES GLOBAIS =====
@@ -3133,6 +2236,12 @@
         window.openStoryViewer = openStoryViewer;
         window.closeStoryViewer = closeStoryViewer;
         window.navigateStory = navigateStory;
+        window.sendChatMessage = sendChatMessage;
+        window.renderChatMessages = renderChatMessages;
+        window.openAdminChat = openAdminChat;
+        window.sendAdminChatMessage = sendAdminChatMessage;
+        window.updateOrderStatus = updateOrderStatus;
+        window.renderAdminOrders = renderAdminOrders;
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
