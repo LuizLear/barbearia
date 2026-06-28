@@ -201,6 +201,11 @@
             font-size: 1.2rem;
             color: var(--gold);
             letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .header .logo:hover {
+            opacity: 0.8;
         }
         .header .logo i {
             font-size: 1.4rem;
@@ -221,20 +226,6 @@
         .header .stars-display i {
             color: var(--gold);
             font-size: 1rem;
-        }
-        .header .admin-entry {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: var(--transition);
-            padding: 4px 8px;
-            border-radius: 8px;
-        }
-        .header .admin-entry:hover {
-            color: var(--gold);
-            background: #2a2a2a;
         }
 
         /* ===== MAIN CONTENT ===== */
@@ -261,7 +252,7 @@
             }
         }
 
-        /* ===== BOTTOM TABS ===== */
+        /* ===== BOTTOM TABS (CLIENTE) ===== */
         .bottom-tabs {
             display: flex;
             background: var(--bg-secondary);
@@ -953,7 +944,6 @@
             font-weight: 700;
             display: inline-block;
         }
-        /* preview da imagem */
         .img-preview {
             max-width: 100%;
             max-height: 150px;
@@ -970,10 +960,10 @@
     <div id="loginScreen">
         <div class="login-box">
             <div class="logo"><i class="fas fa-cut"></i> Barbearia VIP</div>
-            <div class="subtitle">Acesse sua conta ou crie uma nova</div>
+            <div class="subtitle">Acesse sua conta</div>
             <div class="form-group">
-                <label><i class="fas fa-user"></i> E-mail ou Telefone</label>
-                <input type="text" id="loginEmail" placeholder="ex: joao@email.com ou 11988888888" />
+                <label><i class="fas fa-user"></i> E-mail, Telefone ou usuário</label>
+                <input type="text" id="loginEmail" placeholder="ex: joao@email.com / admin" />
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Senha</label>
@@ -991,7 +981,7 @@
     <div id="appWrapper">
         <!-- HEADER -->
         <header class="header">
-            <div class="logo">
+            <div class="logo" onclick="goHome()">
                 <i class="fas fa-cut"></i>
                 <span>Barbearia VIP</span>
             </div>
@@ -999,14 +989,11 @@
                 <i class="fas fa-star"></i>
                 <span id="headerStarsCount">0</span>
             </div>
-            <button class="admin-entry" id="adminEntryBtn" title="Painel Admin">
-                <i class="fas fa-user-cog"></i>
-            </button>
         </header>
 
         <!-- MAIN -->
         <div class="main-content" id="mainContent">
-            <!-- HOME -->
+            <!-- HOME (cliente) -->
             <div class="screen active" id="screen-home">
                 <div class="card">
                     <div class="card-title"><i class="fas fa-hand-peace"></i> Olá, <span id="homeUserName">Cliente</span>!</div>
@@ -1176,7 +1163,7 @@
             </div>
         </div>
 
-        <!-- BOTTOM TABS -->
+        <!-- BOTTOM TABS (cliente) -->
         <div class="bottom-tabs" id="bottomTabs">
             <button class="tab-btn active" data-tab="home"><i class="fas fa-home"></i><span>Início</span></button>
             <button class="tab-btn" data-tab="agendamento"><i class="fas fa-calendar-plus"></i><span>Agendar</span></button>
@@ -1208,10 +1195,10 @@
 
     <script>
         // ================================================================
-        //  BARBEARIA VIP - CÓDIGO COMPLETO (CORRIGIDO)
-        //  - Tela de login funcional com cadastro
-        //  - Credenciais padrão garantidas
+        //  BARBEARIA VIP - CÓDIGO COMPLETO
+        //  - Login unificado (admin e cliente)
         //  - Upload de fotos dos produtos direto do celular
+        //  - Clique no logotipo redireciona para a tela principal
         // ================================================================
 
         // ===== CONSTANTES =====
@@ -1261,7 +1248,10 @@
 
         function setCurrentUser(u) { setObj(STORAGE_KEYS.CURRENT_USER, u); }
 
-        function isAdmin() { return getObj(STORAGE_KEYS.ADMIN_SESSION) === true; }
+        function isAdmin() {
+            const user = getCurrentUser();
+            return user && user.role === 'admin';
+        }
 
         // ===== TOAST =====
         function toast(msg, type = 'success') {
@@ -1288,15 +1278,11 @@
             if (e.target === this) closeModal();
         });
 
-        // ===== NAVEGAÇÃO =====
+        // ===== NAVEGAÇÃO (cliente) =====
         let currentScreen = 'home';
-        let isAdminView = false;
 
         function navigateTo(screen) {
-            if (isAdminView) {
-                if (screen === 'admin-login' || screen === 'home') { adminLogout(); return; }
-                return;
-            }
+            if (isAdmin()) return; // admin não usa navegação por tabs
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             const target = document.getElementById('screen-' + screen);
             if (target) target.classList.add('active');
@@ -1313,9 +1299,18 @@
             updateCartBadge();
         }
 
-        // ===== ADMIN NAVEGAÇÃO =====
+        // ===== IR PARA A TELA PRINCIPAL (HOME ou ADMIN) =====
+        function goHome() {
+            if (isAdmin()) {
+                showAdminPanel();
+            } else {
+                navigateTo('home');
+            }
+        }
+
+        // ===== ADMIN PANEL =====
         function showAdminPanel() {
-            isAdminView = true;
+            if (!isAdmin()) return;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-admin-panel').classList.add('active');
             document.getElementById('bottomTabs').style.display = 'none';
@@ -1333,7 +1328,8 @@
         }
 
         function hideAdminPanel() {
-            isAdminView = false;
+            // Volta para a interface de cliente (se for cliente)
+            if (isAdmin()) return; // admin não deve sair do admin panel
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-home').classList.add('active');
             document.getElementById('bottomTabs').style.display = 'flex';
@@ -1347,30 +1343,7 @@
             updateCartBadge();
         }
 
-        // ===== ADMIN LOGIN/LOGOUT =====
-        function adminLogin() {
-            const u = document.getElementById('adminUser').value.trim();
-            const p = document.getElementById('adminPass').value.trim();
-            if (u === ADMIN_CREDENTIALS.user && p === ADMIN_CREDENTIALS.pass) {
-                setObj(STORAGE_KEYS.ADMIN_SESSION, true);
-                document.getElementById('adminLoginError').textContent = '';
-                closeModal();
-                showAdminPanel();
-                toast('Bem-vindo, Admin!', 'success');
-            } else {
-                document.getElementById('adminLoginError').textContent = 'Usuário ou senha inválidos.';
-                toast('Credenciais incorretas.', 'error');
-            }
-        }
-
-        function adminLogout() {
-            setObj(STORAGE_KEYS.ADMIN_SESSION, false);
-            isAdminView = false;
-            hideAdminPanel();
-            toast('Saiu do painel admin.', 'info');
-        }
-
-        // ===== LOGIN DO CLIENTE =====
+        // ===== LOGIN UNIFICADO =====
         function handleLogin() {
             const login = document.getElementById('loginEmail').value.trim();
             const senha = document.getElementById('loginPassword').value.trim();
@@ -1382,6 +1355,36 @@
                 return;
             }
 
+            // Verifica se é o admin
+            if (login === ADMIN_CREDENTIALS.user && senha === ADMIN_CREDENTIALS.pass) {
+                // Busca ou cria o usuário admin no sistema
+                let users = getData(STORAGE_KEYS.USERS);
+                let adminUser = users.find(u => u.role === 'admin');
+                if (!adminUser) {
+                    adminUser = {
+                        id: 'admin1',
+                        nome: 'Administrador',
+                        email: 'admin@barbearia.com',
+                        telefone: '1199999999',
+                        senha: ADMIN_CREDENTIALS.pass,
+                        role: 'admin',
+                        estrelas: 0,
+                        vouchers: 0,
+                        data_nascimento: '1990-01-01',
+                        birthday_star_given: {}
+                    };
+                    users.push(adminUser);
+                    setData(STORAGE_KEYS.USERS, users);
+                }
+                setCurrentUser(adminUser);
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('appWrapper').classList.add('visible');
+                showAdminPanel();
+                toast('Bem-vindo, Admin!', 'success');
+                return;
+            }
+
+            // Busca cliente normal
             const users = getData(STORAGE_KEYS.USERS);
             const user = users.find(u =>
                 (u.email === login || u.telefone === login) && u.senha === senha
@@ -1393,9 +1396,8 @@
                 return;
             }
 
-            // Verifica se é admin (pelo role)
             if (user.role === 'admin') {
-                setObj(STORAGE_KEYS.ADMIN_SESSION, true);
+                // Se por acaso o admin logar com email/telefone, também vai para admin
                 setCurrentUser(user);
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
@@ -1473,25 +1475,21 @@
             handleLogin(); // tenta logar automaticamente
         }
 
-        // ===== BOTÃO ADMIN ENTRY =====
-        document.getElementById('adminEntryBtn').addEventListener('click', function() {
-            if (isAdminView) { adminLogout(); return; }
-            if (isAdmin()) { showAdminPanel(); return; }
-            // Abre modal de login admin
-            const html = `
-                <div class="form-group"><label>Usuário</label><input type="text" id="adminUser" value="admin" /></div>
-                <div class="form-group"><label>Senha</label><input type="password" id="adminPass" value="admin123" /></div>
-                <button class="btn btn-gold btn-block" onclick="adminLogin()"><i class="fas fa-sign-in-alt"></i> Entrar como Admin</button>
-                <p id="adminLoginError" class="text-muted mt-8 text-center" style="font-size:0.85rem;color:var(--red-action);"></p>
-            `;
-            openModal('🔐 Acesso Admin', html);
-            // A função adminLogin já está definida globalmente
-        });
+        // ===== ADMIN LOGOUT =====
+        function adminLogout() {
+            setCurrentUser(null);
+            document.getElementById('appWrapper').classList.remove('visible');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('loginError').textContent = '';
+            toast('Você saiu.', 'info');
+        }
 
         // ===== TABS CLIENTE =====
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                if (isAdminView) return;
+                if (isAdmin()) return;
                 navigateTo(this.dataset.tab);
             });
         });
@@ -1564,7 +1562,7 @@
                     data_nascimento: '1992-03-20',
                     birthday_star_given: {}
                 },
-                // NOVO CLIENTE COM AS CREDENCIAIS SOLICITADAS
+                // Cliente com as credenciais solicitadas
                 {
                     id: 'cli4',
                     nome: 'Cliente Teste',
@@ -1784,10 +1782,11 @@
         // ================================================================
         function updateStarsDisplay() {
             const user = getCurrentUser();
-            if (user) {
+            if (user && user.role === 'cliente') {
                 document.getElementById('headerStarsCount').textContent = user.estrelas || 0;
+                document.getElementById('headerStars').style.display = 'flex';
             } else {
-                document.getElementById('headerStarsCount').textContent = '0';
+                document.getElementById('headerStars').style.display = 'none';
             }
         }
 
@@ -1796,7 +1795,7 @@
         // ================================================================
         function renderHome() {
             const user = getCurrentUser();
-            if (!user) return;
+            if (!user || user.role !== 'cliente') return;
             document.getElementById('homeUserName').textContent = user.nome || 'Cliente';
             const upcoming = getUpcomingAppointments(user.id);
             const container = document.getElementById('homeUpcomingAppointments');
@@ -1959,7 +1958,7 @@
 
         function updateCartBadge() {
             const user = getCurrentUser();
-            if (!user) { document.getElementById('cartFloat').style.display = 'none'; return; }
+            if (!user || user.role !== 'cliente') { document.getElementById('cartFloat').style.display = 'none'; return; }
             const cart = getCartOrders(user.id);
             const count = cart.length;
             if (count > 0) {
@@ -2048,7 +2047,7 @@
         // ================================================================
         function renderFidelidade() {
             const user = getCurrentUser();
-            if (!user) return;
+            if (!user || user.role !== 'cliente') return;
             const stars = user.estrelas || 0;
             const vouchers = user.vouchers || 0;
             const grid = document.getElementById('starsGrid');
@@ -2119,7 +2118,7 @@
         // ================================================================
         function renderPerfil() {
             const user = getCurrentUser();
-            if (!user) return;
+            if (!user || user.role !== 'cliente') return;
             document.getElementById('profileNome').value = user.nome || '';
             document.getElementById('profileTelefone').value = user.telefone || '';
             document.getElementById('profileEmail').value = user.email || '';
@@ -2194,7 +2193,6 @@
         function logout() {
             if (confirm('Deseja realmente sair?')) {
                 setCurrentUser(null);
-                setObj(STORAGE_KEYS.ADMIN_SESSION, false);
                 document.getElementById('appWrapper').classList.remove('visible');
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('loginEmail').value = '';
@@ -2424,15 +2422,13 @@
             ).join('');
         }
 
-        // Variável global para armazenar a imagem em base64 durante o preenchimento do formulário
         let pendingImageBase64 = null;
 
         function showProductForm(productId) {
             const p = productId ? getProductById(productId) : null;
             const isEdit = !!p;
-            // Se for edição, exibe a imagem atual
             const currentImage = p ? p.imagem_url : '';
-            pendingImageBase64 = currentImage; // inicia com a atual
+            pendingImageBase64 = currentImage;
 
             const html = `
                 <div class="form-group"><label>Nome</label><input type="text" id="pfNome" value="${p ? p.nome : ''}" /></div>
@@ -2449,21 +2445,19 @@
                 <button class="btn btn-gold btn-block" onclick="saveProductForm('${productId || ''}')"><i class="fas fa-save"></i> Salvar</button>
             `;
             openModal(isEdit ? '✏️ Editar Produto' : '➕ Novo Produto', html);
-            // Se houver imagem, mostra o preview
             if (currentImage) {
                 const preview = document.getElementById('pfImagePreview');
                 if (preview) preview.style.display = 'block';
             }
         }
 
-        // Função para preview da imagem selecionada
         function previewProductImage(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64 = e.target.result;
-                pendingImageBase64 = base64; // armazena para salvar depois
+                pendingImageBase64 = base64;
                 const preview = document.getElementById('pfImagePreview');
                 if (preview) {
                     preview.src = base64;
@@ -2485,12 +2479,10 @@
                 return;
             }
 
-            // Se não houver imagem nova e não for edição, usa um placeholder
             let imagem_url = pendingImageBase64 || 'https://picsum.photos/seed/' + uid() + '/200/200';
 
             let products = getProducts();
             if (!productId) {
-                // Criar novo
                 if (products.length >= MAX_PRODUCTS) {
                     toast(`Limite de ${MAX_PRODUCTS} produtos atingido.`, 'error');
                     return;
@@ -2505,7 +2497,6 @@
                 });
                 toast('✅ Produto criado!', 'success');
             } else {
-                // Editar existente
                 const idx = products.findIndex(p => p.id === productId);
                 if (idx === -1) return;
                 products[idx] = {
@@ -2514,12 +2505,12 @@
                     descricao: desc,
                     preco,
                     estoque,
-                    imagem_url: imagem_url // atualiza com a nova imagem (ou mantém a anterior se não alterou)
+                    imagem_url: imagem_url
                 };
                 toast('✅ Produto atualizado!', 'success');
             }
             saveProducts(products);
-            pendingImageBase64 = null; // limpa
+            pendingImageBase64 = null;
             closeModal();
             renderAdminProducts();
             renderProducts();
@@ -2638,11 +2629,9 @@
         // ================================================================
         function init() {
             initData();
-            // Verifica se já existe usuário logado
             const currentUser = getCurrentUser();
             if (currentUser) {
                 if (currentUser.role === 'admin') {
-                    setObj(STORAGE_KEYS.ADMIN_SESSION, true);
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appWrapper').classList.add('visible');
                     showAdminPanel();
@@ -2656,7 +2645,6 @@
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('appWrapper').classList.remove('visible');
             }
-            // Atualiza a cada 30s
             setInterval(() => {
                 if (document.getElementById('loginScreen').classList.contains('hidden')) {
                     updateStarsDisplay();
@@ -2672,6 +2660,7 @@
         window.showRegisterModal = showRegisterModal;
         window.registerUser = registerUser;
         window.navigateTo = navigateTo;
+        window.goHome = goHome;
         window.confirmAppointment = confirmAppointment;
         window.showProductDetail = showProductDetail;
         window.addToCart = addToCart;
@@ -2682,7 +2671,6 @@
         window.saveProfile = saveProfile;
         window.cancelAppointment = cancelAppointment;
         window.logout = logout;
-        window.adminLogin = adminLogin;
         window.adminLogout = adminLogout;
         window.adminCompleteAppointment = adminCompleteAppointment;
         window.adminConfirmAppointment = adminConfirmAppointment;
