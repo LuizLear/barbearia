@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>💈 Barbearia VIP</title>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -638,25 +641,26 @@
 
     <script>
         // ================================================================
-        //  BARBEARIA VIP - CÓDIGO COMPLETO (ATUALIZADO)
-        //  - Cliente pode ver histórico de pedidos e status
-        //  - Notificação de pedido pronto para retirada (badge + toast)
-        //  - Demais funcionalidades intactas
+        //  FIREBASE CONFIG - COM SUAS CREDENCIAIS
+        // ================================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBRFSMs_PjfCmPim5wx7HvTACOsMW9Pwj0",
+            authDomain: "barbearia1-87ab3.firebaseapp.com",
+            projectId: "barbearia1-87ab3",
+            storageBucket: "barbearia1-87ab3.firebasestorage.app",
+            messagingSenderId: "118027893441",
+            appId: "1:118027893441:web:5f2d74a202f5dc6b1cf240"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ================================================================
+        //  BARBEARIA VIP - CÓDIGO COMPLETO (FIREBASE)
+        //  - Todas as funcionalidades preservadas
+        //  - Sincronização em tempo real com Firestore
         // ================================================================
 
         // ===== CONSTANTES =====
-        const STORAGE_KEYS = {
-            USERS: 'barbershop_users',
-            APPOINTMENTS: 'barbershop_appointments',
-            PRODUCTS: 'barbershop_products',
-            ORDERS: 'barbershop_orders',
-            CONFIG: 'barbershop_config',
-            STARS_HISTORY: 'barbershop_history_stars',
-            WAITLIST: 'barbershop_waitlist',
-            CURRENT_USER: 'barbershop_current_user',
-            STORIES: 'barbershop_stories',
-            CHAT_MESSAGES: 'barbershop_chat_messages',
-        };
         const ADMIN_CREDENTIALS = { user: 'admin', pass: 'admin123' };
         const SUPERVISOR_CREDENTIALS = { user: 'supervisor', pass: 'super123' };
         const MAX_PRODUCTS = 50;
@@ -670,22 +674,6 @@
         function formatDate(d) { return new Date(d).toLocaleDateString('pt-BR'); }
         function formatTime(d) { return new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
         function formatDateTime(d) { return formatDate(d) + ' ' + formatTime(d); }
-
-        function getData(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
-        function setData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-        function getObj(key) { try { return JSON.parse(localStorage.getItem(key)) || null; } catch { return null; } }
-        function setObj(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
-        function getCurrentUser() { return getObj(STORAGE_KEYS.CURRENT_USER); }
-        function setCurrentUser(u) { setObj(STORAGE_KEYS.CURRENT_USER, u); }
-
-        function isAdmin() {
-            const user = getCurrentUser();
-            return user && (user.role === 'admin' || user.role === 'supervisor');
-        }
-        function isSupervisor() {
-            const user = getCurrentUser();
-            return user && user.role === 'supervisor';
-        }
 
         // ===== TOAST =====
         function toast(msg, type = 'success') {
@@ -721,9 +709,330 @@
             document.getElementById('loginError').textContent = '';
         }
 
-        // ===== NAVEGAÇÃO (cliente) =====
+        // ===== VARIÁVEIS GLOBAIS =====
         let currentScreen = 'home';
+        let isAdminView = false;
+        let currentUser = null; // objeto do usuário logado
+        let usersCache = [];
+        let productsCache = [];
+        let appointmentsCache = [];
+        let ordersCache = [];
+        let configCache = [];
+        let starsHistoryCache = [];
+        let waitlistCache = [];
+        let storiesCache = [];
+        let chatMessagesCache = [];
 
+        // Listeners de snapshot (para atualizar caches automaticamente)
+        function initFirebaseListeners() {
+            // Usuários
+            db.collection('users').onSnapshot(snapshot => {
+                usersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Atualiza UI dependendo da tela
+                if (currentScreen === 'perfil') renderPerfil();
+                if (isAdminView) {
+                    renderUserList();
+                    renderFidelitySearch();
+                    renderAdminDashboard();
+                }
+                updateStarsDisplay();
+            });
+
+            // Produtos
+            db.collection('products').onSnapshot(snapshot => {
+                productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (currentScreen === 'lojinha') renderProducts();
+                if (isAdminView) renderAdminProducts();
+                renderSlideshow();
+            });
+
+            // Agendamentos
+            db.collection('appointments').onSnapshot(snapshot => {
+                appointmentsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (currentScreen === 'home') renderHome();
+                if (currentScreen === 'agendamento') renderAgendamento();
+                if (currentScreen === 'perfil') renderPerfil();
+                if (isAdminView) { renderAdminAppointments(); renderAdminDashboard(); }
+            });
+
+            // Pedidos
+            db.collection('orders').onSnapshot(snapshot => {
+                ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (currentScreen === 'meus-pedidos') renderMeusPedidos();
+                if (currentScreen === 'lojinha') updatePedidosBadge();
+                if (isAdminView) { renderAdminOrders(); renderAdminDashboard(); }
+                updatePendingOrdersBadge();
+                verificarPedidosProntos();
+            });
+
+            // Configurações
+            db.collection('config').onSnapshot(snapshot => {
+                configCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (isAdminView) renderConfig();
+                if (currentScreen === 'agendamento') updateAvailableTimes();
+            });
+
+            // Histórico de estrelas
+            db.collection('starsHistory').onSnapshot(snapshot => {
+                starsHistoryCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (currentScreen === 'fidelidade') renderStarsHistory();
+                if (isAdminView) { renderStarsLog(); renderAdminDashboard(); }
+            });
+
+            // Stories
+            db.collection('stories').onSnapshot(snapshot => {
+                storiesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (currentScreen === 'home') renderStories();
+                if (isAdminView) renderAdminStories();
+            });
+
+            // Mensagens do chat
+            db.collection('chatMessages').onSnapshot(snapshot => {
+                chatMessagesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (currentScreen === 'chat') renderChatMessages();
+                if (isAdminView) renderAdminChatList();
+            });
+
+            // Waitlist
+            db.collection('waitlist').onSnapshot(snapshot => {
+                waitlistCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                if (currentScreen === 'agendamento') renderAgendamento();
+            });
+        }
+
+        // ===== FUNÇÕES DE ACESSO A DADOS (SINCRONIZADOS COM CACHE) =====
+        function getUsers() { return usersCache; }
+        function getAppointments() { return appointmentsCache; }
+        function getProducts() { return productsCache; }
+        function getOrders() { return ordersCache; }
+        function getConfig() { return configCache; }
+        function getStarsHistory() { return starsHistoryCache; }
+        function getWaitlist() { return waitlistCache; }
+        function getStories() { return storiesCache; }
+        function getChatMessages() { return chatMessagesCache; }
+
+        function getCurrentUser() { return currentUser; }
+        function setCurrentUser(u) { currentUser = u; }
+
+        function isAdmin() {
+            return currentUser && (currentUser.role === 'admin' || currentUser.role === 'supervisor');
+        }
+        function isSupervisor() {
+            return currentUser && currentUser.role === 'supervisor';
+        }
+
+        // ===== FUNÇÕES DE ESCRITA NO FIRESTORE =====
+        async function addDocument(collection, data) {
+            try {
+                const docRef = await db.collection(collection).add(data);
+                return docRef.id;
+            } catch (error) {
+                console.error('Erro ao adicionar documento:', error);
+                toast('Erro ao salvar dados. Tente novamente.', 'error');
+                return null;
+            }
+        }
+
+        async function updateDocument(collection, docId, data) {
+            try {
+                await db.collection(collection).doc(docId).update(data);
+                return true;
+            } catch (error) {
+                console.error('Erro ao atualizar documento:', error);
+                toast('Erro ao atualizar dados. Tente novamente.', 'error');
+                return false;
+            }
+        }
+
+        async function deleteDocument(collection, docId) {
+            try {
+                await db.collection(collection).doc(docId).delete();
+                return true;
+            } catch (error) {
+                console.error('Erro ao deletar documento:', error);
+                toast('Erro ao excluir. Tente novamente.', 'error');
+                return false;
+            }
+        }
+
+        // ================================================================
+        //  POPULAR DADOS INICIAIS (SE VAZIO)
+        // ================================================================
+        async function seedInitialData() {
+            // Verificar se já existem dados
+            const usersSnap = await db.collection('users').limit(1).get();
+            if (!usersSnap.empty) return; // já tem dados
+
+            const initialUsers = [
+                { nome: 'Administrador', email: 'admin@barbearia.com', telefone: '1199999999', senha: 'admin123', role: 'admin', estrelas: 0, vouchers: 0, data_nascimento: '1990-01-01', birthday_star_given: {}, bloqueado: false },
+                { nome: 'Supervisor', email: 'supervisor@barbearia.com', telefone: '11988888887', senha: 'super123', role: 'supervisor', estrelas: 0, vouchers: 0, data_nascimento: '1985-01-01', birthday_star_given: {}, bloqueado: false },
+                { nome: 'João Silva', email: 'joao@email.com', telefone: '11988888888', senha: '123456', role: 'cliente', estrelas: 3, vouchers: 0, data_nascimento: '1995-06-15', birthday_star_given: {}, bloqueado: false },
+                { nome: 'Maria Oliveira', email: 'maria@email.com', telefone: '11977777777', senha: '123456', role: 'cliente', estrelas: 7, vouchers: 0, data_nascimento: '1988-12-01', birthday_star_given: {}, bloqueado: false },
+                { nome: 'Carlos Souza', email: 'carlos@email.com', telefone: '11966666666', senha: '123456', role: 'cliente', estrelas: 10, vouchers: 1, data_nascimento: '1992-03-20', birthday_star_given: {}, bloqueado: false },
+                { nome: 'Cliente Teste', email: 'cliente@barbearia.com', telefone: '11900000000', senha: 'cliente123', role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: '2000-01-01', birthday_star_given: {}, bloqueado: false }
+            ];
+
+            const initialProducts = [
+                { nome: 'Shampoo Premium', descricao: 'Shampoo para cabelos masculinos, 250ml', preco: 29.90, estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200', em_promocao: true, preco_promocional: 19.90 },
+                { nome: 'Condicionador Revitalizante', descricao: 'Condicionador com óleo de argan, 250ml', preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200', em_promocao: false, preco_promocional: 0 },
+                { nome: 'Pomada Modeladora', descricao: 'Pomada de fixação forte, 100g', preco: 19.90, estoque: 8, imagem_url: 'https://picsum.photos/seed/pomada/200/200', em_promocao: true, preco_promocional: 14.90 },
+                { nome: 'Navalha Profissional', descricao: 'Navalha com lâminas de reposição', preco: 45.00, estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200', em_promocao: false, preco_promocional: 0 },
+                { nome: 'Máscara Capilar', descricao: 'Máscara de hidratação profunda, 300g', preco: 39.90, estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200', em_promocao: true, preco_promocional: 29.90 }
+            ];
+
+            const now = new Date();
+            const past = new Date(now); past.setDate(past.getDate() - 3);
+            const future = new Date(now); future.setDate(future.getDate() + 2); future.setHours(14,0,0,0);
+            const initialAppointments = [
+                { cliente_id: 'cli1', data_hora: past.toISOString(), servico: 'Corte', status: 'realizado', admin_id: null },
+                { cliente_id: 'cli2', data_hora: future.toISOString(), servico: 'Combo', status: 'confirmado', admin_id: null },
+                { cliente_id: 'cli3', data_hora: new Date(now.getFullYear(), now.getMonth(), now.getDate()+5, 10,30,0,0).toISOString(), servico: 'Barba', status: 'pendente', admin_id: null }
+            ];
+
+            const initialConfig = [
+                { dia_semana: 0, ativo: false, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: [] },
+                { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
+                { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: ['12:00','13:00'] }
+            ];
+
+            const initialStars = [
+                { cliente_id: 'cli1', appointment_id: 'a1', data_atribuicao: nowISO(), admin_id: 'admin1' },
+                { cliente_id: 'cli2', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' },
+                { cliente_id: 'cli3', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' }
+            ];
+
+            // Salvar usuários
+            const userIds = {};
+            for (const u of initialUsers) {
+                const ref = await db.collection('users').add(u);
+                userIds[u.email] = ref.id;
+                // Atualizar referências nos outros dados
+                if (u.email === 'joao@email.com') userIds.cli1 = ref.id;
+                if (u.email === 'maria@email.com') userIds.cli2 = ref.id;
+                if (u.email === 'carlos@email.com') userIds.cli3 = ref.id;
+                if (u.email === 'admin@barbearia.com') userIds.admin1 = ref.id;
+            }
+
+            // Salvar produtos
+            for (const p of initialProducts) {
+                await db.collection('products').add(p);
+            }
+
+            // Salvar agendamentos
+            for (const a of initialAppointments) {
+                const data = { ...a };
+                if (a.cliente_id === 'cli1') data.cliente_id = userIds.cli1;
+                else if (a.cliente_id === 'cli2') data.cliente_id = userIds.cli2;
+                else if (a.cliente_id === 'cli3') data.cliente_id = userIds.cli3;
+                await db.collection('appointments').add(data);
+            }
+
+            // Salvar config
+            for (const c of initialConfig) {
+                await db.collection('config').add(c);
+            }
+
+            // Salvar stars
+            for (const s of initialStars) {
+                const data = { ...s };
+                if (s.cliente_id === 'cli1') data.cliente_id = userIds.cli1;
+                else if (s.cliente_id === 'cli2') data.cliente_id = userIds.cli2;
+                else if (s.cliente_id === 'cli3') data.cliente_id = userIds.cli3;
+                if (s.admin_id === 'admin1') data.admin_id = userIds.admin1;
+                await db.collection('starsHistory').add(data);
+            }
+
+            toast('📦 Dados iniciais carregados no Firebase!', 'success');
+        }
+
+        // ================================================================
+        //  LOGIN / REGISTRO
+        // ================================================================
+        async function handleLogin() {
+            const login = document.getElementById('loginEmail').value.trim();
+            const senha = document.getElementById('loginPassword').value.trim();
+            const errorEl = document.getElementById('loginError');
+            errorEl.textContent = '';
+            if (!login || !senha) { errorEl.textContent = 'Preencha todos os campos.'; return; }
+
+            // Buscar usuário no cache (já sincronizado)
+            const users = getUsers();
+            const user = users.find(u => (u.email === login || u.telefone === login) && u.senha === senha);
+            if (!user) {
+                errorEl.textContent = 'Credenciais inválidas.';
+                toast('Login falhou.', 'error');
+                return;
+            }
+            if (user.bloqueado) {
+                errorEl.textContent = 'Usuário bloqueado pelo supervisor.';
+                toast('Acesso negado.', 'error');
+                return;
+            }
+            setCurrentUser(user);
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('appWrapper').classList.add('visible');
+            if (user.role === 'admin' || user.role === 'supervisor') {
+                showAdminPanel();
+                toast(`Bem-vindo, ${user.nome}!`, 'success');
+            } else {
+                navigateTo('home');
+                checkBirthdayBonus();
+                toast(`Bem-vindo, ${user.nome}!`, 'success');
+            }
+        }
+
+        async function registerUser() {
+            const nome = document.getElementById('regNome').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const telefone = document.getElementById('regTelefone').value.trim();
+            const senha = document.getElementById('regSenha').value.trim();
+            const nascimento = document.getElementById('regNascimento').value;
+            const errorEl = document.getElementById('registerError');
+            errorEl.textContent = '';
+            if (!nome || !email || !telefone || !senha || !nascimento) { errorEl.textContent = 'Preencha todos os campos.'; return; }
+            if (senha.length < 6) { errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.'; return; }
+
+            // Verificar se já existe no cache
+            const users = getUsers();
+            if (users.find(u => u.email === email)) { errorEl.textContent = 'E-mail já cadastrado.'; return; }
+            if (users.find(u => u.telefone === telefone)) { errorEl.textContent = 'Telefone já cadastrado.'; return; }
+
+            const newUser = { nome, email, telefone, senha, role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: nascimento, birthday_star_given: {}, bloqueado: false };
+            const docId = await addDocument('users', newUser);
+            if (docId) {
+                toast('✅ Conta criada! Faça login.', 'success');
+                document.getElementById('regNome').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regTelefone').value = '';
+                document.getElementById('regSenha').value = '';
+                document.getElementById('regNascimento').value = '';
+                showLoginScreen();
+                document.getElementById('loginEmail').value = email;
+                document.getElementById('loginPassword').value = senha;
+            }
+        }
+
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                setCurrentUser(null);
+                document.getElementById('appWrapper').classList.remove('visible');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('registerScreen').classList.add('hidden');
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('loginError').textContent = '';
+                toast('Você saiu.', 'info');
+            }
+        }
+        function adminLogout() { logout(); }
+
+        // ================================================================
+        //  NAVEGAÇÃO
+        // ================================================================
         function navigateTo(screen) {
             if (isAdmin()) return;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
@@ -744,14 +1053,13 @@
             updateCartBadge();
         }
 
-        // ===== IR PARA A TELA PRINCIPAL =====
         function goHome() {
             if (isAdmin()) { showAdminPanel(); } else { navigateTo('home'); }
         }
 
-        // ===== ADMIN PANEL =====
         function showAdminPanel() {
             if (!isAdmin()) return;
+            isAdminView = true;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-admin-panel').classList.add('active');
             document.getElementById('bottomTabs').style.display = 'none';
@@ -774,6 +1082,7 @@
 
         function hideAdminPanel() {
             if (isAdmin()) return;
+            isAdminView = false;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-home').classList.add('active');
             document.getElementById('bottomTabs').style.display = 'flex';
@@ -785,114 +1094,6 @@
             renderHome(); renderSlideshow(); renderStories();
             updateStarsDisplay(); updateCartBadge();
         }
-
-        // ===== LOGIN UNIFICADO =====
-        function handleLogin() {
-            const login = document.getElementById('loginEmail').value.trim();
-            const senha = document.getElementById('loginPassword').value.trim();
-            const errorEl = document.getElementById('loginError');
-            errorEl.textContent = '';
-            if (!login || !senha) { errorEl.textContent = 'Preencha todos os campos.'; return; }
-
-            // Supervisor
-            if (login === SUPERVISOR_CREDENTIALS.user && senha === SUPERVISOR_CREDENTIALS.pass) {
-                let users = getData(STORAGE_KEYS.USERS);
-                let supUser = users.find(u => u.role === 'supervisor');
-                if (!supUser) {
-                    supUser = { id: 'sup1', nome: 'Supervisor', email: 'supervisor@barbearia.com', telefone: '11988888887', senha: SUPERVISOR_CREDENTIALS.pass, role: 'supervisor', estrelas: 0, vouchers: 0, data_nascimento: '1985-01-01', birthday_star_given: {}, bloqueado: false };
-                    users.push(supUser);
-                    setData(STORAGE_KEYS.USERS, users);
-                }
-                if (supUser.bloqueado) { errorEl.textContent = 'Usuário bloqueado pelo supervisor.'; toast('Acesso negado.','error'); return; }
-                setCurrentUser(supUser);
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('appWrapper').classList.add('visible');
-                showAdminPanel();
-                toast('Bem-vindo, Supervisor!','success');
-                return;
-            }
-
-            // Admin
-            if (login === ADMIN_CREDENTIALS.user && senha === ADMIN_CREDENTIALS.pass) {
-                let users = getData(STORAGE_KEYS.USERS);
-                let adminUser = users.find(u => u.role === 'admin');
-                if (!adminUser) {
-                    adminUser = { id: 'admin1', nome: 'Administrador', email: 'admin@barbearia.com', telefone: '1199999999', senha: ADMIN_CREDENTIALS.pass, role: 'admin', estrelas: 0, vouchers: 0, data_nascimento: '1990-01-01', birthday_star_given: {}, bloqueado: false };
-                    users.push(adminUser);
-                    setData(STORAGE_KEYS.USERS, users);
-                }
-                if (adminUser.bloqueado) { errorEl.textContent = 'Usuário bloqueado pelo supervisor.'; toast('Acesso negado.','error'); return; }
-                setCurrentUser(adminUser);
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('appWrapper').classList.add('visible');
-                showAdminPanel();
-                toast('Bem-vindo, Admin!','success');
-                return;
-            }
-
-            // Cliente
-            const users = getData(STORAGE_KEYS.USERS);
-            const user = users.find(u => (u.email === login || u.telefone === login) && u.senha === senha);
-            if (!user) { errorEl.textContent = 'Credenciais inválidas.'; toast('Login falhou.','error'); return; }
-            if (user.bloqueado) { errorEl.textContent = 'Usuário bloqueado pelo supervisor.'; toast('Acesso negado.','error'); return; }
-            if (user.role === 'admin' || user.role === 'supervisor') {
-                setCurrentUser(user);
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('appWrapper').classList.add('visible');
-                showAdminPanel();
-                toast(`Bem-vindo, ${user.nome}!`,'success');
-                return;
-            }
-            setCurrentUser(user);
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('appWrapper').classList.add('visible');
-            checkBirthdayBonus();
-            navigateTo('home');
-            toast(`Bem-vindo, ${user.nome}!`,'success');
-        }
-
-        // ===== REGISTRO =====
-        function registerUser() {
-            const nome = document.getElementById('regNome').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const telefone = document.getElementById('regTelefone').value.trim();
-            const senha = document.getElementById('regSenha').value.trim();
-            const nascimento = document.getElementById('regNascimento').value;
-            const errorEl = document.getElementById('registerError');
-            errorEl.textContent = '';
-            if (!nome || !email || !telefone || !senha || !nascimento) { errorEl.textContent = 'Preencha todos os campos.'; return; }
-            if (senha.length < 6) { errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.'; return; }
-            let users = getData(STORAGE_KEYS.USERS);
-            if (users.find(u => u.email === email)) { errorEl.textContent = 'E-mail já cadastrado.'; return; }
-            if (users.find(u => u.telefone === telefone)) { errorEl.textContent = 'Telefone já cadastrado.'; return; }
-            const newUser = { id: uid(), nome, email, telefone, senha, role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: nascimento, birthday_star_given: {}, bloqueado: false };
-            users.push(newUser);
-            setData(STORAGE_KEYS.USERS, users);
-            toast('✅ Conta criada! Faça login.','success');
-            document.getElementById('regNome').value = '';
-            document.getElementById('regEmail').value = '';
-            document.getElementById('regTelefone').value = '';
-            document.getElementById('regSenha').value = '';
-            document.getElementById('regNascimento').value = '';
-            showLoginScreen();
-            document.getElementById('loginEmail').value = email;
-            document.getElementById('loginPassword').value = senha;
-        }
-
-        // ===== LOGOUT =====
-        function logout() {
-            if (confirm('Deseja realmente sair?')) {
-                setCurrentUser(null);
-                document.getElementById('appWrapper').classList.remove('visible');
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('registerScreen').classList.add('hidden');
-                document.getElementById('loginEmail').value = '';
-                document.getElementById('loginPassword').value = '';
-                document.getElementById('loginError').textContent = '';
-                toast('Você saiu.','info');
-            }
-        }
-        function adminLogout() { logout(); }
 
         // ===== TABS CLIENTE =====
         document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -924,185 +1125,442 @@
         });
 
         // ================================================================
-        //  INICIALIZAÇÃO DOS DADOS
+        //  FUNÇÕES DE RENDERIZAÇÃO (USAM CACHE E ATUALIZAM UI)
         // ================================================================
-        function initData() {
-            let users = getData(STORAGE_KEYS.USERS);
-            if (users.length === 0) {
-                users = [
-                    { id: 'admin1', nome: 'Administrador', email: 'admin@barbearia.com', telefone: '1199999999', senha: 'admin123', role: 'admin', estrelas: 0, vouchers: 0, data_nascimento: '1990-01-01', birthday_star_given: {}, bloqueado: false },
-                    { id: 'sup1', nome: 'Supervisor', email: 'supervisor@barbearia.com', telefone: '11988888887', senha: 'super123', role: 'supervisor', estrelas: 0, vouchers: 0, data_nascimento: '1985-01-01', birthday_star_given: {}, bloqueado: false },
-                    { id: 'cli1', nome: 'João Silva', email: 'joao@email.com', telefone: '11988888888', senha: '123456', role: 'cliente', estrelas: 3, vouchers: 0, data_nascimento: '1995-06-15', birthday_star_given: {}, bloqueado: false },
-                    { id: 'cli2', nome: 'Maria Oliveira', email: 'maria@email.com', telefone: '11977777777', senha: '123456', role: 'cliente', estrelas: 7, vouchers: 0, data_nascimento: '1988-12-01', birthday_star_given: {}, bloqueado: false },
-                    { id: 'cli3', nome: 'Carlos Souza', email: 'carlos@email.com', telefone: '11966666666', senha: '123456', role: 'cliente', estrelas: 10, vouchers: 1, data_nascimento: '1992-03-20', birthday_star_given: {}, bloqueado: false },
-                    { id: 'cli4', nome: 'Cliente Teste', email: 'cliente@barbearia.com', telefone: '11900000000', senha: 'cliente123', role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: '2000-01-01', birthday_star_given: {}, bloqueado: false }
-                ];
-                setData(STORAGE_KEYS.USERS, users);
-            }
 
-            let products = getData(STORAGE_KEYS.PRODUCTS);
-            if (products.length === 0) {
-                products = [
-                    { id: 'p1', nome: 'Shampoo Premium', descricao: 'Shampoo para cabelos masculinos, 250ml', preco: 29.90, estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200', em_promocao: true, preco_promocional: 19.90 },
-                    { id: 'p2', nome: 'Condicionador Revitalizante', descricao: 'Condicionador com óleo de argan, 250ml', preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200', em_promocao: false, preco_promocional: 0 },
-                    { id: 'p3', nome: 'Pomada Modeladora', descricao: 'Pomada de fixação forte, 100g', preco: 19.90, estoque: 8, imagem_url: 'https://picsum.photos/seed/pomada/200/200', em_promocao: true, preco_promocional: 14.90 },
-                    { id: 'p4', nome: 'Navalha Profissional', descricao: 'Navalha com lâminas de reposição', preco: 45.00, estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200', em_promocao: false, preco_promocional: 0 },
-                    { id: 'p5', nome: 'Máscara Capilar', descricao: 'Máscara de hidratação profunda, 300g', preco: 39.90, estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200', em_promocao: true, preco_promocional: 29.90 }
-                ];
-                setData(STORAGE_KEYS.PRODUCTS, products);
+        // ----- STARS DISPLAY -----
+        function updateStarsDisplay() {
+            const user = getCurrentUser();
+            if (user && user.role === 'cliente') {
+                document.getElementById('headerStarsCount').textContent = user.estrelas || 0;
+                document.getElementById('headerStars').style.display = 'flex';
             } else {
-                let updated = false;
-                products = products.map(p => {
-                    if (p.em_promocao === undefined) { p.em_promocao = false; updated = true; }
-                    if (p.preco_promocional === undefined) { p.preco_promocional = 0; updated = true; }
-                    return p;
-                });
-                if (updated) setData(STORAGE_KEYS.PRODUCTS, products);
+                document.getElementById('headerStars').style.display = 'none';
             }
-
-            let appts = getData(STORAGE_KEYS.APPOINTMENTS);
-            if (appts.length === 0) {
-                const now = new Date();
-                const past = new Date(now); past.setDate(past.getDate() - 3);
-                const future = new Date(now); future.setDate(future.getDate() + 2); future.setHours(14,0,0,0);
-                appts = [
-                    { id: 'a1', cliente_id: 'cli1', data_hora: past.toISOString(), servico: 'Corte', status: 'realizado', admin_id: null },
-                    { id: 'a2', cliente_id: 'cli2', data_hora: future.toISOString(), servico: 'Combo', status: 'confirmado', admin_id: null },
-                    { id: 'a3', cliente_id: 'cli3', data_hora: new Date(now.getFullYear(), now.getMonth(), now.getDate()+5, 10,30,0,0).toISOString(), servico: 'Barba', status: 'pendente', admin_id: null }
-                ];
-                setData(STORAGE_KEYS.APPOINTMENTS, appts);
-            }
-
-            let config = getData(STORAGE_KEYS.CONFIG);
-            if (config.length === 0) {
-                config = [
-                    { dia_semana: 0, ativo: false, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: [] },
-                    { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                    { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                    { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                    { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                    { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                    { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: ['12:00','13:00'] }
-                ];
-                setData(STORAGE_KEYS.CONFIG, config);
-            }
-
-            let starsHist = getData(STORAGE_KEYS.STARS_HISTORY);
-            if (starsHist.length === 0) {
-                starsHist = [
-                    { id: 'sh1', cliente_id: 'cli1', appointment_id: 'a1', data_atribuicao: nowISO(), admin_id: 'admin1' },
-                    { id: 'sh2', cliente_id: 'cli2', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' },
-                    { id: 'sh3', cliente_id: 'cli3', appointment_id: null, data_atribuicao: nowISO(), admin_id: 'admin1' }
-                ];
-                setData(STORAGE_KEYS.STARS_HISTORY, starsHist);
-            }
-
-            if (!localStorage.getItem(STORAGE_KEYS.ORDERS)) setData(STORAGE_KEYS.ORDERS, []);
-            if (!localStorage.getItem(STORAGE_KEYS.WAITLIST)) setData(STORAGE_KEYS.WAITLIST, []);
-            if (!localStorage.getItem(STORAGE_KEYS.STORIES)) setData(STORAGE_KEYS.STORIES, []);
-            if (!localStorage.getItem(STORAGE_KEYS.CHAT_MESSAGES)) setData(STORAGE_KEYS.CHAT_MESSAGES, []);
         }
 
-        // ================================================================
-        //  FUNÇÕES DE ACESSO A DADOS
-        // ================================================================
-        function getUsers() { return getData(STORAGE_KEYS.USERS); }
-        function getAppointments() { return getData(STORAGE_KEYS.APPOINTMENTS); }
-        function getProducts() { return getData(STORAGE_KEYS.PRODUCTS); }
-        function getOrders() { return getData(STORAGE_KEYS.ORDERS); }
-        function getConfig() { return getData(STORAGE_KEYS.CONFIG); }
-        function getStarsHistory() { return getData(STORAGE_KEYS.STARS_HISTORY); }
-        function getWaitlist() { return getData(STORAGE_KEYS.WAITLIST); }
-        function getStories() { return getData(STORAGE_KEYS.STORIES); }
-        function getChatMessages() { return getData(STORAGE_KEYS.CHAT_MESSAGES); }
-        function saveUsers(u) { setData(STORAGE_KEYS.USERS, u); }
-        function saveAppointments(a) { setData(STORAGE_KEYS.APPOINTMENTS, a); }
-        function saveProducts(p) { setData(STORAGE_KEYS.PRODUCTS, p); }
-        function saveOrders(o) { setData(STORAGE_KEYS.ORDERS, o); }
-        function saveConfig(c) { setData(STORAGE_KEYS.CONFIG, c); }
-        function saveStarsHistory(s) { setData(STORAGE_KEYS.STARS_HISTORY, s); }
-        function saveWaitlist(w) { setData(STORAGE_KEYS.WAITLIST, w); }
-        function saveStories(s) { setData(STORAGE_KEYS.STORIES, s); }
-        function saveChatMessages(c) { setData(STORAGE_KEYS.CHAT_MESSAGES, c); }
-
-        function findUserById(id) { return getUsers().find(u => u.id === id); }
-        function getClientAppointments(clientId) {
-            return getAppointments().filter(a => a.cliente_id === clientId).sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora));
-        }
-        function getUpcomingAppointments(clientId) {
-            const now = new Date();
-            return getClientAppointments(clientId).filter(a => new Date(a.data_hora) >= now && a.status !== 'cancelado' && a.status !== 'realizado' && a.status !== 'falta');
+        // ----- HOME -----
+        function renderHome() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') return;
+            document.getElementById('homeUserName').textContent = user.nome || 'Cliente';
+            const upcoming = getAppointments()
+                .filter(a => a.cliente_id === user.id && new Date(a.data_hora) >= new Date() && a.status !== 'cancelado' && a.status !== 'realizado' && a.status !== 'falta')
+                .sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora));
+            const container = document.getElementById('homeUpcomingAppointments');
+            if (upcoming.length === 0) {
+                container.innerHTML = '<p class="text-muted" style="font-size:0.9rem;">Nenhum agendamento futuro.</p>';
+            } else {
+                container.innerHTML = upcoming.map(a =>
+                    `<div class="flex-between" style="padding:6px 0;border-bottom:1px solid #282828;">
+                        <span>${formatDateTime(a.data_hora)} - ${a.servico}</span>
+                        <span class="tag ${a.status === 'confirmado' ? 'tag-gold' : 'tag-burgundy'}">${a.status}</span>
+                    </div>`
+                ).join('');
+            }
         }
 
-        function getConfigForDay(day) { return getConfig().find(c => c.dia_semana === day) || null; }
-        function getWorkingHours(day) {
-            const cfg = getConfigForDay(day);
-            if (!cfg || !cfg.ativo) return null;
-            return { start: cfg.hora_inicio, end: cfg.hora_fim, duration: cfg.duracao || 30, blocks: cfg.bloqueios || [] };
+        // ----- AGENDAMENTO -----
+        function renderAgendamento() {
+            const dateInput = document.getElementById('apptDate');
+            const today = todayStr();
+            dateInput.min = today;
+            if (!dateInput.value || dateInput.value < today) dateInput.value = today;
+            updateAvailableTimes();
+            const user = getCurrentUser();
+            const userWait = getWaitlist().filter(w => w.cliente_id === user.id);
+            document.getElementById('waitlistInfo').textContent = userWait.length > 0 ?
+                `Você está na fila de espera (${userWait.length} cliente(s) na frente).` :
+                'Nenhum cliente na fila.';
         }
-        function generateTimeSlots(dateStr) {
+
+        document.getElementById('apptDate').addEventListener('change', updateAvailableTimes);
+
+        function updateAvailableTimes() {
+            const date = document.getElementById('apptDate').value;
+            const select = document.getElementById('apptTime');
+            if (!date) { select.innerHTML = '<option value="">Selecione uma data</option>'; return; }
+            const slots = getAvailableTimes(date);
+            if (slots.length === 0) {
+                select.innerHTML = '<option value="">Nenhum horário disponível</option>';
+                document.getElementById('apptFeedback').textContent = '📋 Todos os horários estão ocupados.';
+                document.getElementById('apptFeedback').style.color = '#f39c12';
+                return;
+            }
+            select.innerHTML = '<option value="">Selecione um horário</option>' + slots.map(t => `<option value="${t}">${t}</option>`).join('');
+            document.getElementById('apptFeedback').textContent = '';
+        }
+
+        function getAvailableTimes(dateStr) {
             const day = new Date(dateStr).getDay();
-            const wh = getWorkingHours(day);
-            if (!wh) return [];
+            const cfg = getConfig().find(c => c.dia_semana === day);
+            if (!cfg || !cfg.ativo) return [];
             const slots = [];
-            const start = wh.start.split(':').map(Number);
-            const end = wh.end.split(':').map(Number);
-            const dur = wh.duration || 30;
+            const start = cfg.hora_inicio.split(':').map(Number);
+            const end = cfg.hora_fim.split(':').map(Number);
+            const dur = cfg.duracao || 30;
             let h = start[0], m = start[1];
             const endMin = end[0]*60 + end[1];
             while (h*60 + m < endMin) {
                 const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
-                const isBlocked = wh.blocks.some(b => b === timeStr);
-                if (!isBlocked) slots.push(timeStr);
+                const isBlocked = cfg.bloqueios.some(b => b === timeStr);
+                if (!isBlocked) {
+                    // Verificar se há conflito com agendamentos existentes
+                    const target = new Date(dateStr + 'T' + timeStr + ':00');
+                    const conflicting = getAppointments().some(a => {
+                        const aDate = new Date(a.data_hora);
+                        return aDate.getTime() === target.getTime() && (a.status === 'confirmado' || a.status === 'pendente');
+                    });
+                    if (!conflicting) slots.push(timeStr);
+                }
                 m += dur;
                 if (m >= 60) { h += Math.floor(m/60); m = m % 60; }
             }
             return slots;
         }
-        function isTimeSlotAvailable(dateStr, timeStr) {
-            const appts = getAppointments();
-            const target = new Date(dateStr + 'T' + timeStr + ':00');
-            const conflicting = appts.some(a => {
-                const aDate = new Date(a.data_hora);
-                return aDate.getTime() === target.getTime() && (a.status === 'confirmado' || a.status === 'pendente');
+
+        async function confirmAppointment() {
+            const user = getCurrentUser();
+            if (!user) { toast('Faça login primeiro.', 'error'); return; }
+            const date = document.getElementById('apptDate').value;
+            const time = document.getElementById('apptTime').value;
+            const service = document.getElementById('apptService').value;
+            if (!date || !time) { toast('Selecione data e horário.', 'error'); return; }
+            const upcoming = getAppointments()
+                .filter(a => a.cliente_id === user.id && new Date(a.data_hora) >= new Date() && a.status !== 'cancelado' && a.status !== 'realizado' && a.status !== 'falta');
+            if (upcoming.length > 0) { toast('Você já tem um agendamento futuro.','error'); return; }
+            if (!getAvailableTimes(date).includes(time)) { toast('Horário indisponível.', 'error'); updateAvailableTimes(); return; }
+            const newAppt = {
+                cliente_id: user.id,
+                data_hora: date + 'T' + time + ':00',
+                servico: service,
+                status: 'pendente',
+                admin_id: null
+            };
+            const docId = await addDocument('appointments', newAppt);
+            if (docId) {
+                toast('✅ Agendamento confirmado!','success');
+                document.getElementById('apptFeedback').textContent = '✅ Agendado com sucesso!';
+                document.getElementById('apptFeedback').style.color = '#2ecc71';
+                updateAvailableTimes();
+                renderHome();
+            }
+        }
+
+        // ----- LOJINHA -----
+        function renderProducts() {
+            const products = getProducts();
+            const grid = document.getElementById('productGrid');
+            const empty = document.getElementById('productGridEmpty');
+            const available = products.filter(p => p.estoque > 0);
+            if (available.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            grid.innerHTML = available.map(p => {
+                const promoHtml = p.em_promocao ? `<span class="promo-badge">🔥 PROMO</span>` : '';
+                const priceHtml = p.preco_promocional && p.preco_promocional > 0 ?
+                    `<span class="price">R$ ${p.preco_promocional.toFixed(2)}</span> <span class="old-price">R$ ${p.preco.toFixed(2)}</span>` :
+                    `<span class="price">R$ ${p.preco.toFixed(2)}</span>`;
+                return `<div class="product-card" onclick="showProductDetail('${p.id}')">
+                    <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" alt="${p.nome}" loading="lazy" />
+                    ${promoHtml}
+                    <div class="info"><h4>${p.nome}</h4><div>${priceHtml}</div><div class="stock">${p.estoque} unid.</div></div>
+                </div>`;
+            }).join('');
+        }
+
+        function showProductDetail(productId) {
+            const p = getProducts().find(prod => prod.id === productId);
+            if (!p) return;
+            const user = getCurrentUser();
+            if (!user) { toast('Faça login primeiro.','error'); return; }
+            const inCart = getOrders().some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status === 'carrinho');
+            const priceDisplay = p.preco_promocional && p.preco_promocional > 0 ?
+                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco_promocional.toFixed(2)}</span> <span style="text-decoration:line-through;color:#888;">R$ ${p.preco.toFixed(2)}</span>` :
+                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco.toFixed(2)}</span>`;
+            const html = `<div style="text-align:center;">
+                <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:12px;" />
+                <h4 style="font-size:1.1rem;">${p.nome}</h4>
+                <p class="text-muted">${p.descricao || ''}</p>
+                <div>${priceDisplay}</div>
+                <p class="text-muted" style="font-size:0.8rem;">Estoque: ${p.estoque}</p>
+                ${p.estoque > 0 ? (inCart ? '<p class="text-gold"><i class="fas fa-check"></i> Já está no carrinho</p>' :
+                `<button class="btn btn-gold btn-block mt-8" onclick="addToCart('${p.id}')"><i class="fas fa-cart-plus"></i> Adicionar ao carrinho</button>`) :
+                '<p class="text-muted" style="color:var(--red-action);">ESGOTADO</p>'}
+            </div>`;
+            openModal(p.nome, html);
+        }
+
+        async function addToCart(productId) {
+            const user = getCurrentUser();
+            if (!user) { toast('Faça login.', 'error'); return; }
+            const p = getProducts().find(prod => prod.id === productId);
+            if (!p || p.estoque <= 0) { toast('Produto esgotado.', 'error'); return; }
+            if (getOrders().some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status === 'carrinho')) {
+                toast('Já está no carrinho.', 'info'); return;
+            }
+            const newOrder = { cliente_id: user.id, produto_id: p.id, quantidade: 1, status: 'carrinho', data_pedido: nowISO(), cliente_visto: true };
+            const docId = await addDocument('orders', newOrder);
+            if (docId) {
+                toast('🛒 Produto adicionado ao carrinho!','success');
+                updateCartBadge();
+                closeModal();
+            }
+        }
+
+        function updateCartBadge() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') { document.getElementById('cartFloat').style.display = 'none'; return; }
+            const cart = getOrders().filter(o => o.cliente_id === user.id && o.status === 'carrinho');
+            const count = cart.length;
+            if (count > 0) {
+                document.getElementById('cartFloat').style.display = 'flex';
+                document.getElementById('cartBadge').textContent = count;
+            } else {
+                document.getElementById('cartFloat').style.display = 'none';
+            }
+        }
+
+        function showCartModal() {
+            const user = getCurrentUser();
+            if (!user) { toast('Faça login.', 'error'); return; }
+            const cart = getOrders().filter(o => o.cliente_id === user.id && o.status === 'carrinho');
+            if (cart.length === 0) { openModal('🛒 Carrinho','<p class="text-muted">Seu carrinho está vazio.</p>'); return; }
+            let html = `<div style="max-height:300px;overflow-y:auto;margin-bottom:12px;">`;
+            let total = 0;
+            cart.forEach(o => {
+                const p = getProducts().find(prod => prod.id === o.produto_id);
+                if (!p) return;
+                const price = p.preco_promocional && p.preco_promocional > 0 ? p.preco_promocional : p.preco;
+                total += price;
+                html += `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid #282828;">
+                    <span>${p.nome}</span><span>R$ ${price.toFixed(2)}</span>
+                    <button class="btn btn-red btn-sm" onclick="removeFromCart('${o.id}')"><i class="fas fa-trash"></i></button>
+                </div>`;
             });
-            if (conflicting) return false;
-            const now = new Date();
-            if (target < now) return false;
-            const diff = (target - now) / (1000*60*60);
-            if (diff < 1) return false;
-            return true;
-        }
-        function getAvailableTimes(dateStr) {
-            const allSlots = generateTimeSlots(dateStr);
-            return allSlots.filter(t => isTimeSlotAvailable(dateStr, t));
+            html += `</div><div class="flex-between" style="font-size:1.1rem;font-weight:700;border-top:2px solid #333;padding-top:12px;">
+                <span>Total:</span><span class="text-gold">R$ ${total.toFixed(2)}</span>
+            </div><button class="btn btn-gold btn-block mt-12" onclick="finalizeOrder()"><i class="fas fa-check"></i> Finalizar Pedido</button>`;
+            openModal('🛒 Meu Carrinho', html);
         }
 
-        function getProductById(id) { return getProducts().find(p => p.id === id); }
-        function getCartOrders(clientId) {
-            return getOrders().filter(o => o.cliente_id === clientId && o.status === 'carrinho');
+        async function removeFromCart(orderId) {
+            await deleteDocument('orders', orderId);
+            toast('Item removido.','info');
+            updateCartBadge();
+            showCartModal();
         }
 
-        // ===== STORIES: EXPIRATION =====
-        function getActiveStories() {
-            const all = getStories();
-            const now = new Date();
-            const active = all.filter(s => {
-                const created = new Date(s.timestamp);
-                const diffHours = (now - created) / (1000*60*60);
-                return diffHours < STORY_EXPIRY_HOURS;
+        async function finalizeOrder() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const cart = getOrders().filter(o => o.cliente_id === user.id && o.status === 'carrinho');
+            if (cart.length === 0) { toast('Carrinho vazio.','error'); return; }
+            let hasError = false;
+            cart.forEach(o => {
+                const p = getProducts().find(prod => prod.id === o.produto_id);
+                if (!p || p.estoque < o.quantidade) hasError = true;
             });
-            if (active.length !== all.length) saveStories(active);
-            return active;
+            if (hasError) { toast('Algum produto com estoque insuficiente.','error'); return; }
+            // Atualizar estoque dos produtos
+            for (const o of cart) {
+                const p = getProducts().find(prod => prod.id === o.produto_id);
+                if (p) {
+                    await updateDocument('products', p.id, { estoque: p.estoque - o.quantidade });
+                }
+            }
+            // Atualizar pedidos para aguardando_retirada
+            for (const o of cart) {
+                await updateDocument('orders', o.id, { status: 'aguardando_retirada' });
+            }
+            toast('✅ Pedido finalizado! Aguarde a retirada.','success');
+            updateCartBadge();
+            closeModal();
+            renderProducts();
+            if (isAdmin()) {
+                toast('📦 Novo pedido recebido!','success');
+                renderAdminOrders();
+            }
+            updatePendingOrdersBadge();
+            updatePedidosBadge();
         }
 
-        // ================================================================
-        //  CHAT
-        // ================================================================
-        function getChatMessagesForUser(userId) {
-            return getChatMessages().filter(m => m.userId === userId || m.adminId === userId);
+        // ----- PEDIDOS DO CLIENTE -----
+        function renderMeusPedidos() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') {
+                document.getElementById('meusPedidosList').innerHTML = '<p class="text-muted">Faça login para ver seus pedidos.</p>';
+                return;
+            }
+            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status !== 'carrinho');
+            const container = document.getElementById('meusPedidosList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p class="text-muted">Você ainda não fez nenhum pedido.</p>';
+                return;
+            }
+            // Marcar pedidos prontos como visualizados
+            orders.forEach(o => {
+                if (o.status === 'pronto_retirada' && !o.cliente_visto) {
+                    updateDocument('orders', o.id, { cliente_visto: true });
+                }
+            });
+            container.innerHTML = orders.sort((a,b) => new Date(b.data_pedido) - new Date(a.data_pedido)).map(o => {
+                const p = getProducts().find(prod => prod.id === o.produto_id);
+                const prodNome = p ? p.nome : 'Produto removido';
+                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
+                const statusLabel = o.status === 'pronto_retirada' ? '✅ Pronto para retirada' : o.status === 'entregue' ? '✅ Entregue' : '⏳ Aguardando retirada';
+                return `<div class="pedido-item">
+                    <div class="flex-between">
+                        <div>
+                            <span class="produto-nome">${prodNome}</span>
+                            <span class="status ${statusClass}">${statusLabel}</span>
+                        </div>
+                        <span class="text-muted" style="font-size:0.7rem;">${formatDateTime(o.data_pedido)}</span>
+                    </div>
+                </div>`;
+            }).join('');
+            updatePedidosBadge();
         }
 
+        function updatePedidosBadge() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') {
+                document.getElementById('pedidosBadge').style.display = 'none';
+                return;
+            }
+            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o.cliente_visto);
+            const count = orders.length;
+            const badge = document.getElementById('pedidosBadge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // ----- FIDELIDADE -----
+        function renderFidelidade() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') return;
+            const stars = user.estrelas || 0;
+            const vouchers = user.vouchers || 0;
+            const grid = document.getElementById('starsGrid');
+            let html = '';
+            for (let i = 0; i < STAR_GOAL; i++) {
+                const earned = i < stars;
+                html += `<div class="star-circle ${earned ? 'earned' : ''}"><i class="fas ${earned ? 'fa-star' : 'fa-star'}"></i></div>`;
+            }
+            grid.innerHTML = html;
+            const remaining = Math.max(0, STAR_GOAL - stars);
+            document.getElementById('fidelidadeText').innerHTML =
+                `Você tem <strong class="text-gold">${stars}</strong> estrelas. Faltam <strong>${remaining}</strong> para ganhar um corte grátis!`;
+            const freeBadge = document.getElementById('freeCutBadge');
+            if (stars >= STAR_GOAL || vouchers > 0) freeBadge.classList.remove('hidden');
+            else freeBadge.classList.add('hidden');
+            renderStarsHistory();
+        }
+
+        async function useFreeCut() {
+            const user = getCurrentUser();
+            if (!user) return;
+            if (user.estrelas >= STAR_GOAL) {
+                const newEstrelas = user.estrelas - STAR_GOAL;
+                const newVouchers = (user.vouchers || 0) + 1;
+                await updateDocument('users', user.id, { estrelas: newEstrelas, vouchers: newVouchers });
+                setCurrentUser({ ...user, estrelas: newEstrelas, vouchers: newVouchers });
+                toast('🎉 Corte grátis resgatado!','success');
+                renderFidelidade();
+                updateStarsDisplay();
+            } else if (user.vouchers > 0) {
+                const newVouchers = user.vouchers - 1;
+                await updateDocument('users', user.id, { vouchers: newVouchers });
+                setCurrentUser({ ...user, vouchers: newVouchers });
+                toast('🎉 Voucher utilizado!','success');
+                renderFidelidade();
+            } else {
+                toast('Sem estrelas ou vouchers.','error');
+            }
+        }
+
+        function renderStarsHistory() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const history = getStarsHistory().filter(s => s.cliente_id === user.id);
+            const container = document.getElementById('starsHistoryList');
+            if (history.length === 0) {
+                container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhuma estrela registrada.</p>';
+                return;
+            }
+            container.innerHTML = history.map(s =>
+                `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
+                    <span><i class="fas fa-star text-gold"></i> +1 estrela</span>
+                    <span class="text-muted">${formatDateTime(s.data_atribuicao)}</span>
+                </div>`
+            ).join('');
+        }
+
+        // ----- PERFIL -----
+        function renderPerfil() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') return;
+            document.getElementById('profileNome').value = user.nome || '';
+            document.getElementById('profileTelefone').value = user.telefone || '';
+            document.getElementById('profileEmail').value = user.email || '';
+            document.getElementById('profileNascimento').value = user.data_nascimento || '';
+            renderProfileHistory();
+        }
+
+        function renderProfileHistory() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const appts = getAppointments().filter(a => a.cliente_id === user.id).sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora));
+            const container = document.getElementById('profileHistory');
+            if (appts.length === 0) {
+                container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhum agendamento.</p>';
+                return;
+            }
+            container.innerHTML = appts.map(a => {
+                const statusClass = 'status-' + a.status;
+                const canCancel = a.status === 'pendente' || a.status === 'confirmado';
+                const now = new Date();
+                const apptDate = new Date(a.data_hora);
+                const diff = (apptDate - now) / (1000*60*60);
+                const showCancel = canCancel && diff > 2;
+                return `<div class="history-item">
+                    <div><div>${formatDateTime(a.data_hora)} - ${a.servico}</div>
+                    <span class="status ${statusClass}">${a.status}</span></div>
+                    ${showCancel ? `<button class="btn btn-red btn-sm" onclick="cancelAppointment('${a.id}')"><i class="fas fa-times"></i> Cancelar</button>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        async function cancelAppointment(apptId) {
+            if (!confirm('Cancelar este agendamento?')) return;
+            await updateDocument('appointments', apptId, { status: 'cancelado' });
+            toast('Agendamento cancelado.','info');
+            renderPerfil();
+            renderHome();
+        }
+
+        async function saveProfile() {
+            const user = getCurrentUser();
+            if (!user) return;
+            const nome = document.getElementById('profileNome').value.trim();
+            const telefone = document.getElementById('profileTelefone').value.trim();
+            const email = document.getElementById('profileEmail').value.trim();
+            const nascimento = document.getElementById('profileNascimento').value;
+            if (!nome || !telefone || !email) { toast('Preencha todos os campos.','error'); return; }
+            // Verificar se email/telefone já existem
+            const users = getUsers();
+            if (users.find(u => u.email === email && u.id !== user.id)) { toast('E-mail já cadastrado por outro usuário.','error'); return; }
+            if (users.find(u => u.telefone === telefone && u.id !== user.id)) { toast('Telefone já cadastrado por outro usuário.','error'); return; }
+            await updateDocument('users', user.id, { nome, telefone, email, data_nascimento: nascimento });
+            setCurrentUser({ ...user, nome, telefone, email, data_nascimento: nascimento });
+            toast('✅ Perfil atualizado!','success');
+            renderPerfil();
+        }
+
+        // ----- CHAT -----
         function renderChatMessages() {
             const user = getCurrentUser();
             if (!user || user.role !== 'cliente') return;
@@ -1122,40 +1580,501 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function sendChatMessage() {
+        async function sendChatMessage() {
             const user = getCurrentUser();
-            if (!user) { toast('Faça login primeiro.','error'); return; }
+            if (!user) { toast('Faça login primeiro.', 'error'); return; }
             const input = document.getElementById('chatInput');
             const text = input.value.trim();
             if (!text) return;
-            const msg = {
-                id: uid(),
-                userId: user.id,
-                text: text,
-                timestamp: nowISO(),
-                sender: 'cliente',
-                read: false
-            };
-            const msgs = getChatMessages();
-            msgs.push(msg);
-            saveChatMessages(msgs);
+            const msg = { userId: user.id, text, timestamp: nowISO(), sender: 'cliente', read: false };
+            await addDocument('chatMessages', msg);
             input.value = '';
             renderChatMessages();
-            if (isAdmin()) renderAdminChatList();
         }
 
-        // ===== ADMIN CHAT LIST =====
+        // ----- ADMIN: DASHBOARD -----
+        function renderAdminDashboard() {
+            const users = getUsers();
+            const appts = getAppointments();
+            const products = getProducts();
+            const starsHist = getStarsHistory();
+            const hoje = todayStr();
+            const hojeAppts = appts.filter(a => a.data_hora.startsWith(hoje) && a.status !== 'cancelado');
+            const clientes = users.filter(u => u.role === 'cliente');
+            const estoqueBaixo = products.filter(p => p.estoque <= 3);
+            const mesAtual = new Date().getMonth();
+            const estrelasMes = starsHist.filter(s => { const d = new Date(s.data_atribuicao); return d.getMonth() === mesAtual; });
+            document.getElementById('adminDashHoje').textContent = hojeAppts.length;
+            document.getElementById('adminDashClientes').textContent = clientes.length;
+            document.getElementById('adminDashEstoque').textContent = estoqueBaixo.length;
+            document.getElementById('adminDashEstrelas').textContent = estrelasMes.length;
+        }
+
+        // ----- ADMIN: AGENDAMENTOS -----
+        function renderAdminAppointments() {
+            const appts = getAppointments();
+            const users = getUsers();
+            const container = document.getElementById('adminApptList');
+            if (appts.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum agendamento.</p>'; return; }
+            container.innerHTML = appts.sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora)).map(a => {
+                const user = users.find(u => u.id === a.cliente_id);
+                const nome = user ? user.nome : 'Desconhecido';
+                const statusClass = 'status-' + a.status;
+                const isPending = a.status === 'pendente' || a.status === 'confirmado';
+                return `<div class="history-item" style="flex-wrap:wrap;gap:8px;">
+                    <div><strong>${nome}</strong> - ${formatDateTime(a.data_hora)} - ${a.servico}
+                        <span class="status ${statusClass}">${a.status}</span></div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                        ${isPending ? `<button class="btn btn-gold btn-sm" onclick="adminCompleteAppointment('${a.id}')"><i class="fas fa-check"></i> Concluir</button>` : ''}
+                        ${a.status === 'pendente' ? `<button class="btn btn-outline-gold btn-sm" onclick="adminConfirmAppointment('${a.id}')"><i class="fas fa-thumbs-up"></i> Confirmar</button>` : ''}
+                        ${a.status === 'pendente' || a.status === 'confirmado' ? `<button class="btn btn-red btn-sm" onclick="adminCancelAppointment('${a.id}')"><i class="fas fa-times"></i> Cancelar</button>` : ''}
+                        ${a.status === 'confirmado' ? `<button class="btn btn-outline-muted btn-sm" onclick="adminMarkNoShow('${a.id}')"><i class="fas fa-user-slash"></i> Falta</button>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function adminConfirmAppointment(apptId) {
+            await updateDocument('appointments', apptId, { status: 'confirmado' });
+            toast('Agendamento confirmado!','success');
+            renderAdminAppointments();
+        }
+
+        async function adminCompleteAppointment(apptId) {
+            const a = getAppointments().find(x => x.id === apptId);
+            if (!a) return;
+            const user = getUsers().find(u => u.id === a.cliente_id);
+            if (!user) { toast('Cliente não encontrado.','error'); return; }
+            if (confirm(`Dar 1 estrela para ${user.nome}?`)) {
+                const novasEstrelas = (user.estrelas || 0) + 1;
+                let newVouchers = user.vouchers || 0;
+                if (novasEstrelas >= STAR_GOAL) {
+                    newVouchers += 1;
+                    toast('🎉 Cliente atingiu 10 estrelas! Voucher gerado!','success');
+                }
+                await updateDocument('users', user.id, { estrelas: novasEstrelas, vouchers: newVouchers });
+                await addDocument('starsHistory', { cliente_id: user.id, appointment_id: a.id, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
+                toast(`⭐ +1 estrela para ${user.nome}!`,'success');
+            }
+            await updateDocument('appointments', apptId, { status: 'realizado' });
+            renderAdminAppointments();
+            renderAdminDashboard();
+        }
+
+        async function adminCancelAppointment(apptId) {
+            if (!confirm('Cancelar este agendamento?')) return;
+            await updateDocument('appointments', apptId, { status: 'cancelado' });
+            toast('Cancelado.','info');
+            renderAdminAppointments();
+        }
+
+        async function adminMarkNoShow(apptId) {
+            if (!confirm('Marcar como falta?')) return;
+            await updateDocument('appointments', apptId, { status: 'falta' });
+            toast('Marcado como falta.','info');
+            renderAdminAppointments();
+        }
+
+        // ----- ADMIN: FIDELIDADE -----
+        function renderFidelitySearch() {
+            const query = document.getElementById('fidelitySearch').value.trim().toLowerCase();
+            const users = getUsers().filter(u => u.role === 'cliente');
+            let filtered = users;
+            if (query) filtered = users.filter(u => u.nome.toLowerCase().includes(query) || u.telefone.includes(query));
+            const container = document.getElementById('fidelityResults');
+            if (filtered.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum cliente encontrado.</p>'; return; }
+            container.innerHTML = filtered.map(u =>
+                `<div class="client-item">
+                    <div><span class="name">${u.nome}</span><span class="text-muted" style="font-size:0.8rem;">${u.telefone}</span></div>
+                    <div class="flex-center">
+                        <span class="stars"><i class="fas fa-star"></i> ${u.estrelas || 0}</span>
+                        ${u.estrelas >= STAR_GOAL ? '<span class="badge-gold" style="font-size:0.6rem;">VALE</span>' : ''}
+                        <button class="btn btn-gold btn-sm" onclick="adminAddStar('${u.id}')" ${u.estrelas >= STAR_GOAL ? 'disabled' : ''}><i class="fas fa-plus"></i></button>
+                        <button class="btn btn-outline-gold btn-sm" onclick="adminRedeemVoucher('${u.id}')" ${u.estrelas < STAR_GOAL && u.vouchers < 1 ? 'disabled' : ''}><i class="fas fa-gift"></i></button>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        async function adminAddStar(userId) {
+            const u = getUsers().find(x => x.id === userId);
+            if (!u) return;
+            if (u.estrelas >= STAR_GOAL) { toast('Cliente já tem 10 estrelas!','error'); return; }
+            const novasEstrelas = (u.estrelas || 0) + 1;
+            let newVouchers = u.vouchers || 0;
+            if (novasEstrelas >= STAR_GOAL) { newVouchers += 1; toast('🎉 10 estrelas! Voucher gerado!','success'); }
+            await updateDocument('users', userId, { estrelas: novasEstrelas, vouchers: newVouchers });
+            await addDocument('starsHistory', { cliente_id: userId, appointment_id: null, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
+            toast('⭐ Estrela adicionada!','success');
+            renderFidelitySearch();
+            renderAdminDashboard();
+        }
+
+        async function adminRedeemVoucher(userId) {
+            const u = getUsers().find(x => x.id === userId);
+            if (!u) return;
+            if (u.estrelas >= STAR_GOAL) {
+                const novasEstrelas = u.estrelas - STAR_GOAL;
+                const newVouchers = (u.vouchers || 0) + 1;
+                await updateDocument('users', userId, { estrelas: novasEstrelas, vouchers: newVouchers });
+                toast('Voucher resgatado!','success');
+            } else if (u.vouchers > 0) {
+                const newVouchers = u.vouchers - 1;
+                await updateDocument('users', userId, { vouchers: newVouchers });
+                toast('Voucher utilizado!','success');
+            } else { toast('Cliente não tem estrelas ou vouchers.','error'); }
+            renderFidelitySearch();
+        }
+
+        // ----- ADMIN: PRODUTOS -----
+        function renderAdminProducts() {
+            const products = getProducts();
+            const container = document.getElementById('adminProductList');
+            if (products.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum produto cadastrado.</p>'; return; }
+            container.innerHTML = products.map(p =>
+                `<div class="history-item" style="flex-wrap:wrap;gap:8px;">
+                    <div><strong>${p.nome}</strong> - R$ ${p.preco.toFixed(2)} - Estoque: ${p.estoque}
+                        ${p.em_promocao ? ' <span class="badge-promo">PROMO</span>' : ''}
+                        ${p.estoque === 0 ? ' <span class="badge-burgundy">ESGOTADO</span>' : ''}
+                    </div>
+                    <div style="display:flex;gap:6px;">
+                        <button class="btn btn-outline-gold btn-sm" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-red btn-sm" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`
+            ).join('');
+        }
+
+        let pendingImageBase64 = null;
+
+        function showProductForm(productId) {
+            const p = productId ? getProducts().find(prod => prod.id === productId) : null;
+            const isEdit = !!p;
+            const currentImage = p ? p.imagem_url : '';
+            pendingImageBase64 = currentImage;
+            const html = `
+                <div class="form-group"><label>Nome</label><input type="text" id="pfNome" value="${p ? p.nome : ''}" /></div>
+                <div class="form-group"><label>Descrição</label><input type="text" id="pfDesc" value="${p ? p.descricao : ''}" /></div>
+                <div class="form-row">
+                    <div class="form-group"><label>Preço (R$)</label><input type="number" id="pfPreco" step="0.01" value="${p ? p.preco : ''}" /></div>
+                    <div class="form-group"><label>Estoque</label><input type="number" id="pfEstoque" value="${p ? p.estoque : ''}" /></div>
+                </div>
+                <div class="form-group"><div class="checkbox-group"><input type="checkbox" id="pfPromo" ${p && p.em_promocao ? 'checked' : ''} /><label for="pfPromo">Em promoção</label></div></div>
+                <div class="form-group"><label>Preço promocional (R$)</label><input type="number" id="pfPrecoPromo" step="0.01" value="${p && p.preco_promocional ? p.preco_promocional : ''}" placeholder="Deixe em branco se não houver" /></div>
+                <div class="form-group"><label>Foto do produto</label><input type="file" accept="image/*" capture="environment" id="pfImage" onchange="previewProductImage(event)" />
+                <img id="pfImagePreview" class="img-preview" src="${currentImage || ''}" style="${currentImage ? '' : 'display:none;'}" /></div>
+                <button class="btn btn-gold btn-block" onclick="saveProductForm('${productId || ''}')"><i class="fas fa-save"></i> Salvar</button>
+            `;
+            openModal(isEdit ? '✏️ Editar Produto' : '➕ Novo Produto', html);
+            if (currentImage) { const preview = document.getElementById('pfImagePreview'); if (preview) preview.style.display = 'block'; }
+        }
+
+        function previewProductImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                pendingImageBase64 = base64;
+                const preview = document.getElementById('pfImagePreview');
+                if (preview) { preview.src = base64; preview.style.display = 'block'; }
+                toast('📸 Imagem carregada!','success');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveProductForm(productId) {
+            const nome = document.getElementById('pfNome').value.trim();
+            const desc = document.getElementById('pfDesc').value.trim();
+            const preco = parseFloat(document.getElementById('pfPreco').value);
+            const estoque = parseInt(document.getElementById('pfEstoque').value);
+            const em_promocao = document.getElementById('pfPromo').checked;
+            const preco_promocional = parseFloat(document.getElementById('pfPrecoPromo').value) || 0;
+            if (!nome || isNaN(preco) || isNaN(estoque)) { toast('Preencha todos os campos corretamente.','error'); return; }
+            const imagem_url = pendingImageBase64 || 'https://picsum.photos/seed/' + uid() + '/200/200';
+            if (!productId) {
+                if (getProducts().length >= MAX_PRODUCTS) { toast(`Limite de ${MAX_PRODUCTS} produtos.`,'error'); return; }
+                const newProduct = { nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 };
+                await addDocument('products', newProduct);
+                toast('✅ Produto criado!','success');
+            } else {
+                await updateDocument('products', productId, { nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 });
+                toast('✅ Produto atualizado!','success');
+            }
+            pendingImageBase64 = null;
+            closeModal();
+            renderAdminProducts();
+            renderProducts();
+            renderSlideshow();
+        }
+
+        function editProduct(productId) { showProductForm(productId); }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Excluir este produto permanentemente?')) return;
+            await deleteDocument('products', productId);
+            toast('Produto excluído.','info');
+            renderAdminProducts();
+            renderProducts();
+            renderSlideshow();
+        }
+
+        // ----- ADMIN: USUÁRIOS -----
+        function renderUserList() {
+            const users = getUsers();
+            const container = document.getElementById('userList');
+            if (users.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum usuário cadastrado.</p>'; return; }
+            const canBlock = isSupervisor();
+            container.innerHTML = users.map(u => {
+                const roleLabel = u.role === 'admin' ? '👑 Admin' : u.role === 'supervisor' ? '⭐ Supervisor' : '👤 Cliente';
+                const blocked = u.bloqueado || false;
+                const blockBtn = canBlock ?
+                    `<button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}</button>` :
+                    '';
+                return `<div class="client-item">
+                    <div><span class="name">${u.nome}</span><span class="text-muted" style="font-size:0.7rem;margin-left:8px;">${roleLabel}</span>${blocked ? ' <span class="blocked-badge">BLOQUEADO</span>' : ''}</div>
+                    <div style="display:flex;gap:6px;">${blockBtn}</div>
+                </div>`;
+            }).join('');
+        }
+
+        async function toggleBlockUser(userId) {
+            if (!isSupervisor()) { toast('Apenas o supervisor pode bloquear usuários.','error'); return; }
+            const user = getUsers().find(u => u.id === userId);
+            if (!user) return;
+            if (getCurrentUser().id === userId) { toast('Você não pode bloquear a si mesmo.','error'); return; }
+            const novoStatus = !user.bloqueado;
+            await updateDocument('users', userId, { bloqueado: novoStatus });
+            toast(`Usuário ${novoStatus ? 'bloqueado' : 'desbloqueado'} com sucesso.`,'success');
+            renderUserList();
+            if (novoStatus && getCurrentUser().id === userId) logout();
+        }
+
+        // ----- ADMIN: CONFIG -----
+        function renderConfig() {
+            const config = getConfig();
+            const container = document.getElementById('configDays');
+            const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+            container.innerHTML = config.map((c, idx) =>
+                `<label class="${c.ativo ? 'active' : ''}" onclick="toggleDay('${c.id}')">
+                    <input type="checkbox" ${c.ativo ? 'checked' : ''} />
+                    <i class="fas ${c.ativo ? 'fa-check-circle' : 'fa-circle'}"></i>
+                    <span>${days[idx]}</span>
+                </label>`
+            ).join('');
+            const active = config.find(c => c.ativo) || config[0];
+            if (active) {
+                document.getElementById('configOpen').value = active.hora_inicio || '09:00';
+                document.getElementById('configClose').value = active.hora_fim || '20:00';
+                document.getElementById('configDuration').value = active.duracao || 30;
+                document.getElementById('configBlocks').value = (active.bloqueios || []).join(',');
+            }
+        }
+
+        async function toggleDay(docId) {
+            const config = getConfig();
+            const item = config.find(c => c.id === docId);
+            if (!item) return;
+            await updateDocument('config', docId, { ativo: !item.ativo });
+            renderConfig();
+        }
+
+        async function saveConfig() {
+            const open = document.getElementById('configOpen').value;
+            const close = document.getElementById('configClose').value;
+            const duration = parseInt(document.getElementById('configDuration').value);
+            const blocksRaw = document.getElementById('configBlocks').value;
+            const blocks = blocksRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
+            // Atualizar todos os documentos de config (ou apenas um, mas vamos simplificar)
+            const configs = getConfig();
+            for (const c of configs) {
+                await updateDocument('config', c.id, { hora_inicio: open, hora_fim: close, duracao: duration, bloqueios: blocks });
+            }
+            toast('✅ Configurações salvas!','success');
+            renderConfig();
+        }
+
+        // ----- ADMIN: LOG DE ESTRELAS -----
+        function renderStarsLog() {
+            const hist = getStarsHistory();
+            const users = getUsers();
+            const container = document.getElementById('starsLogList');
+            if (hist.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum registro.</p>'; return; }
+            container.innerHTML = hist.sort((a,b) => new Date(b.data_atribuicao) - new Date(a.data_atribuicao)).map(s => {
+                const user = users.find(u => u.id === s.cliente_id);
+                const nome = user ? user.nome : 'Desconhecido';
+                return `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
+                    <span><i class="fas fa-star text-gold"></i> ${nome} +1</span>
+                    <span class="text-muted">${formatDateTime(s.data_atribuicao)} ${s.appointment_id ? '(corte)' : '(manual)'}</span>
+                </div>`;
+            }).join('');
+        }
+
+        // ----- ADMIN: STORIES -----
+        let pendingStoryMedia = null;
+
+        function previewStoryMedia(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                pendingStoryMedia = { data: base64, type: file.type.startsWith('video') ? 'video' : 'image' };
+                const preview = document.getElementById('storyMediaPreview');
+                if (pendingStoryMedia.type === 'image') {
+                    preview.innerHTML = `<img src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" />`;
+                } else {
+                    preview.innerHTML = `<video src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" controls></video>`;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function postStory() {
+            if (!pendingStoryMedia) { toast('Selecione uma mídia primeiro.','error'); return; }
+            const user = getCurrentUser();
+            if (!user) { toast('Faça login.','error'); return; }
+            const story = { userId: user.id, media: pendingStoryMedia.data, tipo: pendingStoryMedia.type, timestamp: nowISO() };
+            await addDocument('stories', story);
+            toast('✅ Story publicado!','success');
+            pendingStoryMedia = null;
+            document.getElementById('storyMediaInput').value = '';
+            document.getElementById('storyMediaPreview').innerHTML = '';
+            renderAdminStories();
+            renderStories();
+        }
+
+        function renderAdminStories() {
+            const stories = getStories();
+            const now = new Date();
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
+            const container = document.getElementById('adminStoryList');
+            if (active.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum story ativo.</p>'; return; }
+            container.innerHTML = active.map(s => {
+                const user = getUsers().find(u => u.id === s.userId);
+                const nome = user ? user.nome : 'Desconhecido';
+                const mediaHtml = s.tipo === 'image' ? `<img src="${s.media}" class="story-preview" />` : `<video src="${s.media}" class="story-preview" muted></video>`;
+                return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #282828;">
+                    ${mediaHtml}
+                    <div style="flex:1;"><strong>${nome}</strong><br><span class="text-muted" style="font-size:0.7rem;">${formatDateTime(s.timestamp)}</span></div>
+                    <button class="btn btn-red btn-sm" onclick="deleteStory('${s.id}')"><i class="fas fa-trash"></i></button>
+                </div>`;
+            }).join('');
+        }
+
+        async function deleteStory(storyId) {
+            if (!confirm('Excluir este story?')) return;
+            await deleteDocument('stories', storyId);
+            toast('Story excluído.','info');
+            renderAdminStories();
+            renderStories();
+        }
+
+        // ----- STORIES (CLIENTE) -----
+        function renderStories() {
+            const container = document.getElementById('storiesContainer');
+            const stories = getStories();
+            const now = new Date();
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
+            if (active.length === 0) { container.innerHTML = ''; return; }
+            const groups = {};
+            active.forEach(s => { if (!groups[s.userId]) groups[s.userId] = []; groups[s.userId].push(s); });
+            let html = '';
+            Object.keys(groups).forEach(userId => {
+                const user = getUsers().find(u => u.id === userId);
+                const name = user ? user.nome : 'Desconhecido';
+                const firstStory = groups[userId][0];
+                const mediaType = firstStory.tipo;
+                const mediaSrc = firstStory.media;
+                const avatarHtml = mediaType === 'image' ?
+                    `<img src="${mediaSrc}" alt="${name}" />` :
+                    `<video src="${mediaSrc}" muted style="width:100%;height:100%;object-fit:cover;"></video>`;
+                html += `<div class="story-circle" onclick="openStoryViewer('${userId}')">
+                    <div class="avatar">${avatarHtml}</div>
+                    <span class="story-name">${name}</span>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        let currentStoryUser = null, currentStoryIndex = 0, storyViewerTimer = null;
+
+        function openStoryViewer(userId) {
+            const stories = getStories().filter(s => s.userId === userId);
+            const now = new Date();
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
+            if (active.length === 0) { toast('Nenhum story disponível.','info'); return; }
+            currentStoryUser = userId;
+            currentStoryIndex = 0;
+            document.getElementById('storyViewer').classList.add('open');
+            showStory(active);
+        }
+
+        function showStory(stories) {
+            const story = stories[currentStoryIndex];
+            if (!story) { closeStoryViewer(); return; }
+            const container = document.getElementById('storyMediaContainer');
+            const user = getUsers().find(u => u.id === story.userId);
+            document.getElementById('storyUserName').textContent = user ? user.nome : 'Desconhecido';
+            let progressHtml = '';
+            stories.forEach((s, idx) => {
+                const pct = idx < currentStoryIndex ? 100 : (idx === currentStoryIndex ? 0 : 0);
+                progressHtml += `<div class="bar"><div class="fill" id="progressFill-${idx}" style="width:${pct}%;"></div></div>`;
+            });
+            document.getElementById('storyProgress').innerHTML = progressHtml;
+            if (story.tipo === 'image') {
+                container.innerHTML = `<img src="${story.media}" class="story-media" />`;
+            } else {
+                container.innerHTML = `<video src="${story.media}" class="story-media" controls autoplay muted></video>`;
+            }
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 1;
+                const fill = document.getElementById(`progressFill-${currentStoryIndex}`);
+                if (fill) fill.style.width = progress + '%';
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        if (currentStoryIndex < stories.length - 1) {
+                            currentStoryIndex++;
+                            showStory(stories);
+                        } else { closeStoryViewer(); }
+                    }, 500);
+                }
+            }, 50);
+            storyViewerTimer = interval;
+        }
+
+        function navigateStory(direction) {
+            const stories = getStories().filter(s => s.userId === currentStoryUser);
+            const now = new Date();
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
+            if (active.length === 0) return;
+            clearInterval(storyViewerTimer);
+            const newIndex = currentStoryIndex + direction;
+            if (newIndex < 0 || newIndex >= active.length) { closeStoryViewer(); return; }
+            currentStoryIndex = newIndex;
+            showStory(active);
+        }
+
+        function closeStoryViewer() {
+            document.getElementById('storyViewer').classList.remove('open');
+            clearInterval(storyViewerTimer);
+            currentStoryUser = null;
+            currentStoryIndex = 0;
+        }
+
+        // ----- ADMIN: CHAT -----
         function renderAdminChatList() {
             if (!isAdmin()) return;
             const msgs = getChatMessages();
-            const users = getUsers();
-            const clients = users.filter(u => u.role === 'cliente');
+            const users = getUsers().filter(u => u.role === 'cliente');
             const container = document.getElementById('adminChatList');
-            if (clients.length === 0) {
+            if (users.length === 0) {
                 container.innerHTML = '<p class="text-muted">Nenhum cliente.</p>';
                 return;
             }
-            container.innerHTML = clients.map(c => {
+            container.innerHTML = users.map(c => {
                 const userMsgs = msgs.filter(m => m.userId === c.id);
                 const lastMsg = userMsgs.length > 0 ? userMsgs[userMsgs.length-1] : null;
                 const unread = userMsgs.filter(m => !m.read && m.sender === 'cliente').length;
@@ -1172,18 +2091,14 @@
             }).join('');
         }
 
-        function updateAdminChatList() { if (isAdmin()) renderAdminChatList(); }
-
         function openAdminChat(userId) {
-            const user = findUserById(userId);
+            const user = getUsers().find(u => u.id === userId);
             if (!user) return;
             const msgs = getChatMessages().filter(m => m.userId === userId);
-            let allMsgs = getChatMessages();
-            allMsgs = allMsgs.map(m => {
-                if (m.userId === userId && m.sender === 'cliente') m.read = true;
-                return m;
+            // Marcar mensagens como lidas
+            msgs.filter(m => !m.read && m.sender === 'cliente').forEach(m => {
+                updateDocument('chatMessages', m.id, { read: true });
             });
-            saveChatMessages(allMsgs);
             const html = `
                 <div class="chat-container" style="height:400px;">
                     <div style="font-weight:600;margin-bottom:8px;">${user.nome}</div>
@@ -1209,23 +2124,15 @@
             }, 100);
         }
 
-        function sendAdminChatMessage(userId) {
+        async function sendAdminChatMessage(userId) {
             const input = document.getElementById('adminChatInput');
             const text = input.value.trim();
             if (!text) return;
             const admin = getCurrentUser();
-            const msg = {
-                id: uid(),
-                userId: userId,
-                text: text,
-                timestamp: nowISO(),
-                sender: admin.role,
-                read: true
-            };
-            const msgs = getChatMessages();
-            msgs.push(msg);
-            saveChatMessages(msgs);
+            const msg = { userId, text, timestamp: nowISO(), sender: admin.role, read: true };
+            await addDocument('chatMessages', msg);
             input.value = '';
+            // Atualizar visualização
             const container = document.getElementById('adminChatMessages');
             if (container) {
                 const div = document.createElement('div');
@@ -1237,9 +2144,7 @@
             renderAdminChatList();
         }
 
-        // ================================================================
-        //  PEDIDOS (ADMIN) com NOTIFICAÇÃO
-        // ================================================================
+        // ----- ADMIN: PEDIDOS -----
         function renderAdminOrders() {
             if (!isAdmin()) return;
             const orders = getOrders().filter(o => o.status !== 'carrinho');
@@ -1249,9 +2154,9 @@
                 return;
             }
             container.innerHTML = orders.map(o => {
-                const user = findUserById(o.cliente_id);
+                const user = getUsers().find(u => u.id === o.cliente_id);
                 const nome = user ? user.nome : 'Desconhecido';
-                const p = getProductById(o.produto_id);
+                const p = getProducts().find(prod => prod.id === o.produto_id);
                 const prodNome = p ? p.nome : 'Produto removido';
                 const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
                 const statusLabel = o.status === 'pronto_retirada' ? 'Pronto para retirada' : o.status === 'entregue' ? 'Entregue' : 'Aguardando retirada';
@@ -1287,103 +2192,29 @@
             }
         }
 
-        function updateOrderStatus(orderId, newStatus) {
-            let orders = getOrders();
-            const idx = orders.findIndex(o => o.id === orderId);
-            if (idx === -1) return;
-            const oldStatus = orders[idx].status;
-            orders[idx].status = newStatus;
-            // Se o status mudou para pronto_retirada, notificar cliente
+        async function updateOrderStatus(orderId, newStatus) {
+            const order = getOrders().find(o => o.id === orderId);
+            if (!order) return;
+            const oldStatus = order.status;
+            await updateDocument('orders', orderId, { status: newStatus });
+            // Se o status mudou para pronto_retirada, notificar cliente via toast (será capturado pelo polling)
             if (newStatus === 'pronto_retirada' && oldStatus !== 'pronto_retirada') {
-                // Marcar como não visualizado pelo cliente
-                orders[idx].cliente_visto = false;
-                // Notificar cliente (se estiver logado)
-                const cliente = getCurrentUser();
-                if (cliente && cliente.id === orders[idx].cliente_id) {
+                // Marcar como não visualizado
+                await updateDocument('orders', orderId, { cliente_visto: false });
+                // Notificar cliente se estiver logado
+                if (getCurrentUser() && getCurrentUser().id === order.cliente_id) {
                     toast('📦 Seu pedido está pronto para retirada!', 'success');
-                    updatePedidosBadge();
                 }
             }
-            saveOrders(orders);
             toast(`Status atualizado para ${newStatus === 'pronto_retirada' ? 'Pronto para retirada' : 'Entregue'}.`,'success');
             renderAdminOrders();
-            // Atualizar badge de pedidos do cliente se ele estiver logado
+            updatePendingOrdersBadge();
             updatePedidosBadge();
         }
 
-        // ================================================================
-        //  PEDIDOS DO CLIENTE
-        // ================================================================
-        function renderMeusPedidos() {
-            const user = getCurrentUser();
-            if (!user || user.role !== 'cliente') {
-                document.getElementById('meusPedidosList').innerHTML = '<p class="text-muted">Faça login para ver seus pedidos.</p>';
-                return;
-            }
-            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status !== 'carrinho');
-            const container = document.getElementById('meusPedidosList');
-            if (orders.length === 0) {
-                container.innerHTML = '<p class="text-muted">Você ainda não fez nenhum pedido.</p>';
-                return;
-            }
-            // Marcar pedidos prontos como visualizados
-            let updated = false;
-            const updatedOrders = orders.map(o => {
-                if (o.status === 'pronto_retirada' && !o.cliente_visto) {
-                    o.cliente_visto = true;
-                    updated = true;
-                }
-                return o;
-            });
-            if (updated) {
-                // Salvar atualizações no storage
-                let allOrders = getOrders();
-                updatedOrders.forEach(o => {
-                    const idx = allOrders.findIndex(x => x.id === o.id);
-                    if (idx !== -1) allOrders[idx].cliente_visto = true;
-                });
-                saveOrders(allOrders);
-                updatePedidosBadge();
-            }
-
-            container.innerHTML = orders.sort((a,b) => new Date(b.data_pedido) - new Date(a.data_pedido)).map(o => {
-                const p = getProductById(o.produto_id);
-                const prodNome = p ? p.nome : 'Produto removido';
-                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
-                const statusLabel = o.status === 'pronto_retirada' ? '✅ Pronto para retirada' : o.status === 'entregue' ? '✅ Entregue' : '⏳ Aguardando retirada';
-                return `<div class="pedido-item">
-                    <div class="flex-between">
-                        <div>
-                            <span class="produto-nome">${prodNome}</span>
-                            <span class="status ${statusClass}">${statusLabel}</span>
-                        </div>
-                        <span class="text-muted" style="font-size:0.7rem;">${formatDateTime(o.data_pedido)}</span>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        function updatePedidosBadge() {
-            const user = getCurrentUser();
-            if (!user || user.role !== 'cliente') {
-                document.getElementById('pedidosBadge').style.display = 'none';
-                return;
-            }
-            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o.cliente_visto);
-            const count = orders.length;
-            const badge = document.getElementById('pedidosBadge');
-            if (count > 0) {
-                badge.textContent = count;
-                badge.style.display = 'inline';
-            } else {
-                badge.style.display = 'none';
-            }
-        }
-
-        // ================================================================
-        //  SLIDESHOW
-        // ================================================================
+        // ----- SLIDESHOW -----
         let slideIndex = 0, slideTimer = null;
+
         function renderSlideshow() {
             const container = document.getElementById('slideshowContainer');
             const products = getProducts().filter(p => p.em_promocao && p.estoque > 0);
@@ -1417,6 +2248,7 @@
             clearInterval(slideTimer);
             slideTimer = setInterval(() => { changeSlide(1); }, 5000);
         }
+
         function changeSlide(direction) {
             const slides = document.querySelectorAll('.slideshow-slide');
             const dots = document.querySelectorAll('.slideshow-dots .dot');
@@ -1427,6 +2259,7 @@
             slides[slideIndex].classList.add('active');
             dots[slideIndex].classList.add('active');
         }
+
         function goToSlide(index) {
             const slides = document.querySelectorAll('.slideshow-slide');
             const dots = document.querySelectorAll('.slideshow-dots .dot');
@@ -1440,889 +2273,61 @@
             slideTimer = setInterval(() => { changeSlide(1); }, 5000);
         }
 
-        // ================================================================
-        //  STORIES - VISUALIZAÇÃO (CLIENTE)
-        // ================================================================
-        function renderStories() {
-            const container = document.getElementById('storiesContainer');
-            const activeStories = getActiveStories();
-            if (activeStories.length === 0) { container.innerHTML = ''; return; }
-            const groups = {};
-            activeStories.forEach(s => { if (!groups[s.userId]) groups[s.userId] = []; groups[s.userId].push(s); });
-            let html = '';
-            Object.keys(groups).forEach(userId => {
-                const user = findUserById(userId);
-                const name = user ? user.nome : 'Desconhecido';
-                const firstStory = groups[userId][0];
-                const mediaType = firstStory.tipo;
-                const mediaSrc = firstStory.media;
-                const avatarHtml = mediaType === 'image' ?
-                    `<img src="${mediaSrc}" alt="${name}" />` :
-                    `<video src="${mediaSrc}" muted style="width:100%;height:100%;object-fit:cover;"></video>`;
-                html += `<div class="story-circle" onclick="openStoryViewer('${userId}')">
-                    <div class="avatar">${avatarHtml}</div>
-                    <span class="story-name">${name}</span>
-                </div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        let currentStoryUser = null, currentStoryIndex = 0, storyViewerTimer = null;
-        function openStoryViewer(userId) {
-            const stories = getActiveStories().filter(s => s.userId === userId);
-            if (stories.length === 0) { toast('Nenhum story disponível.','info'); return; }
-            currentStoryUser = userId;
-            currentStoryIndex = 0;
-            document.getElementById('storyViewer').classList.add('open');
-            showStory(stories);
-        }
-        function showStory(stories) {
-            const story = stories[currentStoryIndex];
-            if (!story) { closeStoryViewer(); return; }
-            const container = document.getElementById('storyMediaContainer');
-            const user = findUserById(story.userId);
-            document.getElementById('storyUserName').textContent = user ? user.nome : 'Desconhecido';
-            let progressHtml = '';
-            stories.forEach((s, idx) => {
-                const pct = idx < currentStoryIndex ? 100 : (idx === currentStoryIndex ? 0 : 0);
-                progressHtml += `<div class="bar"><div class="fill" id="progressFill-${idx}" style="width:${pct}%;"></div></div>`;
-            });
-            document.getElementById('storyProgress').innerHTML = progressHtml;
-            if (story.tipo === 'image') {
-                container.innerHTML = `<img src="${story.media}" class="story-media" />`;
-            } else {
-                container.innerHTML = `<video src="${story.media}" class="story-media" controls autoplay muted></video>`;
-            }
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 1;
-                const fill = document.getElementById(`progressFill-${currentStoryIndex}`);
-                if (fill) fill.style.width = progress + '%';
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    setTimeout(() => {
-                        if (currentStoryIndex < stories.length - 1) {
-                            currentStoryIndex++;
-                            showStory(stories);
-                        } else { closeStoryViewer(); }
-                    }, 500);
-                }
-            }, 50);
-            storyViewerTimer = interval;
-        }
-        function navigateStory(direction) {
-            const stories = getActiveStories().filter(s => s.userId === currentStoryUser);
-            if (stories.length === 0) return;
-            clearInterval(storyViewerTimer);
-            const newIndex = currentStoryIndex + direction;
-            if (newIndex < 0 || newIndex >= stories.length) { closeStoryViewer(); return; }
-            currentStoryIndex = newIndex;
-            showStory(stories);
-        }
-        function closeStoryViewer() {
-            document.getElementById('storyViewer').classList.remove('open');
-            clearInterval(storyViewerTimer);
-            currentStoryUser = null;
-            currentStoryIndex = 0;
-        }
-
-        // ================================================================
-        //  ADMIN: STORIES
-        // ================================================================
-        let pendingStoryMedia = null;
-        function previewStoryMedia(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                pendingStoryMedia = { data: base64, type: file.type.startsWith('video') ? 'video' : 'image' };
-                const preview = document.getElementById('storyMediaPreview');
-                if (pendingStoryMedia.type === 'image') {
-                    preview.innerHTML = `<img src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" />`;
-                } else {
-                    preview.innerHTML = `<video src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" controls></video>`;
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-        function postStory() {
-            if (!pendingStoryMedia) { toast('Selecione uma mídia primeiro.','error'); return; }
+        // ----- ANIVERSÁRIO -----
+        async function checkBirthdayBonus() {
             const user = getCurrentUser();
-            if (!user) { toast('Faça login.','error'); return; }
-            const story = { id: uid(), userId: user.id, media: pendingStoryMedia.data, tipo: pendingStoryMedia.type, timestamp: nowISO() };
-            const stories = getStories();
-            stories.push(story);
-            saveStories(stories);
-            toast('✅ Story publicado!','success');
-            pendingStoryMedia = null;
-            document.getElementById('storyMediaInput').value = '';
-            document.getElementById('storyMediaPreview').innerHTML = '';
-            renderAdminStories();
-            renderStories();
-        }
-        function renderAdminStories() {
-            const stories = getActiveStories();
-            const container = document.getElementById('adminStoryList');
-            if (stories.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum story ativo.</p>'; return; }
-            container.innerHTML = stories.map(s => {
-                const user = findUserById(s.userId);
-                const nome = user ? user.nome : 'Desconhecido';
-                const mediaHtml = s.tipo === 'image' ? `<img src="${s.media}" class="story-preview" />` : `<video src="${s.media}" class="story-preview" muted></video>`;
-                return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #282828;">
-                    ${mediaHtml}
-                    <div style="flex:1;"><strong>${nome}</strong><br><span class="text-muted" style="font-size:0.7rem;">${formatDateTime(s.timestamp)}</span></div>
-                    <button class="btn btn-red btn-sm" onclick="deleteStory('${s.id}')"><i class="fas fa-trash"></i></button>
-                </div>`;
-            }).join('');
-        }
-        function deleteStory(storyId) {
-            if (!confirm('Excluir este story?')) return;
-            let stories = getStories();
-            stories = stories.filter(s => s.id !== storyId);
-            saveStories(stories);
-            toast('Story excluído.','info');
-            renderAdminStories();
-            renderStories();
-        }
-
-        // ================================================================
-        //  RENDER: HOME
-        // ================================================================
-        function renderHome() {
-            const user = getCurrentUser();
-            if (!user || user.role !== 'cliente') return;
-            document.getElementById('homeUserName').textContent = user.nome || 'Cliente';
-            const upcoming = getUpcomingAppointments(user.id);
-            const container = document.getElementById('homeUpcomingAppointments');
-            if (upcoming.length === 0) {
-                container.innerHTML = '<p class="text-muted" style="font-size:0.9rem;">Nenhum agendamento futuro.</p>';
-            } else {
-                container.innerHTML = upcoming.map(a =>
-                    `<div class="flex-between" style="padding:6px 0;border-bottom:1px solid #282828;">
-                        <span>${formatDateTime(a.data_hora)} - ${a.servico}</span>
-                        <span class="tag ${a.status === 'confirmado' ? 'tag-gold' : 'tag-burgundy'}">${a.status}</span>
-                    </div>`
-                ).join('');
-            }
-        }
-
-        // ================================================================
-        //  RENDER: AGENDAMENTO
-        // ================================================================
-        function renderAgendamento() {
-            const dateInput = document.getElementById('apptDate');
-            const today = todayStr();
-            dateInput.min = today;
-            if (!dateInput.value || dateInput.value < today) dateInput.value = today;
-            updateAvailableTimes();
-            const waitlist = getWaitlist();
-            const user = getCurrentUser();
-            const userWait = waitlist.filter(w => w.cliente_id === user.id);
-            document.getElementById('waitlistInfo').textContent = userWait.length > 0 ?
-                `Você está na fila de espera (${userWait.length} cliente(s) na frente).` :
-                'Nenhum cliente na fila.';
-        }
-        document.getElementById('apptDate').addEventListener('change', updateAvailableTimes);
-        function updateAvailableTimes() {
-            const date = document.getElementById('apptDate').value;
-            const select = document.getElementById('apptTime');
-            if (!date) { select.innerHTML = '<option value="">Selecione uma data</option>'; return; }
-            const slots = getAvailableTimes(date);
-            if (slots.length === 0) {
-                select.innerHTML = '<option value="">Nenhum horário disponível</option>';
-                document.getElementById('apptFeedback').textContent = '📋 Todos os horários estão ocupados.';
-                document.getElementById('apptFeedback').style.color = '#f39c12';
-                return;
-            }
-            select.innerHTML = '<option value="">Selecione um horário</option>' + slots.map(t => `<option value="${t}">${t}</option>`).join('');
-            document.getElementById('apptFeedback').textContent = '';
-        }
-        function confirmAppointment() {
-            const user = getCurrentUser();
-            if (!user) { toast('Faça login primeiro.','error'); return; }
-            const date = document.getElementById('apptDate').value;
-            const time = document.getElementById('apptTime').value;
-            const service = document.getElementById('apptService').value;
-            if (!date || !time) { toast('Selecione data e horário.','error'); return; }
-            const upcoming = getUpcomingAppointments(user.id);
-            if (upcoming.length > 0) { toast('Você já tem um agendamento futuro.','error'); return; }
-            if (!isTimeSlotAvailable(date, time)) { toast('Horário indisponível.','error'); updateAvailableTimes(); return; }
-            const appts = getAppointments();
-            appts.push({ id: uid(), cliente_id: user.id, data_hora: date + 'T' + time + ':00', servico: service, status: 'pendente', admin_id: null });
-            saveAppointments(appts);
-            toast('✅ Agendamento confirmado!','success');
-            document.getElementById('apptFeedback').textContent = '✅ Agendado com sucesso!';
-            document.getElementById('apptFeedback').style.color = '#2ecc71';
-            updateAvailableTimes();
-            renderHome();
-        }
-
-        // ================================================================
-        //  RENDER: LOJINHA
-        // ================================================================
-        function renderProducts() {
-            const products = getProducts();
-            const grid = document.getElementById('productGrid');
-            const empty = document.getElementById('productGridEmpty');
-            const available = products.filter(p => p.estoque > 0);
-            if (available.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
-            empty.style.display = 'none';
-            grid.innerHTML = available.map(p => {
-                const promoHtml = p.em_promocao ? `<span class="promo-badge">🔥 PROMO</span>` : '';
-                const priceHtml = p.preco_promocional && p.preco_promocional > 0 ?
-                    `<span class="price">R$ ${p.preco_promocional.toFixed(2)}</span> <span class="old-price">R$ ${p.preco.toFixed(2)}</span>` :
-                    `<span class="price">R$ ${p.preco.toFixed(2)}</span>`;
-                return `<div class="product-card" onclick="showProductDetail('${p.id}')">
-                    <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" alt="${p.nome}" loading="lazy" />
-                    ${promoHtml}
-                    <div class="info"><h4>${p.nome}</h4><div>${priceHtml}</div><div class="stock">${p.estoque} unid.</div></div>
-                </div>`;
-            }).join('');
-        }
-        function showProductDetail(productId) {
-            const p = getProductById(productId);
-            if (!p) return;
-            const user = getCurrentUser();
-            if (!user) { toast('Faça login primeiro.','error'); return; }
-            const inCart = getCartOrders(user.id).some(o => o.produto_id === p.id);
-            const priceDisplay = p.preco_promocional && p.preco_promocional > 0 ?
-                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco_promocional.toFixed(2)}</span> <span style="text-decoration:line-through;color:#888;">R$ ${p.preco.toFixed(2)}</span>` :
-                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco.toFixed(2)}</span>`;
-            const html = `<div style="text-align:center;">
-                <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:12px;" />
-                <h4 style="font-size:1.1rem;">${p.nome}</h4>
-                <p class="text-muted">${p.descricao || ''}</p>
-                <div>${priceDisplay}</div>
-                <p class="text-muted" style="font-size:0.8rem;">Estoque: ${p.estoque}</p>
-                ${p.estoque > 0 ? (inCart ? '<p class="text-gold"><i class="fas fa-check"></i> Já está no carrinho</p>' :
-                `<button class="btn btn-gold btn-block mt-8" onclick="addToCart('${p.id}')"><i class="fas fa-cart-plus"></i> Adicionar ao carrinho</button>`) :
-                '<p class="text-muted" style="color:var(--red-action);">ESGOTADO</p>'}
-            </div>`;
-            openModal(p.nome, html);
-        }
-        function addToCart(productId) {
-            const user = getCurrentUser();
-            if (!user) { toast('Faça login.','error'); return; }
-            const p = getProductById(productId);
-            if (!p || p.estoque <= 0) { toast('Produto esgotado.','error'); return; }
-            const orders = getOrders();
-            if (orders.some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status === 'carrinho')) {
-                toast('Já está no carrinho.','info'); return;
-            }
-            orders.push({ id: uid(), cliente_id: user.id, produto_id: p.id, quantidade: 1, status: 'carrinho', data_pedido: nowISO(), cliente_visto: true });
-            saveOrders(orders);
-            toast('🛒 Produto adicionado ao carrinho!','success');
-            updateCartBadge();
-            closeModal();
-        }
-        function updateCartBadge() {
-            const user = getCurrentUser();
-            if (!user || user.role !== 'cliente') { document.getElementById('cartFloat').style.display = 'none'; return; }
-            const cart = getCartOrders(user.id);
-            const count = cart.length;
-            if (count > 0) {
-                document.getElementById('cartFloat').style.display = 'flex';
-                document.getElementById('cartBadge').textContent = count;
-            } else {
-                document.getElementById('cartFloat').style.display = 'none';
-            }
-        }
-        function showCartModal() {
-            const user = getCurrentUser();
-            if (!user) { toast('Faça login.','error'); return; }
-            const cart = getCartOrders(user.id);
-            if (cart.length === 0) { openModal('🛒 Carrinho','<p class="text-muted">Seu carrinho está vazio.</p>'); return; }
-            let html = `<div style="max-height:300px;overflow-y:auto;margin-bottom:12px;">`;
-            let total = 0;
-            cart.forEach(o => {
-                const p = getProductById(o.produto_id);
-                if (!p) return;
-                const price = p.preco_promocional && p.preco_promocional > 0 ? p.preco_promocional : p.preco;
-                total += price;
-                html += `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid #282828;">
-                    <span>${p.nome}</span><span>R$ ${price.toFixed(2)}</span>
-                    <button class="btn btn-red btn-sm" onclick="removeFromCart('${o.id}')"><i class="fas fa-trash"></i></button>
-                </div>`;
-            });
-            html += `</div><div class="flex-between" style="font-size:1.1rem;font-weight:700;border-top:2px solid #333;padding-top:12px;">
-                <span>Total:</span><span class="text-gold">R$ ${total.toFixed(2)}</span>
-            </div><button class="btn btn-gold btn-block mt-12" onclick="finalizeOrder()"><i class="fas fa-check"></i> Finalizar Pedido</button>`;
-            openModal('🛒 Meu Carrinho', html);
-        }
-        function removeFromCart(orderId) {
-            let orders = getOrders();
-            orders = orders.filter(o => o.id !== orderId);
-            saveOrders(orders);
-            toast('Item removido.','info');
-            updateCartBadge();
-            showCartModal();
-        }
-        function finalizeOrder() {
-            const user = getCurrentUser();
-            if (!user) return;
-            let orders = getOrders();
-            const cart = orders.filter(o => o.cliente_id === user.id && o.status === 'carrinho');
-            if (cart.length === 0) { toast('Carrinho vazio.','error'); return; }
-            let hasError = false;
-            cart.forEach(o => { const p = getProductById(o.produto_id); if (!p || p.estoque < o.quantidade) hasError = true; });
-            if (hasError) { toast('Algum produto com estoque insuficiente.','error'); return; }
-            let products = getProducts();
-            cart.forEach(o => { const p = products.find(p => p.id === o.produto_id); if (p) p.estoque -= o.quantidade; });
-            saveProducts(products);
-            orders = orders.map(o => {
-                if (o.cliente_id === user.id && o.status === 'carrinho') {
-                    return { ...o, status: 'aguardando_retirada', cliente_visto: true };
-                }
-                return o;
-            });
-            saveOrders(orders);
-            toast('✅ Pedido finalizado! Aguarde a retirada.','success');
-            updateCartBadge();
-            closeModal();
-            renderProducts();
-            if (isAdmin()) {
-                toast('📦 Novo pedido recebido!','success');
-                renderAdminOrders();
-            }
-            updatePendingOrdersBadge();
-            updatePedidosBadge();
-        }
-
-        // ================================================================
-        //  RENDER: FIDELIDADE
-        // ================================================================
-        function renderFidelidade() {
-            const user = getCurrentUser();
-            if (!user || user.role !== 'cliente') return;
-            const stars = user.estrelas || 0;
-            const vouchers = user.vouchers || 0;
-            const grid = document.getElementById('starsGrid');
-            let html = '';
-            for (let i = 0; i < STAR_GOAL; i++) {
-                const earned = i < stars;
-                html += `<div class="star-circle ${earned ? 'earned' : ''}"><i class="fas ${earned ? 'fa-star' : 'fa-star'}"></i></div>`;
-            }
-            grid.innerHTML = html;
-            const remaining = Math.max(0, STAR_GOAL - stars);
-            document.getElementById('fidelidadeText').innerHTML =
-                `Você tem <strong class="text-gold">${stars}</strong> estrelas. Faltam <strong>${remaining}</strong> para ganhar um corte grátis!`;
-            const freeBadge = document.getElementById('freeCutBadge');
-            if (stars >= STAR_GOAL || vouchers > 0) freeBadge.classList.remove('hidden');
-            else freeBadge.classList.add('hidden');
-            renderStarsHistory();
-        }
-        function useFreeCut() {
-            const user = getCurrentUser();
-            if (!user) return;
-            let users = getUsers();
-            const u = users.find(x => x.id === user.id);
-            if (!u) return;
-            if (u.estrelas >= STAR_GOAL) {
-                u.estrelas -= STAR_GOAL;
-                u.vouchers = (u.vouchers || 0) + 1;
-                saveUsers(users);
-                setCurrentUser({ ...u });
-                toast('🎉 Corte grátis resgatado!','success');
-                renderFidelidade();
-                updateStarsDisplay();
-            } else if (u.vouchers > 0) {
-                u.vouchers -= 1;
-                saveUsers(users);
-                setCurrentUser({ ...u });
-                toast('🎉 Voucher utilizado!','success');
-                renderFidelidade();
-            } else {
-                toast('Sem estrelas ou vouchers.','error');
-            }
-        }
-        function renderStarsHistory() {
-            const user = getCurrentUser();
-            if (!user) return;
-            const history = getStarsHistory().filter(s => s.cliente_id === user.id);
-            const container = document.getElementById('starsHistoryList');
-            if (history.length === 0) { container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhuma estrela registrada.</p>'; return; }
-            container.innerHTML = history.map(s =>
-                `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
-                    <span><i class="fas fa-star text-gold"></i> +1 estrela</span>
-                    <span class="text-muted">${formatDateTime(s.data_atribuicao)}</span>
-                </div>`
-            ).join('');
-        }
-
-        // ================================================================
-        //  RENDER: PERFIL
-        // ================================================================
-        function renderPerfil() {
-            const user = getCurrentUser();
-            if (!user || user.role !== 'cliente') return;
-            document.getElementById('profileNome').value = user.nome || '';
-            document.getElementById('profileTelefone').value = user.telefone || '';
-            document.getElementById('profileEmail').value = user.email || '';
-            document.getElementById('profileNascimento').value = user.data_nascimento || '';
-            renderProfileHistory();
-        }
-        function renderProfileHistory() {
-            const user = getCurrentUser();
-            if (!user) return;
-            const appts = getClientAppointments(user.id);
-            const container = document.getElementById('profileHistory');
-            if (appts.length === 0) { container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhum agendamento.</p>'; return; }
-            container.innerHTML = appts.map(a => {
-                const statusClass = 'status-' + a.status;
-                const canCancel = a.status === 'pendente' || a.status === 'confirmado';
-                const now = new Date();
-                const apptDate = new Date(a.data_hora);
-                const diff = (apptDate - now) / (1000*60*60);
-                const showCancel = canCancel && diff > 2;
-                return `<div class="history-item">
-                    <div><div>${formatDateTime(a.data_hora)} - ${a.servico}</div>
-                    <span class="status ${statusClass}">${a.status}</span></div>
-                    ${showCancel ? `<button class="btn btn-red btn-sm" onclick="cancelAppointment('${a.id}')"><i class="fas fa-times"></i> Cancelar</button>` : ''}
-                </div>`;
-            }).join('');
-        }
-        function cancelAppointment(apptId) {
-            if (!confirm('Cancelar este agendamento?')) return;
-            let appts = getAppointments();
-            const idx = appts.findIndex(a => a.id === apptId);
-            if (idx === -1) return;
-            appts[idx].status = 'cancelado';
-            saveAppointments(appts);
-            toast('Agendamento cancelado.','info');
-            renderPerfil();
-            renderHome();
-        }
-        function saveProfile() {
-            const user = getCurrentUser();
-            if (!user) return;
-            const nome = document.getElementById('profileNome').value.trim();
-            const telefone = document.getElementById('profileTelefone').value.trim();
-            const email = document.getElementById('profileEmail').value.trim();
-            const nascimento = document.getElementById('profileNascimento').value;
-            if (!nome || !telefone || !email) { toast('Preencha todos os campos.','error'); return; }
-            let users = getUsers();
-            const u = users.find(x => x.id === user.id);
-            if (!u) return;
-            const existing = users.find(x => x.email === email && x.id !== user.id);
-            if (existing) { toast('E-mail já cadastrado por outro usuário.','error'); return; }
-            const existingTel = users.find(x => x.telefone === telefone && x.id !== user.id);
-            if (existingTel) { toast('Telefone já cadastrado por outro usuário.','error'); return; }
-            u.nome = nome; u.telefone = telefone; u.email = email; u.data_nascimento = nascimento;
-            saveUsers(users);
-            setCurrentUser({ ...u });
-            toast('✅ Perfil atualizado!','success');
-            renderPerfil();
-        }
-
-        // ================================================================
-        //  ADMIN: DASHBOARD
-        // ================================================================
-        function renderAdminDashboard() {
-            const users = getUsers();
-            const appts = getAppointments();
-            const products = getProducts();
-            const starsHist = getStarsHistory();
-            const hoje = todayStr();
-            const hojeAppts = appts.filter(a => a.data_hora.startsWith(hoje) && a.status !== 'cancelado');
-            const clientes = users.filter(u => u.role === 'cliente');
-            const estoqueBaixo = products.filter(p => p.estoque <= 3);
-            const mesAtual = new Date().getMonth();
-            const estrelasMes = starsHist.filter(s => { const d = new Date(s.data_atribuicao); return d.getMonth() === mesAtual; });
-            document.getElementById('adminDashHoje').textContent = hojeAppts.length;
-            document.getElementById('adminDashClientes').textContent = clientes.length;
-            document.getElementById('adminDashEstoque').textContent = estoqueBaixo.length;
-            document.getElementById('adminDashEstrelas').textContent = estrelasMes.length;
-        }
-
-        // ================================================================
-        //  ADMIN: AGENDAMENTOS
-        // ================================================================
-        function renderAdminAppointments() {
-            const appts = getAppointments();
-            const users = getUsers();
-            const container = document.getElementById('adminApptList');
-            if (appts.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum agendamento.</p>'; return; }
-            container.innerHTML = appts.sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora)).map(a => {
-                const user = users.find(u => u.id === a.cliente_id);
-                const nome = user ? user.nome : 'Desconhecido';
-                const statusClass = 'status-' + a.status;
-                const isPending = a.status === 'pendente' || a.status === 'confirmado';
-                return `<div class="history-item" style="flex-wrap:wrap;gap:8px;">
-                    <div><strong>${nome}</strong> - ${formatDateTime(a.data_hora)} - ${a.servico}
-                        <span class="status ${statusClass}">${a.status}</span></div>
-                    <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                        ${isPending ? `<button class="btn btn-gold btn-sm" onclick="adminCompleteAppointment('${a.id}')"><i class="fas fa-check"></i> Concluir</button>` : ''}
-                        ${a.status === 'pendente' ? `<button class="btn btn-outline-gold btn-sm" onclick="adminConfirmAppointment('${a.id}')"><i class="fas fa-thumbs-up"></i> Confirmar</button>` : ''}
-                        ${a.status === 'pendente' || a.status === 'confirmado' ? `<button class="btn btn-red btn-sm" onclick="adminCancelAppointment('${a.id}')"><i class="fas fa-times"></i> Cancelar</button>` : ''}
-                        ${a.status === 'confirmado' ? `<button class="btn btn-outline-muted btn-sm" onclick="adminMarkNoShow('${a.id}')"><i class="fas fa-user-slash"></i> Falta</button>` : ''}
-                    </div>
-                </div>`;
-            }).join('');
-        }
-        function adminConfirmAppointment(apptId) {
-            let appts = getAppointments();
-            const a = appts.find(x => x.id === apptId);
-            if (!a) return;
-            a.status = 'confirmado';
-            saveAppointments(appts);
-            toast('Agendamento confirmado!','success');
-            renderAdminAppointments();
-        }
-        function adminCompleteAppointment(apptId) {
-            let appts = getAppointments();
-            const a = appts.find(x => x.id === apptId);
-            if (!a) return;
-            const user = findUserById(a.cliente_id);
-            if (!user) { toast('Cliente não encontrado.','error'); return; }
-            if (confirm(`Dar 1 estrela para ${user.nome}?`)) {
-                let users = getUsers();
-                const u = users.find(x => x.id === user.id);
-                if (u) {
-                    u.estrelas = (u.estrelas || 0) + 1;
-                    if (u.estrelas >= STAR_GOAL) { u.vouchers = (u.vouchers || 0) + 1; toast('🎉 Cliente atingiu 10 estrelas! Voucher gerado!','success'); }
-                    saveUsers(users);
-                    let hist = getStarsHistory();
-                    hist.push({ id: uid(), cliente_id: user.id, appointment_id: a.id, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
-                    saveStarsHistory(hist);
-                    toast(`⭐ +1 estrela para ${user.nome}!`,'success');
-                }
-            }
-            a.status = 'realizado';
-            saveAppointments(appts);
-            renderAdminAppointments();
-            renderAdminDashboard();
-        }
-        function adminCancelAppointment(apptId) {
-            if (!confirm('Cancelar este agendamento?')) return;
-            let appts = getAppointments();
-            const a = appts.find(x => x.id === apptId);
-            if (a) { a.status = 'cancelado'; saveAppointments(appts); toast('Cancelado.','info'); renderAdminAppointments(); }
-        }
-        function adminMarkNoShow(apptId) {
-            if (!confirm('Marcar como falta?')) return;
-            let appts = getAppointments();
-            const a = appts.find(x => x.id === apptId);
-            if (a) { a.status = 'falta'; saveAppointments(appts); toast('Marcado como falta.','info'); renderAdminAppointments(); }
-        }
-
-        // ================================================================
-        //  ADMIN: FIDELIDADE
-        // ================================================================
-        function renderFidelitySearch() {
-            const query = document.getElementById('fidelitySearch').value.trim().toLowerCase();
-            const users = getUsers().filter(u => u.role === 'cliente');
-            let filtered = users;
-            if (query) filtered = users.filter(u => u.nome.toLowerCase().includes(query) || u.telefone.includes(query));
-            const container = document.getElementById('fidelityResults');
-            if (filtered.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum cliente encontrado.</p>'; return; }
-            container.innerHTML = filtered.map(u =>
-                `<div class="client-item">
-                    <div><span class="name">${u.nome}</span><span class="text-muted" style="font-size:0.8rem;">${u.telefone}</span></div>
-                    <div class="flex-center">
-                        <span class="stars"><i class="fas fa-star"></i> ${u.estrelas || 0}</span>
-                        ${u.estrelas >= STAR_GOAL ? '<span class="badge-gold" style="font-size:0.6rem;">VALE</span>' : ''}
-                        <button class="btn btn-gold btn-sm" onclick="adminAddStar('${u.id}')" ${u.estrelas >= STAR_GOAL ? 'disabled' : ''}><i class="fas fa-plus"></i></button>
-                        <button class="btn btn-outline-gold btn-sm" onclick="adminRedeemVoucher('${u.id}')" ${u.estrelas < STAR_GOAL && u.vouchers < 1 ? 'disabled' : ''}><i class="fas fa-gift"></i></button>
-                    </div>
-                </div>`
-            ).join('');
-        }
-        function adminAddStar(userId) {
-            let users = getUsers();
-            const u = users.find(x => x.id === userId);
-            if (!u) return;
-            if (u.estrelas >= STAR_GOAL) { toast('Cliente já tem 10 estrelas!','error'); return; }
-            u.estrelas = (u.estrelas || 0) + 1;
-            if (u.estrelas >= STAR_GOAL) { u.vouchers = (u.vouchers || 0) + 1; toast('🎉 10 estrelas! Voucher gerado!','success'); }
-            saveUsers(users);
-            let hist = getStarsHistory();
-            hist.push({ id: uid(), cliente_id: userId, appointment_id: null, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
-            saveStarsHistory(hist);
-            toast('⭐ Estrela adicionada!','success');
-            renderFidelitySearch();
-            renderAdminDashboard();
-        }
-        function adminRedeemVoucher(userId) {
-            let users = getUsers();
-            const u = users.find(x => x.id === userId);
-            if (!u) return;
-            if (u.estrelas >= STAR_GOAL) {
-                u.estrelas -= STAR_GOAL;
-                u.vouchers = (u.vouchers || 0) + 1;
-                saveUsers(users);
-                toast('Voucher resgatado!','success');
-            } else if (u.vouchers > 0) {
-                u.vouchers -= 1;
-                saveUsers(users);
-                toast('Voucher utilizado!','success');
-            } else { toast('Cliente não tem estrelas ou vouchers.','error'); }
-            renderFidelitySearch();
-        }
-
-        // ================================================================
-        //  ADMIN: PRODUTOS
-        // ================================================================
-        function renderAdminProducts() {
-            const products = getProducts();
-            const container = document.getElementById('adminProductList');
-            if (products.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum produto cadastrado.</p>'; return; }
-            container.innerHTML = products.map(p =>
-                `<div class="history-item" style="flex-wrap:wrap;gap:8px;">
-                    <div><strong>${p.nome}</strong> - R$ ${p.preco.toFixed(2)} - Estoque: ${p.estoque}
-                        ${p.em_promocao ? ' <span class="badge-promo">PROMO</span>' : ''}
-                        ${p.estoque === 0 ? ' <span class="badge-burgundy">ESGOTADO</span>' : ''}
-                    </div>
-                    <div style="display:flex;gap:6px;">
-                        <button class="btn btn-outline-gold btn-sm" onclick="editProduct('${p.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-red btn-sm" onclick="deleteProduct('${p.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`
-            ).join('');
-        }
-        let pendingImageBase64 = null;
-        function showProductForm(productId) {
-            const p = productId ? getProductById(productId) : null;
-            const isEdit = !!p;
-            const currentImage = p ? p.imagem_url : '';
-            pendingImageBase64 = currentImage;
-            const html = `
-                <div class="form-group"><label>Nome</label><input type="text" id="pfNome" value="${p ? p.nome : ''}" /></div>
-                <div class="form-group"><label>Descrição</label><input type="text" id="pfDesc" value="${p ? p.descricao : ''}" /></div>
-                <div class="form-row">
-                    <div class="form-group"><label>Preço (R$)</label><input type="number" id="pfPreco" step="0.01" value="${p ? p.preco : ''}" /></div>
-                    <div class="form-group"><label>Estoque</label><input type="number" id="pfEstoque" value="${p ? p.estoque : ''}" /></div>
-                </div>
-                <div class="form-group"><div class="checkbox-group"><input type="checkbox" id="pfPromo" ${p && p.em_promocao ? 'checked' : ''} /><label for="pfPromo">Em promoção</label></div></div>
-                <div class="form-group"><label>Preço promocional (R$)</label><input type="number" id="pfPrecoPromo" step="0.01" value="${p && p.preco_promocional ? p.preco_promocional : ''}" placeholder="Deixe em branco se não houver" /></div>
-                <div class="form-group"><label>Foto do produto</label><input type="file" accept="image/*" capture="environment" id="pfImage" onchange="previewProductImage(event)" />
-                <img id="pfImagePreview" class="img-preview" src="${currentImage || ''}" style="${currentImage ? '' : 'display:none;'}" /></div>
-                <button class="btn btn-gold btn-block" onclick="saveProductForm('${productId || ''}')"><i class="fas fa-save"></i> Salvar</button>
-            `;
-            openModal(isEdit ? '✏️ Editar Produto' : '➕ Novo Produto', html);
-            if (currentImage) { const preview = document.getElementById('pfImagePreview'); if (preview) preview.style.display = 'block'; }
-        }
-        function previewProductImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const base64 = e.target.result;
-                pendingImageBase64 = base64;
-                const preview = document.getElementById('pfImagePreview');
-                if (preview) { preview.src = base64; preview.style.display = 'block'; }
-                toast('📸 Imagem carregada!','success');
-            };
-            reader.readAsDataURL(file);
-        }
-        function saveProductForm(productId) {
-            const nome = document.getElementById('pfNome').value.trim();
-            const desc = document.getElementById('pfDesc').value.trim();
-            const preco = parseFloat(document.getElementById('pfPreco').value);
-            const estoque = parseInt(document.getElementById('pfEstoque').value);
-            const em_promocao = document.getElementById('pfPromo').checked;
-            const preco_promocional = parseFloat(document.getElementById('pfPrecoPromo').value) || 0;
-            if (!nome || isNaN(preco) || isNaN(estoque)) { toast('Preencha todos os campos corretamente.','error'); return; }
-            let imagem_url = pendingImageBase64 || 'https://picsum.photos/seed/' + uid() + '/200/200';
-            let products = getProducts();
-            if (!productId) {
-                if (products.length >= MAX_PRODUCTS) { toast(`Limite de ${MAX_PRODUCTS} produtos.`,'error'); return; }
-                products.push({ id: uid(), nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 });
-                toast('✅ Produto criado!','success');
-            } else {
-                const idx = products.findIndex(p => p.id === productId);
-                if (idx === -1) return;
-                products[idx] = { ...products[idx], nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 };
-                toast('✅ Produto atualizado!','success');
-            }
-            saveProducts(products);
-            pendingImageBase64 = null;
-            closeModal();
-            renderAdminProducts();
-            renderProducts();
-            renderSlideshow();
-        }
-        function editProduct(productId) { showProductForm(productId); }
-        function deleteProduct(productId) {
-            if (!confirm('Excluir este produto permanentemente?')) return;
-            let products = getProducts();
-            products = products.filter(p => p.id !== productId);
-            saveProducts(products);
-            toast('Produto excluído.','info');
-            renderAdminProducts();
-            renderProducts();
-            renderSlideshow();
-        }
-
-        // ================================================================
-        //  ADMIN: USUÁRIOS (BLOQUEIO APENAS SUPERVISOR)
-        // ================================================================
-        function renderUserList() {
-            const users = getUsers();
-            const container = document.getElementById('userList');
-            if (users.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum usuário cadastrado.</p>'; return; }
-            const currentUser = getCurrentUser();
-            const canBlock = currentUser && currentUser.role === 'supervisor';
-            container.innerHTML = users.map(u => {
-                const roleLabel = u.role === 'admin' ? '👑 Admin' : u.role === 'supervisor' ? '⭐ Supervisor' : '👤 Cliente';
-                const blocked = u.bloqueado || false;
-                const blockBtn = canBlock ?
-                    `<button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}</button>` :
-                    '';
-                return `<div class="client-item">
-                    <div><span class="name">${u.nome}</span><span class="text-muted" style="font-size:0.7rem;margin-left:8px;">${roleLabel}</span>${blocked ? ' <span class="blocked-badge">BLOQUEADO</span>' : ''}</div>
-                    <div style="display:flex;gap:6px;">${blockBtn}</div>
-                </div>`;
-            }).join('');
-        }
-        function toggleBlockUser(userId) {
-            if (!isSupervisor()) { toast('Apenas o supervisor pode bloquear usuários.','error'); return; }
-            const user = findUserById(userId);
-            if (!user) return;
-            const current = getCurrentUser();
-            if (current && current.id === userId) { toast('Você não pode bloquear a si mesmo.','error'); return; }
-            let users = getUsers();
-            const u = users.find(x => x.id === userId);
-            if (!u) return;
-            u.bloqueado = !u.bloqueado;
-            saveUsers(users);
-            toast(`Usuário ${u.bloqueado ? 'bloqueado' : 'desbloqueado'} com sucesso.`,'success');
-            renderUserList();
-            if (u.bloqueado && current && current.id === u.id) logout();
-        }
-
-        // ================================================================
-        //  ADMIN: CONFIG
-        // ================================================================
-        function renderConfig() {
-            const config = getConfig();
-            const container = document.getElementById('configDays');
-            const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-            container.innerHTML = config.map((c, idx) =>
-                `<label class="${c.ativo ? 'active' : ''}" onclick="toggleDay(${idx})">
-                    <input type="checkbox" ${c.ativo ? 'checked' : ''} />
-                    <i class="fas ${c.ativo ? 'fa-check-circle' : 'fa-circle'}"></i>
-                    <span>${days[idx]}</span>
-                </label>`
-            ).join('');
-            const active = config.find(c => c.ativo) || config[0];
-            document.getElementById('configOpen').value = active.hora_inicio || '09:00';
-            document.getElementById('configClose').value = active.hora_fim || '20:00';
-            document.getElementById('configDuration').value = active.duracao || 30;
-            document.getElementById('configBlocks').value = (active.bloqueios || []).join(',');
-        }
-        function toggleDay(idx) {
-            let config = getConfig();
-            config[idx].ativo = !config[idx].ativo;
-            saveConfig(config);
-            renderConfig();
-        }
-        function saveConfig() {
-            const open = document.getElementById('configOpen').value;
-            const close = document.getElementById('configClose').value;
-            const duration = parseInt(document.getElementById('configDuration').value);
-            const blocksRaw = document.getElementById('configBlocks').value;
-            const blocks = blocksRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
-            let config = getConfig();
-            config = config.map(c => ({ ...c, hora_inicio: open, hora_fim: close, duracao: duration, bloqueios: blocks }));
-            saveConfig(config);
-            toast('✅ Configurações salvas!','success');
-            renderConfig();
-        }
-
-        // ================================================================
-        //  ADMIN: LOG DE ESTRELAS
-        // ================================================================
-        function renderStarsLog() {
-            const hist = getStarsHistory();
-            const users = getUsers();
-            const container = document.getElementById('starsLogList');
-            if (hist.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum registro.</p>'; return; }
-            container.innerHTML = hist.sort((a,b) => new Date(b.data_atribuicao) - new Date(a.data_atribuicao)).map(s => {
-                const user = users.find(u => u.id === s.cliente_id);
-                const nome = user ? user.nome : 'Desconhecido';
-                return `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
-                    <span><i class="fas fa-star text-gold"></i> ${nome} +1</span>
-                    <span class="text-muted">${formatDateTime(s.data_atribuicao)} ${s.appointment_id ? '(corte)' : '(manual)'}</span>
-                </div>`;
-            }).join('');
-        }
-
-        // ================================================================
-        //  ANIVERSÁRIO
-        // ================================================================
-        function checkBirthdayBonus() {
-            const user = getCurrentUser();
-            if (!user) return;
-            if (!user.data_nascimento) return;
+            if (!user || !user.data_nascimento) return;
             const today = new Date();
             const birth = new Date(user.data_nascimento + 'T00:00:00');
-            const isBirthday = today.getMonth() === birth.getMonth() && today.getDate() === birth.getDate();
-            if (!isBirthday) return;
-            const yearKey = today.getFullYear().toString();
-            const given = user.birthday_star_given || {};
-            if (given[yearKey]) return;
-            let users = getUsers();
-            const u = users.find(x => x.id === user.id);
-            if (!u) return;
-            u.estrelas = (u.estrelas || 0) + 1;
-            u.birthday_star_given = u.birthday_star_given || {};
-            u.birthday_star_given[yearKey] = true;
-            saveUsers(users);
-            setCurrentUser({ ...u });
-            toast('🎂 Feliz Aniversário! Você ganhou 1 estrela extra! ⭐','success');
-            updateStarsDisplay();
-            renderFidelidade();
-        }
-
-        // ================================================================
-        //  ATUALIZA ESTRELAS NO HEADER
-        // ================================================================
-        function updateStarsDisplay() {
-            const user = getCurrentUser();
-            if (user && user.role === 'cliente') {
-                document.getElementById('headerStarsCount').textContent = user.estrelas || 0;
-                document.getElementById('headerStars').style.display = 'flex';
-            } else {
-                document.getElementById('headerStars').style.display = 'none';
+            if (today.getMonth() === birth.getMonth() && today.getDate() === birth.getDate()) {
+                const yearKey = today.getFullYear().toString();
+                if (!user.birthday_star_given || !user.birthday_star_given[yearKey]) {
+                    const novasEstrelas = (user.estrelas || 0) + 1;
+                    const given = { ...(user.birthday_star_given || {}), [yearKey]: true };
+                    await updateDocument('users', user.id, { estrelas: novasEstrelas, birthday_star_given: given });
+                    setCurrentUser({ ...user, estrelas: novasEstrelas, birthday_star_given: given });
+                    toast('🎂 Feliz Aniversário! Você ganhou 1 estrela extra! ⭐','success');
+                    updateStarsDisplay();
+                    renderFidelidade();
+                }
             }
         }
 
-        // ================================================================
-        //  POLLING PARA NOTIFICAR CLIENTE DE PEDIDOS PRONTOS
-        // ================================================================
+        // ----- PEDIDOS PRONTOS (POLLING) -----
         let ultimoStatusPedidos = {};
 
         function verificarPedidosProntos() {
             const user = getCurrentUser();
             if (!user || user.role !== 'cliente') return;
             const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o.cliente_visto);
-            const count = orders.length;
-            if (count > 0) {
-                // Mostrar toast para cada pedido não visualizado (apenas uma vez)
-                orders.forEach(o => {
-                    if (!ultimoStatusPedidos[o.id]) {
-                        toast('📦 Seu pedido está pronto para retirada!', 'success');
-                        ultimoStatusPedidos[o.id] = true;
-                    }
-                });
-                updatePedidosBadge();
-            }
+            orders.forEach(o => {
+                if (!ultimoStatusPedidos[o.id]) {
+                    toast('📦 Seu pedido está pronto para retirada!', 'success');
+                    ultimoStatusPedidos[o.id] = true;
+                }
+            });
             // Limpar IDs que não estão mais prontos
             const idsProntos = orders.map(o => o.id);
             Object.keys(ultimoStatusPedidos).forEach(id => {
                 if (!idsProntos.includes(id)) delete ultimoStatusPedidos[id];
             });
+            updatePedidosBadge();
         }
 
         // ================================================================
         //  INICIALIZAÇÃO
         // ================================================================
-        function init() {
-            initData();
-            const currentUser = getCurrentUser();
-            if (currentUser) {
-                if (currentUser.role === 'admin' || currentUser.role === 'supervisor') {
+        async function init() {
+            // Inicializar Firebase listeners
+            initFirebaseListeners();
+
+            // Popular dados iniciais se necessário
+            await seedInitialData();
+
+            // Verificar usuário logado (via cache)
+            const user = getCurrentUser();
+            if (user) {
+                if (user.role === 'admin' || user.role === 'supervisor') {
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appWrapper').classList.add('visible');
                     showAdminPanel();
@@ -2331,7 +2336,7 @@
                     document.getElementById('appWrapper').classList.add('visible');
                     navigateTo('home');
                     checkBirthdayBonus();
-                    // Iniciar polling para verificar pedidos prontos
+                    // Iniciar polling para pedidos prontos
                     setInterval(verificarPedidosProntos, 10000);
                 }
             } else {
@@ -2339,18 +2344,6 @@
                 document.getElementById('registerScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.remove('visible');
             }
-            setInterval(() => {
-                if (document.getElementById('loginScreen').classList.contains('hidden')) {
-                    updateStarsDisplay();
-                    if (currentScreen === 'home') { renderHome(); renderStories(); }
-                    if (currentScreen === 'fidelidade') renderFidelidade();
-                    if (currentScreen === 'agendamento') updateAvailableTimes();
-                    if (currentScreen === 'chat') renderChatMessages();
-                    if (currentScreen === 'lojinha') { renderProducts(); updatePedidosBadge(); }
-                    if (currentScreen === 'meus-pedidos') renderMeusPedidos();
-                    if (isAdmin()) { renderAdminChatList(); renderAdminOrders(); }
-                }
-            }, 10000);
         }
 
         // ===== EXPOR FUNÇÕES GLOBAIS =====
