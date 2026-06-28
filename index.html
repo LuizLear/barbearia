@@ -163,6 +163,8 @@
         .btn-sm { padding: 6px 14px; font-size: 0.75rem; }
         .btn-block { width: 100%; justify-content: center; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .btn-with-badge { position: relative; }
+        .btn-with-badge .badge { position: absolute; top: -6px; right: -6px; background: var(--red-action); color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.6rem; font-weight: 700; min-width: 18px; text-align: center; }
 
         /* ===== FORMULÁRIOS ===== */
         input, select, textarea { width: 100%; padding: 12px 16px; background: #222; border: 1px solid #333; border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; transition: var(--transition); outline: none; }
@@ -242,6 +244,12 @@
         .status-aguardando { background: #f39c12; color: #0a0a0a; }
         .status-pronto { background: #2ecc71; color: #0a0a0a; }
         .status-entregue { background: #3498db; color: #fff; }
+
+        /* ===== PEDIDOS DO CLIENTE ===== */
+        .pedido-item { padding: 12px 0; border-bottom: 1px solid #282828; }
+        .pedido-item:last-child { border-bottom: none; }
+        .pedido-item .produto-nome { font-weight: 600; }
+        .pedido-item .status { font-size: 0.7rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; display: inline-block; margin-left: 8px; }
 
         /* ===== RESPONSIVO ===== */
         @media (max-width: 480px) {
@@ -410,10 +418,31 @@
             <div class="screen" id="screen-lojinha">
                 <div class="flex-between mb-12">
                     <h2 style="font-family:var(--font-title);color:var(--gold);font-size:1.2rem;"><i class="fas fa-store"></i> Lojinha</h2>
-                    <button class="btn btn-gold btn-sm" onclick="showCartModal()"><i class="fas fa-shopping-cart"></i> Carrinho</button>
+                    <div style="display:flex;gap:8px;">
+                        <button class="btn btn-gold btn-sm btn-with-badge" onclick="navigateTo('meus-pedidos')" id="btnMeusPedidos">
+                            <i class="fas fa-box"></i> Meus Pedidos
+                            <span class="badge" id="pedidosBadge" style="display:none;">0</span>
+                        </button>
+                        <button class="btn btn-gold btn-sm" onclick="showCartModal()">
+                            <i class="fas fa-shopping-cart"></i> Carrinho
+                        </button>
+                    </div>
                 </div>
                 <div class="product-grid" id="productGrid"></div>
                 <p id="productGridEmpty" class="text-muted text-center mt-16">Nenhum produto disponível.</p>
+            </div>
+
+            <!-- MEUS PEDIDOS -->
+            <div class="screen" id="screen-meus-pedidos">
+                <h2 style="font-family:var(--font-title);color:var(--gold);font-size:1.2rem;margin-bottom:12px;">
+                    <i class="fas fa-box"></i> Meus Pedidos
+                </h2>
+                <div class="card">
+                    <div id="meusPedidosList"><p class="text-muted">Carregando...</p></div>
+                </div>
+                <button class="btn btn-outline-gold btn-block mt-8" onclick="navigateTo('lojinha')">
+                    <i class="fas fa-arrow-left"></i> Voltar à Lojinha
+                </button>
             </div>
 
             <!-- FIDELIDADE -->
@@ -609,10 +638,10 @@
 
     <script>
         // ================================================================
-        //  BARBEARIA VIP - CÓDIGO COMPLETO (CORRIGIDO)
-        //  - Notificações de pedidos (badge no admin)
-        //  - Stories corrigidos
-        //  - Demais funcionalidades
+        //  BARBEARIA VIP - CÓDIGO COMPLETO (ATUALIZADO)
+        //  - Cliente pode ver histórico de pedidos e status
+        //  - Notificação de pedido pronto para retirada (badge + toast)
+        //  - Demais funcionalidades intactas
         // ================================================================
 
         // ===== CONSTANTES =====
@@ -707,9 +736,10 @@
             if (screen === 'home') { renderHome(); renderSlideshow(); renderStories(); }
             if (screen === 'fidelidade') renderFidelidade();
             if (screen === 'perfil') renderPerfil();
-            if (screen === 'lojinha') renderProducts();
+            if (screen === 'lojinha') { renderProducts(); updatePedidosBadge(); }
             if (screen === 'agendamento') renderAgendamento();
             if (screen === 'chat') renderChatMessages();
+            if (screen === 'meus-pedidos') renderMeusPedidos();
             updateStarsDisplay();
             updateCartBadge();
         }
@@ -1111,7 +1141,6 @@
             saveChatMessages(msgs);
             input.value = '';
             renderChatMessages();
-            // Notificar admin (apenas via badge)
             if (isAdmin()) renderAdminChatList();
         }
 
@@ -1149,7 +1178,6 @@
             const user = findUserById(userId);
             if (!user) return;
             const msgs = getChatMessages().filter(m => m.userId === userId);
-            // Marcar mensagens como lidas
             let allMsgs = getChatMessages();
             allMsgs = allMsgs.map(m => {
                 if (m.userId === userId && m.sender === 'cliente') m.read = true;
@@ -1227,7 +1255,6 @@
                 const prodNome = p ? p.nome : 'Produto removido';
                 const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
                 const statusLabel = o.status === 'pronto_retirada' ? 'Pronto para retirada' : o.status === 'entregue' ? 'Entregue' : 'Aguardando retirada';
-                const canMark = o.status === 'aguardando_retirada' || o.status === 'pronto_retirada';
                 return `<div class="order-item">
                     <div class="flex-between">
                         <div>
@@ -1250,7 +1277,6 @@
             const count = orders.length;
             const tabBtn = document.getElementById('ordersTabBtn');
             if (!tabBtn) return;
-            // Remove badge antigo
             const oldBadge = tabBtn.querySelector('.badge');
             if (oldBadge) oldBadge.remove();
             if (count > 0) {
@@ -1265,10 +1291,93 @@
             let orders = getOrders();
             const idx = orders.findIndex(o => o.id === orderId);
             if (idx === -1) return;
+            const oldStatus = orders[idx].status;
             orders[idx].status = newStatus;
+            // Se o status mudou para pronto_retirada, notificar cliente
+            if (newStatus === 'pronto_retirada' && oldStatus !== 'pronto_retirada') {
+                // Marcar como não visualizado pelo cliente
+                orders[idx].cliente_visto = false;
+                // Notificar cliente (se estiver logado)
+                const cliente = getCurrentUser();
+                if (cliente && cliente.id === orders[idx].cliente_id) {
+                    toast('📦 Seu pedido está pronto para retirada!', 'success');
+                    updatePedidosBadge();
+                }
+            }
             saveOrders(orders);
             toast(`Status atualizado para ${newStatus === 'pronto_retirada' ? 'Pronto para retirada' : 'Entregue'}.`,'success');
             renderAdminOrders();
+            // Atualizar badge de pedidos do cliente se ele estiver logado
+            updatePedidosBadge();
+        }
+
+        // ================================================================
+        //  PEDIDOS DO CLIENTE
+        // ================================================================
+        function renderMeusPedidos() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') {
+                document.getElementById('meusPedidosList').innerHTML = '<p class="text-muted">Faça login para ver seus pedidos.</p>';
+                return;
+            }
+            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status !== 'carrinho');
+            const container = document.getElementById('meusPedidosList');
+            if (orders.length === 0) {
+                container.innerHTML = '<p class="text-muted">Você ainda não fez nenhum pedido.</p>';
+                return;
+            }
+            // Marcar pedidos prontos como visualizados
+            let updated = false;
+            const updatedOrders = orders.map(o => {
+                if (o.status === 'pronto_retirada' && !o.cliente_visto) {
+                    o.cliente_visto = true;
+                    updated = true;
+                }
+                return o;
+            });
+            if (updated) {
+                // Salvar atualizações no storage
+                let allOrders = getOrders();
+                updatedOrders.forEach(o => {
+                    const idx = allOrders.findIndex(x => x.id === o.id);
+                    if (idx !== -1) allOrders[idx].cliente_visto = true;
+                });
+                saveOrders(allOrders);
+                updatePedidosBadge();
+            }
+
+            container.innerHTML = orders.sort((a,b) => new Date(b.data_pedido) - new Date(a.data_pedido)).map(o => {
+                const p = getProductById(o.produto_id);
+                const prodNome = p ? p.nome : 'Produto removido';
+                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
+                const statusLabel = o.status === 'pronto_retirada' ? '✅ Pronto para retirada' : o.status === 'entregue' ? '✅ Entregue' : '⏳ Aguardando retirada';
+                return `<div class="pedido-item">
+                    <div class="flex-between">
+                        <div>
+                            <span class="produto-nome">${prodNome}</span>
+                            <span class="status ${statusClass}">${statusLabel}</span>
+                        </div>
+                        <span class="text-muted" style="font-size:0.7rem;">${formatDateTime(o.data_pedido)}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function updatePedidosBadge() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') {
+                document.getElementById('pedidosBadge').style.display = 'none';
+                return;
+            }
+            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o.cliente_visto);
+            const count = orders.length;
+            const badge = document.getElementById('pedidosBadge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'inline';
+            } else {
+                badge.style.display = 'none';
+            }
         }
 
         // ================================================================
@@ -1450,7 +1559,7 @@
             document.getElementById('storyMediaInput').value = '';
             document.getElementById('storyMediaPreview').innerHTML = '';
             renderAdminStories();
-            renderStories(); // atualiza para clientes
+            renderStories();
         }
         function renderAdminStories() {
             const stories = getActiveStories();
@@ -1601,7 +1710,7 @@
             if (orders.some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status === 'carrinho')) {
                 toast('Já está no carrinho.','info'); return;
             }
-            orders.push({ id: uid(), cliente_id: user.id, produto_id: p.id, quantidade: 1, status: 'carrinho', data_pedido: nowISO() });
+            orders.push({ id: uid(), cliente_id: user.id, produto_id: p.id, quantidade: 1, status: 'carrinho', data_pedido: nowISO(), cliente_visto: true });
             saveOrders(orders);
             toast('🛒 Produto adicionado ao carrinho!','success');
             updateCartBadge();
@@ -1662,7 +1771,9 @@
             cart.forEach(o => { const p = products.find(p => p.id === o.produto_id); if (p) p.estoque -= o.quantidade; });
             saveProducts(products);
             orders = orders.map(o => {
-                if (o.cliente_id === user.id && o.status === 'carrinho') return { ...o, status: 'aguardando_retirada' };
+                if (o.cliente_id === user.id && o.status === 'carrinho') {
+                    return { ...o, status: 'aguardando_retirada', cliente_visto: true };
+                }
                 return o;
             });
             saveOrders(orders);
@@ -1670,13 +1781,12 @@
             updateCartBadge();
             closeModal();
             renderProducts();
-            // Notificar admin se estiver logado
             if (isAdmin()) {
                 toast('📦 Novo pedido recebido!','success');
                 renderAdminOrders();
             }
-            // Atualizar badge de pedidos pendentes (para admin)
             updatePendingOrdersBadge();
+            updatePedidosBadge();
         }
 
         // ================================================================
@@ -2179,6 +2289,33 @@
         }
 
         // ================================================================
+        //  POLLING PARA NOTIFICAR CLIENTE DE PEDIDOS PRONTOS
+        // ================================================================
+        let ultimoStatusPedidos = {};
+
+        function verificarPedidosProntos() {
+            const user = getCurrentUser();
+            if (!user || user.role !== 'cliente') return;
+            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o.cliente_visto);
+            const count = orders.length;
+            if (count > 0) {
+                // Mostrar toast para cada pedido não visualizado (apenas uma vez)
+                orders.forEach(o => {
+                    if (!ultimoStatusPedidos[o.id]) {
+                        toast('📦 Seu pedido está pronto para retirada!', 'success');
+                        ultimoStatusPedidos[o.id] = true;
+                    }
+                });
+                updatePedidosBadge();
+            }
+            // Limpar IDs que não estão mais prontos
+            const idsProntos = orders.map(o => o.id);
+            Object.keys(ultimoStatusPedidos).forEach(id => {
+                if (!idsProntos.includes(id)) delete ultimoStatusPedidos[id];
+            });
+        }
+
+        // ================================================================
         //  INICIALIZAÇÃO
         // ================================================================
         function init() {
@@ -2194,6 +2331,8 @@
                     document.getElementById('appWrapper').classList.add('visible');
                     navigateTo('home');
                     checkBirthdayBonus();
+                    // Iniciar polling para verificar pedidos prontos
+                    setInterval(verificarPedidosProntos, 10000);
                 }
             } else {
                 document.getElementById('loginScreen').classList.remove('hidden');
@@ -2207,6 +2346,8 @@
                     if (currentScreen === 'fidelidade') renderFidelidade();
                     if (currentScreen === 'agendamento') updateAvailableTimes();
                     if (currentScreen === 'chat') renderChatMessages();
+                    if (currentScreen === 'lojinha') { renderProducts(); updatePedidosBadge(); }
+                    if (currentScreen === 'meus-pedidos') renderMeusPedidos();
                     if (isAdmin()) { renderAdminChatList(); renderAdminOrders(); }
                 }
             }, 10000);
@@ -2263,6 +2404,9 @@
         window.updateOrderStatus = updateOrderStatus;
         window.renderAdminOrders = renderAdminOrders;
         window.updatePendingOrdersBadge = updatePendingOrdersBadge;
+        window.renderMeusPedidos = renderMeusPedidos;
+        window.updatePedidosBadge = updatePedidosBadge;
+        window.verificarPedidosProntos = verificarPedidosProntos;
 
         document.addEventListener('DOMContentLoaded', init);
     </script>
