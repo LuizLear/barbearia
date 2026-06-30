@@ -3,302 +3,1432 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>💈 Barbearia VIP</title>
+    <title>💈 Barbearia VIP – Dark Elegant</title>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* ===== RESET E VARIÁVEIS ===== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ================================================================
+           DARK ELEGANT – DESIGN GLOBAL
+           ================================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #121212;
-            --bg-card: #1a1a1a;
-            --gold: #d4af37;
-            --gold-dark: #b8962e;
-            --burgundy: #8b0000;
-            --red-action: #c0392b;
-            --text-primary: #f0ece4;
-            --text-secondary: #b0a89a;
-            --font-title: 'Montserrat', sans-serif;
-            --font-body: 'Roboto', sans-serif;
-            --radius: 16px;
-            --shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            --bg-primary: #0d0d0d;
+            --bg-secondary: #141414;
+            --bg-card: rgba(255, 255, 255, 0.03);
+            --gold: #c9a87a;
+            --gold-dark: #b8965e;
+            --burgundy: #8b3a2a;
+            --red-action: #a04030;
+            --text-primary: #e8e4e0;
+            --text-secondary: #7a7268;
+            --font-title: 'Playfair Display', serif;
+            --font-body: 'Inter', -apple-system, sans-serif;
+            --radius: 20px;
+            --shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        html, body { height: 100%; background: var(--bg-primary); color: var(--text-primary); font-family: var(--font-body); font-size: 15px; line-height: 1.5; overflow: hidden; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-        ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 8px; }
+        html,
+        body {
+            height: 100%;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 15px;
+            line-height: 1.5;
+            overflow: hidden;
+        }
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 8px;
+        }
 
         /* ===== TELAS DE AUTENTICAÇÃO ===== */
-        .auth-screen { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 30% 30%, #1a1a1a, #0a0a0a); padding: 20px; transition: opacity 0.6s ease, transform 0.6s ease; }
-        .auth-screen.hidden { opacity: 0; transform: scale(1.05); pointer-events: none; }
-        .auth-box { background: var(--bg-secondary); border-radius: var(--radius); padding: 40px 30px; max-width: 380px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid #2a2a2a; animation: fadeUp 0.5s ease; }
-        .auth-box .logo { text-align: center; font-family: var(--font-title); font-weight: 800; font-size: 1.8rem; color: var(--gold); margin-bottom: 8px; }
-        .auth-box .logo i { font-size: 2.2rem; margin-right: 8px; }
-        .auth-box .subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 24px; font-size: 0.9rem; }
-        .auth-box .form-group { margin-bottom: 16px; }
-        .auth-box .form-group label { display: block; font-weight: 500; margin-bottom: 4px; color: var(--text-secondary); font-size: 0.85rem; }
-        .auth-box .form-group input { width: 100%; padding: 12px 16px; background: #1e1e1e; border: 1px solid #333; border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; transition: var(--transition); outline: none; }
-        .auth-box .form-group input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
-        .auth-box .btn-gold { width: 100%; padding: 14px; border: none; border-radius: 30px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0a0a; font-weight: 700; font-size: 1rem; cursor: pointer; transition: var(--transition); font-family: var(--font-body); margin-top: 8px; }
-        .auth-box .btn-gold:hover { transform: scale(1.02); box-shadow: 0 6px 24px rgba(212,175,55,0.3); }
-        .auth-box .btn-outline-muted { background: transparent; color: var(--text-secondary); border: 2px solid #444; width: 100%; padding: 12px; border-radius: 30px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: var(--transition); font-family: var(--font-body); margin-top: 8px; }
-        .auth-box .btn-outline-muted:hover { border-color: #888; color: #fff; }
-        .auth-box .auth-error { color: var(--red-action); font-size: 0.85rem; text-align: center; margin-top: 12px; min-height: 24px; }
-        .auth-box .auth-link { text-align: center; margin-top: 16px; color: var(--text-secondary); font-size: 0.9rem; }
-        .auth-box .auth-link a { color: var(--gold); text-decoration: none; font-weight: 600; cursor: pointer; }
-        .auth-box .auth-link a:hover { text-decoration: underline; }
+        .auth-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 30% 30%, #1a1a1a, #0a0a0a);
+            padding: 20px;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .auth-screen.hidden {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+        .auth-box {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(12px);
+            border-radius: var(--radius);
+            padding: 40px 30px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(201, 168, 122, 0.08);
+        }
+        .auth-box .logo {
+            text-align: center;
+            font-family: var(--font-title);
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+        .auth-box .logo i {
+            font-size: 2.2rem;
+            margin-right: 8px;
+        }
+        .auth-box .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+            font-weight: 300;
+        }
+        .auth-box .form-group {
+            margin-bottom: 16px;
+        }
+        .auth-box .form-group label {
+            display: block;
+            font-weight: 400;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .auth-box .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        .auth-box .form-group input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 168, 122, 0.1);
+        }
+        .auth-box .btn-gold {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid rgba(201, 168, 122, 0.2);
+            border-radius: 30px;
+            background: rgba(201, 168, 122, 0.08);
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-body);
+            margin-top: 8px;
+            backdrop-filter: blur(4px);
+        }
+        .auth-box .btn-gold:hover {
+            background: rgba(201, 168, 122, 0.15);
+            box-shadow: 0 6px 24px rgba(201, 168, 122, 0.08);
+        }
+        .auth-box .auth-error {
+            color: var(--red-action);
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 24px;
+        }
+        .auth-box .auth-link {
+            text-align: center;
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .auth-box .auth-link a {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .auth-box .auth-link a:hover {
+            text-decoration: underline;
+        }
 
         /* ===== APP WRAPPER ===== */
-        #appWrapper { display: none; flex-direction: column; height: 100vh; max-width: 480px; margin: 0 auto; background: var(--bg-primary); position: relative; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.8); }
-        #appWrapper.visible { display: flex; }
+        #appWrapper {
+            display: none;
+            flex-direction: column;
+            height: 100vh;
+            max-width: 480px;
+            margin: 0 auto;
+            background: var(--bg-primary);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
+        }
+        #appWrapper.visible {
+            display: flex;
+        }
 
         /* ===== HEADER ===== */
-        .header { background: var(--bg-secondary); padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #2a2a2a; flex-shrink: 0; min-height: 60px; z-index: 10; }
-        .header .logo { display: flex; align-items: center; gap: 8px; font-family: var(--font-title); font-weight: 800; font-size: 1.2rem; color: var(--gold); letter-spacing: 0.5px; cursor: pointer; transition: var(--transition); }
-        .header .logo:hover { opacity: 0.8; }
-        .header .logo i { font-size: 1.4rem; }
-        .header .right-controls { display: flex; align-items: center; gap: 10px; }
-        .header .stars-display { display: flex; align-items: center; gap: 6px; background: #1e1e1e; padding: 4px 14px 4px 10px; border-radius: 30px; border: 1px solid #333; font-size: 0.95rem; font-weight: 600; color: var(--gold); cursor: default; }
-        .header .stars-display i { color: var(--gold); font-size: 1rem; }
-        .header .logout-btn { background: transparent; border: none; color: var(--text-secondary); font-size: 1.2rem; cursor: pointer; transition: var(--transition); padding: 4px 6px; border-radius: 8px; }
-        .header .logout-btn:hover { color: #fff; background: #2a2a2a; }
+        .header {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(12px);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(201, 168, 122, 0.06);
+            flex-shrink: 0;
+            min-height: 60px;
+            z-index: 10;
+        }
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: var(--font-title);
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--gold);
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .header .logo:hover {
+            opacity: 0.8;
+        }
+        .header .logo i {
+            font-size: 1.4rem;
+        }
+        .header .right-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header .stars-display {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px 14px 4px 10px;
+            border-radius: 30px;
+            border: 1px solid rgba(201, 168, 122, 0.08);
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: var(--gold);
+            cursor: default;
+        }
+        .header .stars-display i {
+            color: var(--gold);
+            font-size: 0.9rem;
+        }
+        .header .logout-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 4px 6px;
+            border-radius: 8px;
+        }
+        .header .logout-btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+        }
 
         /* ===== MAIN CONTENT ===== */
-        .main-content { flex: 1; overflow-y: auto; padding: 16px 16px 80px; }
-        .screen { display: none; animation: fadeUp 0.3s ease; }
-        .screen.active { display: block; }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 16px 80px;
+        }
+        .screen {
+            display: none;
+            animation: fadeUp 0.3s ease;
+        }
+        .screen.active {
+            display: block;
+        }
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* ===== BOTTOM TABS (CLIENTE) ===== */
-        .bottom-tabs { display: flex; background: var(--bg-secondary); border-top: 1px solid #2a2a2a; flex-shrink: 0; height: 64px; z-index: 10; padding-bottom: env(safe-area-inset-bottom); }
-        .bottom-tabs .tab-btn { flex: 1; background: transparent; border: none; color: var(--text-secondary); font-size: 0.65rem; font-family: var(--font-body); font-weight: 500; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; transition: var(--transition); border-top: 3px solid transparent; padding: 4px 0; }
-        .bottom-tabs .tab-btn i { font-size: 1.3rem; transition: var(--transition); }
-        .bottom-tabs .tab-btn.active { color: var(--gold); border-top-color: var(--gold); }
-        .bottom-tabs .tab-btn.active i { color: var(--gold); }
-        .bottom-tabs .tab-btn:not(.active):hover { color: #ccc; }
+        .bottom-tabs {
+            display: flex;
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(201, 168, 122, 0.06);
+            flex-shrink: 0;
+            height: 64px;
+            z-index: 10;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .bottom-tabs .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+            font-family: var(--font-body);
+            font-weight: 400;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-top: 2px solid transparent;
+            padding: 4px 0;
+        }
+        .bottom-tabs .tab-btn i {
+            font-size: 1.3rem;
+            transition: var(--transition);
+        }
+        .bottom-tabs .tab-btn.active {
+            color: var(--gold);
+            border-top-color: var(--gold);
+        }
+        .bottom-tabs .tab-btn.active i {
+            color: var(--gold);
+        }
+        .bottom-tabs .tab-btn:not(.active):hover {
+            color: #aaa;
+        }
 
         /* ===== CARDS E ELEMENTOS ===== */
-        .card { background: var(--bg-card); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--shadow); border: 1px solid #282828; transition: var(--transition); }
-        .card:hover { border-color: #3a3a3a; }
-        .card-title { font-family: var(--font-title); font-weight: 700; font-size: 1.1rem; color: var(--gold); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .card-title i { font-size: 1.1rem; }
-        .text-gold { color: var(--gold); }
-        .text-muted { color: var(--text-secondary); }
-        .text-burgundy { color: var(--burgundy); }
-        .badge-gold { background: var(--gold); color: #0a0a0a; padding: 2px 12px; border-radius: 30px; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; display: inline-block; }
-        .badge-burgundy { background: var(--burgundy); color: #fff; padding: 2px 12px; border-radius: 30px; font-weight: 600; font-size: 0.7rem; display: inline-block; }
-        .badge-promo { background: #e74c3c; color: #fff; padding: 2px 12px; border-radius: 30px; font-weight: 700; font-size: 0.7rem; display: inline-block; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        .card {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius);
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(201, 168, 122, 0.04);
+            transition: var(--transition);
+        }
+        .card:hover {
+            border-color: rgba(201, 168, 122, 0.08);
+        }
+        .card-title {
+            font-family: var(--font-title);
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--gold);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-title i {
+            font-size: 1.1rem;
+        }
+        .text-gold {
+            color: var(--gold);
+        }
+        .text-muted {
+            color: var(--text-secondary);
+        }
+        .text-burgundy {
+            color: var(--burgundy);
+        }
+        .badge-gold {
+            background: rgba(201, 168, 122, 0.08);
+            color: var(--gold);
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            display: inline-block;
+            border: 1px solid rgba(201, 168, 122, 0.1);
+        }
+        .badge-burgundy {
+            background: rgba(139, 58, 42, 0.2);
+            color: #c9a87a;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.7rem;
+            display: inline-block;
+        }
+        .badge-promo {
+            background: rgba(201, 168, 122, 0.1);
+            color: #c9a87a;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            display: inline-block;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
 
         /* ===== SLIDESHOW ===== */
-        .slideshow-container { position: relative; width: 100%; border-radius: var(--radius); overflow: hidden; margin-bottom: 16px; background: #111; aspect-ratio: 16/9; }
-        .slideshow-slide { display: none; width: 100%; height: 100%; position: relative; }
-        .slideshow-slide.active { display: block; }
-        .slideshow-slide img { width: 100%; height: 100%; object-fit: cover; }
-        .slideshow-slide .slide-info { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); color: #fff; }
-        .slideshow-slide .slide-info h4 { font-size: 1rem; margin-bottom: 4px; }
-        .slideshow-slide .slide-info .price { font-weight: 700; color: var(--gold); }
-        .slideshow-slide .slide-info .old-price { text-decoration: line-through; color: #aaa; font-size: 0.8rem; margin-left: 8px; }
-        .slideshow-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; padding: 8px 12px; cursor: pointer; border-radius: 50%; font-size: 1.2rem; z-index: 2; transition: var(--transition); }
-        .slideshow-btn:hover { background: rgba(0,0,0,0.8); }
-        .slideshow-btn.prev { left: 8px; }
-        .slideshow-btn.next { right: 8px; }
-        .slideshow-dots { text-align: center; padding: 6px 0; }
-        .slideshow-dots .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #555; margin: 0 4px; cursor: pointer; transition: var(--transition); }
-        .slideshow-dots .dot.active { background: var(--gold); }
+        .slideshow-container {
+            position: relative;
+            width: 100%;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 16px;
+            background: #111;
+            aspect-ratio: 16/9;
+            border: 1px solid rgba(201, 168, 122, 0.04);
+        }
+        .slideshow-slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .slideshow-slide.active {
+            display: block;
+        }
+        .slideshow-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .slideshow-slide .slide-info {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            color: #fff;
+        }
+        .slideshow-slide .slide-info h4 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+        .slideshow-slide .slide-info .price {
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .slideshow-slide .slide-info .old-price {
+            text-decoration: line-through;
+            color: #aaa;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        .slideshow-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            z-index: 2;
+            transition: var(--transition);
+        }
+        .slideshow-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        .slideshow-btn.prev {
+            left: 8px;
+        }
+        .slideshow-btn.next {
+            right: 8px;
+        }
+        .slideshow-dots {
+            text-align: center;
+            padding: 6px 0;
+        }
+        .slideshow-dots .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #333;
+            margin: 0 4px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .slideshow-dots .dot.active {
+            background: var(--gold);
+        }
 
         /* ===== STORIES ===== */
-        .stories-row { display: flex; gap: 12px; overflow-x: auto; padding: 8px 4px 12px 4px; margin-bottom: 12px; scrollbar-width: none; }
-        .stories-row::-webkit-scrollbar { display: none; }
-        .story-circle { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0; transition: var(--transition); }
-        .story-circle:hover { transform: scale(1.05); }
-        .story-circle .avatar { width: 60px; height: 60px; border-radius: 50%; border: 3px solid var(--gold); overflow: hidden; background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: var(--gold); }
-        .story-circle .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        .story-circle .story-name { font-size: 0.65rem; color: var(--text-secondary); text-align: center; max-width: 60px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .stories-row {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 8px 4px 12px 4px;
+            margin-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .stories-row::-webkit-scrollbar {
+            display: none;
+        }
+        .story-circle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+        .story-circle:hover {
+            transform: scale(1.05);
+        }
+        .story-circle .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--gold);
+            overflow: hidden;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--gold);
+        }
+        .story-circle .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .story-circle .story-name {
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            text-align: center;
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
 
         /* ===== STORY VIEWER ===== */
-        .story-viewer { position: fixed; inset: 0; background: #000; z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .story-viewer.open { display: flex; }
-        .story-viewer .story-media { max-width: 100%; max-height: 80vh; border-radius: 12px; object-fit: contain; }
-        .story-viewer .story-media video { max-width: 100%; max-height: 80vh; border-radius: 12px; }
-        .story-viewer .close-story { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 1.8rem; cursor: pointer; border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; transition: var(--transition); }
-        .story-viewer .close-story:hover { background: rgba(255,255,255,0.4); }
-        .story-viewer .story-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.2); border: none; color: #fff; font-size: 1.8rem; padding: 10px 16px; cursor: pointer; border-radius: 50%; transition: var(--transition); }
-        .story-viewer .story-nav:hover { background: rgba(255,255,255,0.4); }
-        .story-viewer .story-nav.prev { left: 10px; }
-        .story-viewer .story-nav.next { right: 10px; }
-        .story-viewer .story-progress { position: absolute; bottom: 30px; left: 20px; right: 20px; display: flex; gap: 4px; }
-        .story-viewer .story-progress .bar { flex: 1; height: 3px; background: rgba(255,255,255,0.3); border-radius: 4px; overflow: hidden; }
-        .story-viewer .story-progress .bar .fill { height: 100%; background: #fff; width: 0%; transition: width 0.1s linear; }
-        .story-viewer .story-user { position: absolute; top: 20px; left: 20px; color: #fff; font-weight: 600; font-size: 1.1rem; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .story-viewer {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .story-viewer.open {
+            display: flex;
+        }
+        .story-viewer .story-media {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+        .story-viewer .story-media video {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+        }
+        .story-viewer .close-story {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+        .story-viewer .close-story:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .story-viewer .story-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            padding: 10px 16px;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        .story-viewer .story-nav:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .story-viewer .story-nav.prev {
+            left: 10px;
+        }
+        .story-viewer .story-nav.next {
+            right: 10px;
+        }
+        .story-viewer .story-progress {
+            position: absolute;
+            bottom: 30px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 4px;
+        }
+        .story-viewer .story-progress .bar {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .story-viewer .story-progress .bar .fill {
+            height: 100%;
+            background: #fff;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        .story-viewer .story-user {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        }
 
         /* ===== CHAT ===== */
-        .chat-container { display: flex; flex-direction: column; height: 100%; max-height: 70vh; }
-        .chat-messages { flex: 1; overflow-y: auto; padding: 8px 0; display: flex; flex-direction: column; gap: 8px; }
-        .chat-message { max-width: 80%; padding: 10px 14px; border-radius: 16px; word-wrap: break-word; font-size: 0.9rem; }
-        .chat-message.sent { align-self: flex-end; background: var(--gold); color: #0a0a0a; border-bottom-right-radius: 4px; }
-        .chat-message.received { align-self: flex-start; background: #2a2a2a; color: var(--text-primary); border-bottom-left-radius: 4px; }
-        .chat-message .time { font-size: 0.6rem; opacity: 0.7; margin-top: 4px; display: block; }
-        .chat-input-row { display: flex; gap: 8px; margin-top: 8px; }
-        .chat-input-row input { flex: 1; padding: 10px 14px; border-radius: 30px; border: 1px solid #333; background: #222; color: #fff; outline: none; }
-        .chat-input-row button { padding: 10px 18px; border: none; border-radius: 30px; background: var(--gold); color: #0a0a0a; font-weight: 600; cursor: pointer; transition: var(--transition); }
-        .chat-input-row button:hover { transform: scale(1.02); }
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-height: 70vh;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chat-message {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            word-wrap: break-word;
+            font-size: 0.9rem;
+        }
+        .chat-message.sent {
+            align-self: flex-end;
+            background: rgba(201, 168, 122, 0.12);
+            color: var(--text-primary);
+            border: 1px solid rgba(201, 168, 122, 0.1);
+            border-bottom-right-radius: 4px;
+        }
+        .chat-message.received {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-message .time {
+            font-size: 0.6rem;
+            opacity: 0.5;
+            margin-top: 4px;
+            display: block;
+        }
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .chat-input-row input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            outline: none;
+            font-family: var(--font-body);
+        }
+        .chat-input-row input:focus {
+            border-color: var(--gold);
+        }
+        .chat-input-row button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(201, 168, 122, 0.08);
+            color: var(--gold);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid rgba(201, 168, 122, 0.1);
+        }
+        .chat-input-row button:hover {
+            background: rgba(201, 168, 122, 0.15);
+        }
 
         /* ===== BOTÕES GERAIS ===== */
-        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border: none; border-radius: 30px; font-family: var(--font-body); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: var(--transition); text-decoration: none; min-width: 44px; }
-        .btn-gold { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0a0a; }
-        .btn-gold:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(212,175,55,0.3); }
-        .btn-burgundy { background: var(--burgundy); color: #fff; }
-        .btn-burgundy:hover { background: #a00000; }
-        .btn-red { background: var(--red-action); color: #fff; }
-        .btn-red:hover { background: #e74c3c; }
-        .btn-outline-gold { background: transparent; color: var(--gold); border: 2px solid var(--gold); }
-        .btn-outline-gold:hover { background: var(--gold); color: #0a0a0a; }
-        .btn-outline-muted { background: transparent; color: var(--text-secondary); border: 2px solid #444; }
-        .btn-outline-muted:hover { border-color: #888; color: #fff; }
-        .btn-sm { padding: 6px 14px; font-size: 0.75rem; }
-        .btn-block { width: 100%; justify-content: center; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-        .btn-with-badge { position: relative; }
-        .btn-with-badge .badge { position: absolute; top: -6px; right: -6px; background: var(--red-action); color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.6rem; font-weight: 700; min-width: 18px; text-align: center; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 1px solid rgba(201, 168, 122, 0.1);
+            border-radius: 30px;
+            font-family: var(--font-body);
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            min-width: 44px;
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+        }
+        .btn:hover {
+            border-color: rgba(201, 168, 122, 0.2);
+            background: rgba(255, 255, 255, 0.04);
+        }
+        .btn-gold {
+            background: rgba(201, 168, 122, 0.06);
+            border-color: rgba(201, 168, 122, 0.15);
+            color: var(--gold);
+        }
+        .btn-gold:hover {
+            background: rgba(201, 168, 122, 0.12);
+            box-shadow: 0 4px 20px rgba(201, 168, 122, 0.05);
+        }
+        .btn-burgundy {
+            background: rgba(139, 58, 42, 0.15);
+            border-color: rgba(139, 58, 42, 0.2);
+            color: #c9a87a;
+        }
+        .btn-burgundy:hover {
+            background: rgba(139, 58, 42, 0.25);
+        }
+        .btn-red {
+            background: rgba(160, 64, 48, 0.15);
+            border-color: rgba(160, 64, 48, 0.2);
+            color: #c9a87a;
+        }
+        .btn-red:hover {
+            background: rgba(160, 64, 48, 0.25);
+        }
+        .btn-outline-gold {
+            background: transparent;
+            color: var(--gold);
+            border: 1px solid rgba(201, 168, 122, 0.15);
+        }
+        .btn-outline-gold:hover {
+            background: rgba(201, 168, 122, 0.08);
+        }
+        .btn-outline-muted {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .btn-outline-muted:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+        }
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
 
         /* ===== FORMULÁRIOS ===== */
-        input, select, textarea { width: 100%; padding: 12px 16px; background: #222; border: 1px solid #333; border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 0.95rem; transition: var(--transition); outline: none; }
-        input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.15); }
-        input::placeholder, textarea::placeholder { color: #666; }
-        label { display: block; font-weight: 500; margin-bottom: 4px; color: var(--text-secondary); font-size: 0.85rem; }
-        .form-group { margin-bottom: 14px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .checkbox-group { display: flex; align-items: center; gap: 10px; margin: 6px 0; }
-        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; }
-        .checkbox-group label { margin: 0; cursor: pointer; }
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            transition: var(--transition);
+            outline: none;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 168, 122, 0.05);
+        }
+        input::placeholder,
+        textarea::placeholder {
+            color: #555;
+        }
+        label {
+            display: block;
+            font-weight: 400;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 0;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--gold);
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+        }
 
         /* ===== ESTRELAS ===== */
-        .stars-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; max-width: 360px; margin: 12px auto; }
-        .star-circle { aspect-ratio: 1; border-radius: 50%; background: #2a2a2a; border: 2px solid #3a3a3a; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #555; transition: var(--transition); font-weight: 700; }
-        .star-circle.earned { background: var(--gold); border-color: var(--gold); color: #0a0a0a; box-shadow: 0 0 16px rgba(212,175,55,0.3); }
-        .star-circle.earned i { color: #0a0a0a; }
-        .star-circle i { font-size: 1rem; }
+        .stars-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 6px;
+            max-width: 360px;
+            margin: 12px auto;
+        }
+        .star-circle {
+            aspect-ratio: 1;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 2px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #444;
+            transition: var(--transition);
+            font-weight: 700;
+        }
+        .star-circle.earned {
+            background: rgba(201, 168, 122, 0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+            box-shadow: 0 0 20px rgba(201, 168, 122, 0.05);
+        }
+        .star-circle.earned i {
+            color: var(--gold);
+        }
+        .star-circle i {
+            font-size: 1rem;
+        }
 
         /* ===== PRODUTOS ===== */
-        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .product-card { background: var(--bg-card); border-radius: var(--radius); overflow: hidden; border: 1px solid #282828; transition: var(--transition); cursor: pointer; position: relative; }
-        .product-card:hover { border-color: var(--gold); transform: translateY(-2px); }
-        .product-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #1a1a1a; }
-        .product-card .info { padding: 10px 12px 14px; }
-        .product-card .info h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .product-card .info .price { color: var(--gold); font-weight: 700; font-size: 0.95rem; }
-        .product-card .info .old-price { color: #888; font-size: 0.75rem; text-decoration: line-through; margin-left: 6px; }
-        .product-card .info .stock { font-size: 0.7rem; color: var(--text-secondary); }
-        .product-card .promo-badge { position: absolute; top: 8px; right: 8px; background: var(--red-action); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 700; letter-spacing: 0.5px; }
-        .product-card .sold-out::after { content: 'ESGOTADO'; position: absolute; top: 8px; left: 8px; background: var(--red-action); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 700; }
+        .product-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .product-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: var(--transition);
+            cursor: pointer;
+            position: relative;
+        }
+        .product-card:hover {
+            border-color: rgba(201, 168, 122, 0.1);
+            transform: translateY(-2px);
+        }
+        .product-card img {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+            background: #1a1a1a;
+        }
+        .product-card .info {
+            padding: 10px 12px 14px;
+        }
+        .product-card .info h4 {
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .product-card .info .price {
+            color: var(--gold);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .product-card .info .old-price {
+            color: #666;
+            font-size: 0.75rem;
+            text-decoration: line-through;
+            margin-left: 6px;
+        }
+        .product-card .info .stock {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .product-card .promo-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(201, 168, 122, 0.12);
+            color: var(--gold);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            border: 1px solid rgba(201, 168, 122, 0.1);
+        }
+        .product-card .sold-out::after {
+            content: 'ESGOTADO';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(160, 64, 48, 0.15);
+            color: #c9a87a;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            border: 1px solid rgba(160, 64, 48, 0.1);
+        }
 
         /* ===== MODAL ===== */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
-        .modal-overlay.open { display: flex; }
-        .modal-box { background: var(--bg-secondary); border-radius: var(--radius); max-width: 400px; width: 100%; padding: 24px 20px 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); border: 1px solid #333; max-height: 90vh; overflow-y: auto; animation: fadeUp 0.25s ease; }
-        .modal-box .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .modal-box .modal-header h3 { font-family: var(--font-title); font-weight: 700; color: var(--gold); }
-        .modal-box .modal-close { background: transparent; border: none; color: var(--text-secondary); font-size: 1.5rem; cursor: pointer; padding: 0 4px; }
-        .modal-box .modal-close:hover { color: #fff; }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-box {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius);
+            max-width: 400px;
+            width: 100%;
+            padding: 24px 20px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(201, 168, 122, 0.04);
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: fadeUp 0.25s ease;
+        }
+        .modal-box .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .modal-box .modal-header h3 {
+            font-family: var(--font-title);
+            font-weight: 700;
+            color: var(--gold);
+        }
+        .modal-box .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0 4px;
+        }
+        .modal-box .modal-close:hover {
+            color: #fff;
+        }
 
         /* ===== ADMIN ===== */
-        .admin-panel .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
-        .admin-panel .admin-header h2 { font-family: var(--font-title); color: var(--gold); font-size: 1.2rem; }
-        .admin-subtabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
-        .admin-subtabs button { background: #222; border: none; color: var(--text-secondary); padding: 6px 14px; border-radius: 30px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: var(--transition); font-family: var(--font-body); position: relative; }
-        .admin-subtabs button.active { background: var(--gold); color: #0a0a0a; }
-        .admin-subtabs button:hover:not(.active) { background: #333; color: #fff; }
-        .admin-subtabs button .badge { position: absolute; top: -6px; right: -6px; background: var(--red-action); color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 0.6rem; font-weight: 700; min-width: 18px; text-align: center; }
-        .admin-section { display: none; }
-        .admin-section.active { display: block; }
+        .admin-panel .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .admin-panel .admin-header h2 {
+            font-family: var(--font-title);
+            color: var(--gold);
+            font-size: 1.2rem;
+        }
+        .admin-subtabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .admin-subtabs button {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font-body);
+            position: relative;
+        }
+        .admin-subtabs button.active {
+            background: rgba(201, 168, 122, 0.06);
+            border-color: rgba(201, 168, 122, 0.1);
+            color: var(--gold);
+        }
+        .admin-subtabs button:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+        }
+        .admin-subtabs button .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--red-action);
+            color: #fff;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 18px;
+            text-align: center;
+        }
+        .admin-section {
+            display: none;
+        }
+        .admin-section.active {
+            display: block;
+        }
 
         /* ===== CARRINHO ===== */
-        .cart-float { position: fixed; bottom: 80px; right: 16px; background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: #0a0a0a; border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 6px 24px rgba(212,175,55,0.4); cursor: pointer; border: none; transition: var(--transition); z-index: 50; }
-        .cart-float:hover { transform: scale(1.08); }
-        .cart-float .badge { position: absolute; top: -4px; right: -4px; background: var(--red-action); color: #fff; border-radius: 50%; width: 22px; height: 22px; font-size: 0.65rem; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .cart-float {
+            position: fixed;
+            bottom: 80px;
+            right: 16px;
+            background: rgba(201, 168, 122, 0.06);
+            border: 1px solid rgba(201, 168, 122, 0.1);
+            color: var(--gold);
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 50;
+        }
+        .cart-float:hover {
+            background: rgba(201, 168, 122, 0.1);
+            transform: scale(1.05);
+        }
+        .cart-float .badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: var(--red-action);
+            color: #fff;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* ===== TOAST ===== */
-        .toast-container { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; max-width: 400px; width: 90%; pointer-events: none; }
-        .toast { background: var(--bg-card); border-left: 4px solid var(--gold); padding: 12px 18px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); display: flex; align-items: center; gap: 12px; animation: slideDown 0.35s ease; pointer-events: auto; border: 1px solid #333; }
-        .toast.success { border-left-color: var(--gold); }
-        .toast.error { border-left-color: var(--red-action); }
-        .toast.info { border-left-color: #3498db; }
-        .toast i { font-size: 1.3rem; color: var(--gold); }
-        .toast .msg { flex: 1; font-size: 0.9rem; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 400px;
+            width: 90%;
+            pointer-events: none;
+        }
+        .toast {
+            background: rgba(20, 20, 20, 0.9);
+            backdrop-filter: blur(12px);
+            border-left: 3px solid var(--gold);
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.35s ease;
+            pointer-events: auto;
+            border: 1px solid rgba(201, 168, 122, 0.04);
+        }
+        .toast.success {
+            border-left-color: var(--gold);
+        }
+        .toast.error {
+            border-left-color: var(--red-action);
+        }
+        .toast.info {
+            border-left-color: #4a6a8a;
+        }
+        .toast i {
+            font-size: 1.3rem;
+            color: var(--gold);
+        }
+        .toast .msg {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         /* ===== HISTÓRICO ===== */
-        .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #282828; font-size: 0.9rem; }
-        .history-item:last-child { border-bottom: none; }
-        .history-item .status { font-size: 0.7rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; }
-        .status-pendente { background: #f39c12; color: #0a0a0a; }
-        .status-confirmado { background: #3498db; color: #fff; }
-        .status-realizado { background: #2ecc71; color: #0a0a0a; }
-        .status-cancelado { background: #e74c3c; color: #fff; }
-        .status-falta { background: #95a5a6; color: #0a0a0a; }
-        .status-aguardando { background: #f39c12; color: #0a0a0a; }
-        .status-pronto { background: #2ecc71; color: #0a0a0a; }
-        .status-entregue { background: #3498db; color: #fff; }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 0.9rem;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .history-item .status {
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+        .status-pendente {
+            background: rgba(160, 64, 48, 0.15);
+            color: #c9a87a;
+        }
+        .status-confirmado {
+            background: rgba(74, 106, 138, 0.15);
+            color: #8ab4d6;
+        }
+        .status-realizado {
+            background: rgba(201, 168, 122, 0.08);
+            color: var(--gold);
+        }
+        .status-cancelado {
+            background: rgba(160, 64, 48, 0.1);
+            color: #8a5a4a;
+        }
+        .status-falta {
+            background: rgba(100, 100, 100, 0.1);
+            color: #888;
+        }
+        .status-aguardando {
+            background: rgba(160, 64, 48, 0.15);
+            color: #c9a87a;
+        }
+        .status-pronto {
+            background: rgba(74, 138, 74, 0.15);
+            color: #7ac97a;
+        }
+        .status-entregue {
+            background: rgba(74, 106, 138, 0.15);
+            color: #8ab4d6;
+        }
 
         /* ===== PEDIDOS DO CLIENTE ===== */
-        .pedido-item { padding: 12px 0; border-bottom: 1px solid #282828; }
-        .pedido-item:last-child { border-bottom: none; }
-        .pedido-item .produto-nome { font-weight: 600; }
-        .pedido-item .status { font-size: 0.7rem; font-weight: 600; padding: 2px 10px; border-radius: 20px; display: inline-block; margin-left: 8px; }
+        .pedido-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .pedido-item:last-child {
+            border-bottom: none;
+        }
+        .pedido-item .produto-nome {
+            font-weight: 500;
+        }
+        .pedido-item .status {
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 2px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-left: 8px;
+        }
 
         /* ===== RESPONSIVO ===== */
         @media (max-width: 480px) {
-            .form-row { grid-template-columns: 1fr; }
-            .product-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .header .logo { font-size: 1rem; }
-            .header .stars-display { font-size: 0.8rem; padding: 2px 10px 2px 8px; }
-            .stars-grid { gap: 4px; }
-            .star-circle { font-size: 0.7rem; }
-            .auth-box { padding: 30px 20px; }
-            .story-circle .avatar { width: 50px; height: 50px; }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            .product-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .header .logo {
+                font-size: 1rem;
+            }
+            .header .stars-display {
+                font-size: 0.8rem;
+                padding: 2px 10px 2px 8px;
+            }
+            .stars-grid {
+                gap: 4px;
+            }
+            .star-circle {
+                font-size: 0.7rem;
+            }
+            .auth-box {
+                padding: 30px 20px;
+            }
+            .story-circle .avatar {
+                width: 50px;
+                height: 50px;
+            }
         }
-        @media (min-width: 481px) { #appWrapper { border-left: 1px solid #2a2a2a; border-right: 1px solid #2a2a2a; } }
+        @media (min-width: 481px) {
+            #appWrapper {
+                border-left: 1px solid rgba(255, 255, 255, 0.03);
+                border-right: 1px solid rgba(255, 255, 255, 0.03);
+            }
+        }
 
-        .mt-8 { margin-top: 8px; }
-        .mt-12 { margin-top: 12px; }
-        .mt-16 { margin-top: 16px; }
-        .mb-8 { margin-bottom: 8px; }
-        .mb-12 { margin-bottom: 12px; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .flex-center { display: flex; align-items: center; gap: 8px; }
-        .gap-8 { gap: 8px; }
-        .gap-12 { gap: 12px; }
-        .text-center { text-align: center; }
-        .w-full { width: 100%; }
-        .hidden { display: none !important; }
-        .scroll-y { max-height: 300px; overflow-y: auto; }
-        .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 600; }
-        .tag-gold { background: var(--gold); color: #0a0a0a; }
-        .tag-burgundy { background: var(--burgundy); color: #fff; }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mt-12 {
+            margin-top: 12px;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .mb-12 {
+            margin-bottom: 12px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .gap-12 {
+            gap: 12px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .scroll-y {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .tag {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 500;
+        }
+        .tag-gold {
+            background: rgba(201, 168, 122, 0.08);
+            color: var(--gold);
+        }
+        .tag-burgundy {
+            background: rgba(139, 58, 42, 0.15);
+            color: #c9a87a;
+        }
 
-        .client-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #282828; }
-        .client-item .name { font-weight: 500; }
-        .client-item .stars { color: var(--gold); font-weight: 700; }
-        .client-item .blocked-badge { background: var(--red-action); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.6rem; font-weight: 600; }
+        .client-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .client-item .name {
+            font-weight: 500;
+        }
+        .client-item .stars {
+            color: var(--gold);
+            font-weight: 600;
+        }
+        .client-item .blocked-badge {
+            background: rgba(160, 64, 48, 0.15);
+            color: #c9a87a;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            font-weight: 600;
+        }
+        .client-item select {
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            outline: none;
+            cursor: pointer;
+        }
 
-        .config-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 12px; }
-        .config-days label { display: flex; flex-direction: column; align-items: center; font-size: 0.65rem; color: var(--text-secondary); cursor: pointer; padding: 6px 0; border-radius: 8px; background: #1a1a1a; border: 1px solid #2a2a2a; transition: var(--transition); }
-        .config-days label.active { border-color: var(--gold); color: var(--gold); }
-        .config-days label input { display: none; }
-        .config-days label i { font-size: 1.2rem; margin-bottom: 2px; }
+        .config-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .config-days label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.65rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 6px 0;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            transition: var(--transition);
+        }
+        .config-days label.active {
+            border-color: rgba(201, 168, 122, 0.1);
+            color: var(--gold);
+        }
+        .config-days label input {
+            display: none;
+        }
+        .config-days label i {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+        }
 
-        .img-preview { max-width: 100%; max-height: 150px; border-radius: 8px; margin-top: 8px; border: 1px solid #333; object-fit: contain; background: #1a1a1a; }
-        .story-preview { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin: 4px; border: 1px solid #333; }
-        .order-item { padding: 10px 0; border-bottom: 1px solid #282828; }
-        .order-item:last-child { border-bottom: none; }
+        .img-preview {
+            max-width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            object-fit: contain;
+            background: #1a1a1a;
+        }
+        .story-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+        .order-item {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -306,7 +1436,7 @@
     <div id="loginScreen" class="auth-screen">
         <div class="auth-box">
             <div class="logo"><i class="fas fa-cut"></i> Barbearia VIP</div>
-            <div class="subtitle">Acesse sua conta</div>
+            <div class="subtitle">Acesse sua conta com elegância</div>
             <div class="form-group">
                 <label><i class="fas fa-user"></i> E-mail, Telefone ou usuário</label>
                 <input type="text" id="loginEmail" placeholder="ex: joao@email.com / admin" />
@@ -367,8 +1497,8 @@
                     <div class="slideshow-dots" id="slideshowDots"></div>
                 </div>
                 <div class="card">
-                    <div class="card-title"><i class="fas fa-hand-peace"></i> Olá, <span id="homeUserName">Cliente</span>!</div>
-                    <p class="text-muted">Bem-vindo à Barbearia VIP. Gerencie seus agendamentos, compre produtos e acumule estrelas!</p>
+                    <div class="card-title"><i class="fas fa-hand-peace"></i> Olá, <span id="homeUserName">Cliente</span></div>
+                    <p class="text-muted">Bem-vindo à Barbearia VIP. Gerencie seus agendamentos, compre produtos e acumule estrelas.</p>
                     <div class="flex-center mt-12" style="gap:12px; flex-wrap:wrap;">
                         <button class="btn btn-gold btn-sm" onclick="navigateTo('agendamento')"><i class="fas fa-calendar-plus"></i> Agendar</button>
                         <button class="btn btn-outline-gold btn-sm" onclick="navigateTo('lojinha')"><i class="fas fa-store"></i> Lojinha</button>
@@ -382,7 +1512,7 @@
                 </div>
                 <div class="card">
                     <div class="card-title"><i class="fas fa-gift"></i> Destaque</div>
-                    <p class="text-muted">Acumule 10 estrelas e ganhe um <strong class="text-gold">corte grátis</strong>!</p>
+                    <p class="text-muted">Acumule 10 estrelas e ganhe um <strong class="text-gold">corte grátis</strong>.</p>
                     <div class="flex-center mt-8"><span class="badge-gold"><i class="fas fa-star"></i> Fidelidade VIP</span></div>
                 </div>
             </div>
@@ -511,16 +1641,16 @@
                     <button class="btn btn-outline-muted btn-sm" onclick="adminLogout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
                 </div>
                 <div class="admin-subtabs" id="adminSubTabs">
-                    <button class="active" data-target="admin-dashboard">📊 Dashboard</button>
-                    <button data-target="admin-appointments">📅 Agendamentos</button>
-                    <button data-target="admin-fidelity">⭐ Fidelidade</button>
-                    <button data-target="admin-products">🛍️ Produtos</button>
-                    <button data-target="admin-stories">📸 Stories</button>
-                    <button data-target="admin-orders" id="ordersTabBtn">📦 Pedidos</button>
-                    <button data-target="admin-chat">💬 Chat</button>
-                    <button data-target="admin-users">👥 Usuários</button>
-                    <button data-target="admin-config">⚙️ Horários</button>
-                    <button data-target="admin-starslog">📜 Estrelas</button>
+                    <button class="active" data-target="admin-dashboard" data-role="admin,supervisor">📊 Dashboard</button>
+                    <button data-target="admin-appointments" data-role="admin,supervisor,barbeiro">📅 Agendamentos</button>
+                    <button data-target="admin-fidelity" data-role="admin,supervisor">⭐ Fidelidade</button>
+                    <button data-target="admin-products" data-role="admin,supervisor">🛍️ Produtos</button>
+                    <button data-target="admin-stories" data-role="admin,supervisor,barbeiro">📸 Stories</button>
+                    <button data-target="admin-orders" data-role="admin,supervisor,barbeiro" id="ordersTabBtn">📦 Pedidos</button>
+                    <button data-target="admin-chat" data-role="admin,supervisor">💬 Chat</button>
+                    <button data-target="admin-users" data-role="supervisor">👥 Usuários</button>
+                    <button data-target="admin-config" data-role="admin,supervisor">⚙️ Horários</button>
+                    <button data-target="admin-starslog" data-role="admin,supervisor">📜 Estrelas</button>
                 </div>
                 <div id="admin-dashboard" class="admin-section active">
                     <div class="card"><div class="card-title"><i class="fas fa-calendar-day"></i> Agendamentos Hoje</div><p id="adminDashHoje" class="text-gold" style="font-size:2rem;font-weight:700;">0</p></div>
@@ -641,7 +1771,7 @@
 
     <script>
         // ================================================================
-        //  FIREBASE CONFIG - COM SUAS CREDENCIAIS
+        //  FIREBASE CONFIG - SUAS CREDENCIAIS
         // ================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyBRFSMs_PjfCmPim5wx7HvTACOsMW9Pwj0",
@@ -655,9 +1785,11 @@
         const db = firebase.firestore();
 
         // ================================================================
-        //  BARBEARIA VIP - CÓDIGO COMPLETO (FIREBASE)
-        //  - Todas as funcionalidades preservadas
-        //  - Sincronização em tempo real com Firestore
+        //  CÓDIGO COMPLETO - TODAS AS FUNCIONALIDADES
+        //  (MANTIDO EXATAMENTE IGUAL AO CÓDIGO ANTERIOR)
+        //  - Roles: admin, supervisor, barbeiro, cliente
+        //  - Supervisor gerencia credenciais
+        //  - Barbeiro vê agendamentos, stories e pedidos
         // ================================================================
 
         // ===== CONSTANTES =====
@@ -669,10 +1801,15 @@
 
         // ===== HELPERS =====
         function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
         function todayStr() { return new Date().toISOString().slice(0, 10); }
+
         function nowISO() { return new Date().toISOString(); }
+
         function formatDate(d) { return new Date(d).toLocaleDateString('pt-BR'); }
+
         function formatTime(d) { return new Date(d).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); }
+
         function formatDateTime(d) { return formatDate(d) + ' ' + formatTime(d); }
 
         // ===== TOAST =====
@@ -692,6 +1829,7 @@
             document.getElementById('modalBody').innerHTML = html;
             document.getElementById('modalOverlay').classList.add('open');
         }
+
         function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
         document.getElementById('modalOverlay').addEventListener('click', function(e) {
             if (e.target === this) closeModal();
@@ -703,6 +1841,7 @@
             document.getElementById('registerScreen').classList.remove('hidden');
             document.getElementById('registerError').textContent = '';
         }
+
         function showLoginScreen() {
             document.getElementById('registerScreen').classList.add('hidden');
             document.getElementById('loginScreen').classList.remove('hidden');
@@ -712,7 +1851,7 @@
         // ===== VARIÁVEIS GLOBAIS =====
         let currentScreen = 'home';
         let isAdminView = false;
-        let currentUser = null; // objeto do usuário logado
+        let currentUser = null;
         let usersCache = [];
         let productsCache = [];
         let appointmentsCache = [];
@@ -723,12 +1862,46 @@
         let storiesCache = [];
         let chatMessagesCache = [];
 
-        // Listeners de snapshot (para atualizar caches automaticamente)
+        // ===== FUNÇÕES DE PERMISSÃO =====
+        function getCurrentUser() { return currentUser; }
+
+        function setCurrentUser(u) { currentUser = u; }
+
+        function isAdmin() {
+            return currentUser && (currentUser.role === 'admin' || currentUser.role === 'supervisor');
+        }
+
+        function isSupervisor() {
+            return currentUser && currentUser.role === 'supervisor';
+        }
+
+        function isBarbeiro() {
+            return currentUser && currentUser.role === 'barbeiro';
+        }
+
+        function isAdminOrSupervisor() {
+            return isAdmin();
+        }
+
+        function podeGerenciarUsuarios() {
+            return isSupervisor(); // apenas supervisor
+        }
+
+        function podeVerAba(aba) {
+            if (!currentUser) return false;
+            const role = currentUser.role;
+            if (role === 'admin' || role === 'supervisor') return true;
+            if (role === 'barbeiro') {
+                const allowed = ['admin-appointments', 'admin-stories', 'admin-orders'];
+                return allowed.includes(aba);
+            }
+            return false;
+        }
+
+        // ===== FIREBASE LISTENERS =====
         function initFirebaseListeners() {
-            // Usuários
             db.collection('users').onSnapshot(snapshot => {
                 usersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                // Atualiza UI dependendo da tela
                 if (currentScreen === 'perfil') renderPerfil();
                 if (isAdminView) {
                     renderUserList();
@@ -738,7 +1911,6 @@
                 updateStarsDisplay();
             });
 
-            // Produtos
             db.collection('products').onSnapshot(snapshot => {
                 productsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (currentScreen === 'lojinha') renderProducts();
@@ -746,7 +1918,6 @@
                 renderSlideshow();
             });
 
-            // Agendamentos
             db.collection('appointments').onSnapshot(snapshot => {
                 appointmentsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (currentScreen === 'home') renderHome();
@@ -755,7 +1926,6 @@
                 if (isAdminView) { renderAdminAppointments(); renderAdminDashboard(); }
             });
 
-            // Pedidos
             db.collection('orders').onSnapshot(snapshot => {
                 ordersCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (currentScreen === 'meus-pedidos') renderMeusPedidos();
@@ -765,61 +1935,54 @@
                 verificarPedidosProntos();
             });
 
-            // Configurações
             db.collection('config').onSnapshot(snapshot => {
                 configCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (isAdminView) renderConfig();
                 if (currentScreen === 'agendamento') updateAvailableTimes();
             });
 
-            // Histórico de estrelas
             db.collection('starsHistory').onSnapshot(snapshot => {
                 starsHistoryCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (currentScreen === 'fidelidade') renderStarsHistory();
                 if (isAdminView) { renderStarsLog(); renderAdminDashboard(); }
             });
 
-            // Stories
             db.collection('stories').onSnapshot(snapshot => {
                 storiesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (currentScreen === 'home') renderStories();
                 if (isAdminView) renderAdminStories();
             });
 
-            // Mensagens do chat
             db.collection('chatMessages').onSnapshot(snapshot => {
                 chatMessagesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (currentScreen === 'chat') renderChatMessages();
                 if (isAdminView) renderAdminChatList();
             });
 
-            // Waitlist
             db.collection('waitlist').onSnapshot(snapshot => {
                 waitlistCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 if (currentScreen === 'agendamento') renderAgendamento();
             });
         }
 
-        // ===== FUNÇÕES DE ACESSO A DADOS (SINCRONIZADOS COM CACHE) =====
+        // ===== FUNÇÕES DE ACESSO A DADOS (CACHE) =====
         function getUsers() { return usersCache; }
+
         function getAppointments() { return appointmentsCache; }
+
         function getProducts() { return productsCache; }
+
         function getOrders() { return ordersCache; }
+
         function getConfig() { return configCache; }
+
         function getStarsHistory() { return starsHistoryCache; }
+
         function getWaitlist() { return waitlistCache; }
+
         function getStories() { return storiesCache; }
+
         function getChatMessages() { return chatMessagesCache; }
-
-        function getCurrentUser() { return currentUser; }
-        function setCurrentUser(u) { currentUser = u; }
-
-        function isAdmin() {
-            return currentUser && (currentUser.role === 'admin' || currentUser.role === 'supervisor');
-        }
-        function isSupervisor() {
-            return currentUser && currentUser.role === 'supervisor';
-        }
 
         // ===== FUNÇÕES DE ESCRITA NO FIRESTORE =====
         async function addDocument(collection, data) {
@@ -859,44 +2022,79 @@
         //  POPULAR DADOS INICIAIS (SE VAZIO)
         // ================================================================
         async function seedInitialData() {
-            // Verificar se já existem dados
             const usersSnap = await db.collection('users').limit(1).get();
-            if (!usersSnap.empty) return; // já tem dados
+            if (!usersSnap.empty) return;
 
             const initialUsers = [
-                { nome: 'Administrador', email: 'admin@barbearia.com', telefone: '1199999999', senha: 'admin123', role: 'admin', estrelas: 0, vouchers: 0, data_nascimento: '1990-01-01', birthday_star_given: {}, bloqueado: false },
-                { nome: 'Supervisor', email: 'supervisor@barbearia.com', telefone: '11988888887', senha: 'super123', role: 'supervisor', estrelas: 0, vouchers: 0, data_nascimento: '1985-01-01', birthday_star_given: {}, bloqueado: false },
-                { nome: 'João Silva', email: 'joao@email.com', telefone: '11988888888', senha: '123456', role: 'cliente', estrelas: 3, vouchers: 0, data_nascimento: '1995-06-15', birthday_star_given: {}, bloqueado: false },
-                { nome: 'Maria Oliveira', email: 'maria@email.com', telefone: '11977777777', senha: '123456', role: 'cliente', estrelas: 7, vouchers: 0, data_nascimento: '1988-12-01', birthday_star_given: {}, bloqueado: false },
-                { nome: 'Carlos Souza', email: 'carlos@email.com', telefone: '11966666666', senha: '123456', role: 'cliente', estrelas: 10, vouchers: 1, data_nascimento: '1992-03-20', birthday_star_given: {}, bloqueado: false },
-                { nome: 'Cliente Teste', email: 'cliente@barbearia.com', telefone: '11900000000', senha: 'cliente123', role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: '2000-01-01', birthday_star_given: {}, bloqueado: false }
+                { nome: 'Administrador', email: 'admin@barbearia.com', telefone: '1199999999', senha: 'admin123',
+                    role: 'admin', estrelas: 0, vouchers: 0, data_nascimento: '1990-01-01', birthday_star_given: {},
+                    bloqueado: false },
+                { nome: 'Supervisor', email: 'supervisor@barbearia.com', telefone: '11988888887', senha: 'super123',
+                    role: 'supervisor', estrelas: 0, vouchers: 0, data_nascimento: '1985-01-01', birthday_star_given: {},
+                    bloqueado: false },
+                { nome: 'Barbeiro Teste', email: 'barbeiro@barbearia.com', telefone: '11977777777', senha: 'barbeiro123',
+                    role: 'barbeiro', estrelas: 0, vouchers: 0, data_nascimento: '1990-05-10', birthday_star_given: {},
+                    bloqueado: false },
+                { nome: 'João Silva', email: 'joao@email.com', telefone: '11988888888', senha: '123456', role: 'cliente',
+                    estrelas: 3, vouchers: 0, data_nascimento: '1995-06-15', birthday_star_given: {}, bloqueado: false },
+                { nome: 'Maria Oliveira', email: 'maria@email.com', telefone: '11977777777', senha: '123456',
+                    role: 'cliente', estrelas: 7, vouchers: 0, data_nascimento: '1988-12-01', birthday_star_given: {},
+                    bloqueado: false },
+                { nome: 'Carlos Souza', email: 'carlos@email.com', telefone: '11966666666', senha: '123456',
+                    role: 'cliente', estrelas: 10, vouchers: 1, data_nascimento: '1992-03-20', birthday_star_given: {},
+                    bloqueado: false },
+                { nome: 'Cliente Teste', email: 'cliente@barbearia.com', telefone: '11900000000', senha: 'cliente123',
+                    role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: '2000-01-01', birthday_star_given: {},
+                    bloqueado: false }
             ];
 
             const initialProducts = [
-                { nome: 'Shampoo Premium', descricao: 'Shampoo para cabelos masculinos, 250ml', preco: 29.90, estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200', em_promocao: true, preco_promocional: 19.90 },
-                { nome: 'Condicionador Revitalizante', descricao: 'Condicionador com óleo de argan, 250ml', preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200', em_promocao: false, preco_promocional: 0 },
-                { nome: 'Pomada Modeladora', descricao: 'Pomada de fixação forte, 100g', preco: 19.90, estoque: 8, imagem_url: 'https://picsum.photos/seed/pomada/200/200', em_promocao: true, preco_promocional: 14.90 },
-                { nome: 'Navalha Profissional', descricao: 'Navalha com lâminas de reposição', preco: 45.00, estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200', em_promocao: false, preco_promocional: 0 },
-                { nome: 'Máscara Capilar', descricao: 'Máscara de hidratação profunda, 300g', preco: 39.90, estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200', em_promocao: true, preco_promocional: 29.90 }
+                { nome: 'Shampoo Premium', descricao: 'Shampoo para cabelos masculinos, 250ml', preco: 29.90,
+                    estoque: 15, imagem_url: 'https://picsum.photos/seed/shampoo/200/200', em_promocao: true,
+                    preco_promocional: 19.90 },
+                { nome: 'Condicionador Revitalizante', descricao: 'Condicionador com óleo de argan, 250ml',
+                    preco: 34.90, estoque: 12, imagem_url: 'https://picsum.photos/seed/condicionador/200/200',
+                    em_promocao: false, preco_promocional: 0 },
+                { nome: 'Pomada Modeladora', descricao: 'Pomada de fixação forte, 100g', preco: 19.90, estoque: 8,
+                    imagem_url: 'https://picsum.photos/seed/pomada/200/200', em_promocao: true,
+                    preco_promocional: 14.90 },
+                { nome: 'Navalha Profissional', descricao: 'Navalha com lâminas de reposição', preco: 45.00,
+                    estoque: 6, imagem_url: 'https://picsum.photos/seed/navalha/200/200', em_promocao: false,
+                    preco_promocional: 0 },
+                { nome: 'Máscara Capilar', descricao: 'Máscara de hidratação profunda, 300g', preco: 39.90,
+                    estoque: 10, imagem_url: 'https://picsum.photos/seed/mascara/200/200', em_promocao: true,
+                    preco_promocional: 29.90 }
             ];
 
             const now = new Date();
-            const past = new Date(now); past.setDate(past.getDate() - 3);
-            const future = new Date(now); future.setDate(future.getDate() + 2); future.setHours(14,0,0,0);
+            const past = new Date(now);
+            past.setDate(past.getDate() - 3);
+            const future = new Date(now);
+            future.setDate(future.getDate() + 2);
+            future.setHours(14, 0, 0, 0);
             const initialAppointments = [
-                { cliente_id: 'cli1', data_hora: past.toISOString(), servico: 'Corte', status: 'realizado', admin_id: null },
-                { cliente_id: 'cli2', data_hora: future.toISOString(), servico: 'Combo', status: 'confirmado', admin_id: null },
-                { cliente_id: 'cli3', data_hora: new Date(now.getFullYear(), now.getMonth(), now.getDate()+5, 10,30,0,0).toISOString(), servico: 'Barba', status: 'pendente', admin_id: null }
+                { cliente_id: 'cli1', data_hora: past.toISOString(), servico: 'Corte', status: 'realizado',
+                    admin_id: null },
+                { cliente_id: 'cli2', data_hora: future.toISOString(), servico: 'Combo', status: 'confirmado',
+                    admin_id: null },
+                { cliente_id: 'cli3', data_hora: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 5, 10, 30,
+                    0, 0).toISOString(), servico: 'Barba', status: 'pendente', admin_id: null }
             ];
 
             const initialConfig = [
                 { dia_semana: 0, ativo: false, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: [] },
-                { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30, bloqueios: ['12:00','13:00'] },
-                { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30, bloqueios: ['12:00','13:00'] }
+                { dia_semana: 1, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
+                    bloqueios: ['12:00', '13:00'] },
+                { dia_semana: 2, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
+                    bloqueios: ['12:00', '13:00'] },
+                { dia_semana: 3, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
+                    bloqueios: ['12:00', '13:00'] },
+                { dia_semana: 4, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
+                    bloqueios: ['12:00', '13:00'] },
+                { dia_semana: 5, ativo: true, hora_inicio: '09:00', hora_fim: '20:00', duracao: 30,
+                    bloqueios: ['12:00', '13:00'] },
+                { dia_semana: 6, ativo: true, hora_inicio: '09:00', hora_fim: '18:00', duracao: 30,
+                    bloqueios: ['12:00', '13:00'] }
             ];
 
             const initialStars = [
@@ -910,7 +2108,6 @@
             for (const u of initialUsers) {
                 const ref = await db.collection('users').add(u);
                 userIds[u.email] = ref.id;
-                // Atualizar referências nos outros dados
                 if (u.email === 'joao@email.com') userIds.cli1 = ref.id;
                 if (u.email === 'maria@email.com') userIds.cli2 = ref.id;
                 if (u.email === 'carlos@email.com') userIds.cli3 = ref.id;
@@ -959,7 +2156,6 @@
             errorEl.textContent = '';
             if (!login || !senha) { errorEl.textContent = 'Preencha todos os campos.'; return; }
 
-            // Buscar usuário no cache (já sincronizado)
             const users = getUsers();
             const user = users.find(u => (u.email === login || u.telefone === login) && u.senha === senha);
             if (!user) {
@@ -975,7 +2171,7 @@
             setCurrentUser(user);
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('appWrapper').classList.add('visible');
-            if (user.role === 'admin' || user.role === 'supervisor') {
+            if (user.role === 'admin' || user.role === 'supervisor' || user.role === 'barbeiro') {
                 showAdminPanel();
                 toast(`Bem-vindo, ${user.nome}!`, 'success');
             } else {
@@ -993,15 +2189,16 @@
             const nascimento = document.getElementById('regNascimento').value;
             const errorEl = document.getElementById('registerError');
             errorEl.textContent = '';
-            if (!nome || !email || !telefone || !senha || !nascimento) { errorEl.textContent = 'Preencha todos os campos.'; return; }
+            if (!nome || !email || !telefone || !senha || !nascimento) { errorEl.textContent =
+                'Preencha todos os campos.'; return; }
             if (senha.length < 6) { errorEl.textContent = 'A senha deve ter pelo menos 6 caracteres.'; return; }
 
-            // Verificar se já existe no cache
             const users = getUsers();
             if (users.find(u => u.email === email)) { errorEl.textContent = 'E-mail já cadastrado.'; return; }
             if (users.find(u => u.telefone === telefone)) { errorEl.textContent = 'Telefone já cadastrado.'; return; }
 
-            const newUser = { nome, email, telefone, senha, role: 'cliente', estrelas: 0, vouchers: 0, data_nascimento: nascimento, birthday_star_given: {}, bloqueado: false };
+            const newUser = { nome, email, telefone, senha, role: 'cliente', estrelas: 0, vouchers: 0,
+                data_nascimento: nascimento, birthday_star_given: {}, bloqueado: false };
             const docId = await addDocument('users', newUser);
             if (docId) {
                 toast('✅ Conta criada! Faça login.', 'success');
@@ -1028,13 +2225,14 @@
                 toast('Você saiu.', 'info');
             }
         }
+
         function adminLogout() { logout(); }
 
         // ================================================================
         //  NAVEGAÇÃO
         // ================================================================
         function navigateTo(screen) {
-            if (isAdmin()) return;
+            if (isAdmin() || isBarbeiro()) return;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             const target = document.getElementById('screen-' + screen);
             if (target) target.classList.add('active');
@@ -1042,10 +2240,13 @@
                 btn.classList.toggle('active', btn.dataset.tab === screen);
             });
             currentScreen = screen;
-            if (screen === 'home') { renderHome(); renderSlideshow(); renderStories(); }
+            if (screen === 'home') { renderHome();
+                renderSlideshow();
+                renderStories(); }
             if (screen === 'fidelidade') renderFidelidade();
             if (screen === 'perfil') renderPerfil();
-            if (screen === 'lojinha') { renderProducts(); updatePedidosBadge(); }
+            if (screen === 'lojinha') { renderProducts();
+                updatePedidosBadge(); }
             if (screen === 'agendamento') renderAgendamento();
             if (screen === 'chat') renderChatMessages();
             if (screen === 'meus-pedidos') renderMeusPedidos();
@@ -1054,16 +2255,32 @@
         }
 
         function goHome() {
-            if (isAdmin()) { showAdminPanel(); } else { navigateTo('home'); }
+            if (isAdmin() || isBarbeiro()) { showAdminPanel(); } else { navigateTo('home'); }
         }
 
         function showAdminPanel() {
-            if (!isAdmin()) return;
+            if (!currentUser || !(isAdmin() || isBarbeiro())) return;
             isAdminView = true;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-admin-panel').classList.add('active');
             document.getElementById('bottomTabs').style.display = 'none';
             document.getElementById('cartFloat').style.display = 'none';
+            document.querySelectorAll('.admin-subtabs button').forEach(btn => {
+                const roles = btn.dataset.role.split(',');
+                const allowed = roles.includes(currentUser.role) || (currentUser.role === 'admin' && roles
+                .includes('admin')) || (currentUser.role === 'supervisor' && roles.includes('supervisor'));
+                btn.style.display = allowed ? 'inline-block' : 'none';
+            });
+            const firstVisible = document.querySelector('.admin-subtabs button[style*="display: inline-block"]');
+            if (firstVisible) {
+                document.querySelectorAll('.admin-subtabs button').forEach(b => b.classList.remove('active'));
+                firstVisible.classList.add('active');
+                const target = document.getElementById(firstVisible.dataset.target);
+                if (target) {
+                    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+                    target.classList.add('active');
+                }
+            }
             renderAdminDashboard();
             renderAdminAppointments();
             renderAdminProducts();
@@ -1074,14 +2291,11 @@
             renderAdminStories();
             renderAdminOrders();
             renderAdminChatList();
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
-            document.getElementById('admin-dashboard').classList.add('active');
-            document.querySelectorAll('.admin-subtabs button').forEach(b => b.classList.toggle('active', b.dataset.target === 'admin-dashboard'));
             updatePendingOrdersBadge();
         }
 
         function hideAdminPanel() {
-            if (isAdmin()) return;
+            if (isAdmin() || isBarbeiro()) return;
             isAdminView = false;
             document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-home').classList.add('active');
@@ -1091,14 +2305,17 @@
                 btn.classList.toggle('active', btn.dataset.tab === 'home');
             });
             currentScreen = 'home';
-            renderHome(); renderSlideshow(); renderStories();
-            updateStarsDisplay(); updateCartBadge();
+            renderHome();
+            renderSlideshow();
+            renderStories();
+            updateStarsDisplay();
+            updateCartBadge();
         }
 
         // ===== TABS CLIENTE =====
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                if (isAdmin()) return;
+                if (isAdmin() || isBarbeiro()) return;
                 navigateTo(this.dataset.tab);
             });
         });
@@ -1107,6 +2324,7 @@
         document.getElementById('adminSubTabs').addEventListener('click', function(e) {
             const btn = e.target.closest('button');
             if (!btn) return;
+            if (btn.style.display === 'none') return;
             document.querySelectorAll('.admin-subtabs button').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
@@ -1125,7 +2343,7 @@
         });
 
         // ================================================================
-        //  FUNÇÕES DE RENDERIZAÇÃO (USAM CACHE E ATUALIZAM UI)
+        //  FUNÇÕES DE RENDERIZAÇÃO (USAM CACHE)
         // ================================================================
 
         // ----- STARS DISPLAY -----
@@ -1145,14 +2363,15 @@
             if (!user || user.role !== 'cliente') return;
             document.getElementById('homeUserName').textContent = user.nome || 'Cliente';
             const upcoming = getAppointments()
-                .filter(a => a.cliente_id === user.id && new Date(a.data_hora) >= new Date() && a.status !== 'cancelado' && a.status !== 'realizado' && a.status !== 'falta')
-                .sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora));
+                .filter(a => a.cliente_id === user.id && new Date(a.data_hora) >= new Date() && a.status !== 'cancelado' &&
+                    a.status !== 'realizado' && a.status !== 'falta')
+                .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
             const container = document.getElementById('homeUpcomingAppointments');
             if (upcoming.length === 0) {
                 container.innerHTML = '<p class="text-muted" style="font-size:0.9rem;">Nenhum agendamento futuro.</p>';
             } else {
                 container.innerHTML = upcoming.map(a =>
-                    `<div class="flex-between" style="padding:6px 0;border-bottom:1px solid #282828;">
+                    `<div class="flex-between" style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
                         <span>${formatDateTime(a.data_hora)} - ${a.servico}</span>
                         <span class="tag ${a.status === 'confirmado' ? 'tag-gold' : 'tag-burgundy'}">${a.status}</span>
                     </div>`
@@ -1184,10 +2403,11 @@
             if (slots.length === 0) {
                 select.innerHTML = '<option value="">Nenhum horário disponível</option>';
                 document.getElementById('apptFeedback').textContent = '📋 Todos os horários estão ocupados.';
-                document.getElementById('apptFeedback').style.color = '#f39c12';
+                document.getElementById('apptFeedback').style.color = '#7a7268';
                 return;
             }
-            select.innerHTML = '<option value="">Selecione um horário</option>' + slots.map(t => `<option value="${t}">${t}</option>`).join('');
+            select.innerHTML = '<option value="">Selecione um horário</option>' + slots.map(t =>
+                `<option value="${t}">${t}</option>`).join('');
             document.getElementById('apptFeedback').textContent = '';
         }
 
@@ -1199,22 +2419,24 @@
             const start = cfg.hora_inicio.split(':').map(Number);
             const end = cfg.hora_fim.split(':').map(Number);
             const dur = cfg.duracao || 30;
-            let h = start[0], m = start[1];
-            const endMin = end[0]*60 + end[1];
-            while (h*60 + m < endMin) {
-                const timeStr = String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+            let h = start[0],
+                m = start[1];
+            const endMin = end[0] * 60 + end[1];
+            while (h * 60 + m < endMin) {
+                const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
                 const isBlocked = cfg.bloqueios.some(b => b === timeStr);
                 if (!isBlocked) {
-                    // Verificar se há conflito com agendamentos existentes
                     const target = new Date(dateStr + 'T' + timeStr + ':00');
                     const conflicting = getAppointments().some(a => {
                         const aDate = new Date(a.data_hora);
-                        return aDate.getTime() === target.getTime() && (a.status === 'confirmado' || a.status === 'pendente');
+                        return aDate.getTime() === target.getTime() && (a.status === 'confirmado' || a
+                            .status === 'pendente');
                     });
                     if (!conflicting) slots.push(timeStr);
                 }
                 m += dur;
-                if (m >= 60) { h += Math.floor(m/60); m = m % 60; }
+                if (m >= 60) { h += Math.floor(m / 60);
+                    m = m % 60; }
             }
             return slots;
         }
@@ -1227,9 +2449,11 @@
             const service = document.getElementById('apptService').value;
             if (!date || !time) { toast('Selecione data e horário.', 'error'); return; }
             const upcoming = getAppointments()
-                .filter(a => a.cliente_id === user.id && new Date(a.data_hora) >= new Date() && a.status !== 'cancelado' && a.status !== 'realizado' && a.status !== 'falta');
-            if (upcoming.length > 0) { toast('Você já tem um agendamento futuro.','error'); return; }
-            if (!getAvailableTimes(date).includes(time)) { toast('Horário indisponível.', 'error'); updateAvailableTimes(); return; }
+                .filter(a => a.cliente_id === user.id && new Date(a.data_hora) >= new Date() && a.status !== 'cancelado' &&
+                    a.status !== 'realizado' && a.status !== 'falta');
+            if (upcoming.length > 0) { toast('Você já tem um agendamento futuro.', 'error'); return; }
+            if (!getAvailableTimes(date).includes(time)) { toast('Horário indisponível.', 'error');
+                updateAvailableTimes(); return; }
             const newAppt = {
                 cliente_id: user.id,
                 data_hora: date + 'T' + time + ':00',
@@ -1239,9 +2463,9 @@
             };
             const docId = await addDocument('appointments', newAppt);
             if (docId) {
-                toast('✅ Agendamento confirmado!','success');
+                toast('✅ Agendamento confirmado!', 'success');
                 document.getElementById('apptFeedback').textContent = '✅ Agendado com sucesso!';
-                document.getElementById('apptFeedback').style.color = '#2ecc71';
+                document.getElementById('apptFeedback').style.color = '#c9a87a';
                 updateAvailableTimes();
                 renderHome();
             }
@@ -1253,7 +2477,8 @@
             const grid = document.getElementById('productGrid');
             const empty = document.getElementById('productGridEmpty');
             const available = products.filter(p => p.estoque > 0);
-            if (available.length === 0) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+            if (available.length === 0) { grid.innerHTML = '';
+                empty.style.display = 'block'; return; }
             empty.style.display = 'none';
             grid.innerHTML = available.map(p => {
                 const promoHtml = p.em_promocao ? `<span class="promo-badge">🔥 PROMO</span>` : '';
@@ -1272,10 +2497,11 @@
             const p = getProducts().find(prod => prod.id === productId);
             if (!p) return;
             const user = getCurrentUser();
-            if (!user) { toast('Faça login primeiro.','error'); return; }
-            const inCart = getOrders().some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status === 'carrinho');
+            if (!user) { toast('Faça login primeiro.', 'error'); return; }
+            const inCart = getOrders().some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status ===
+            'carrinho');
             const priceDisplay = p.preco_promocional && p.preco_promocional > 0 ?
-                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco_promocional.toFixed(2)}</span> <span style="text-decoration:line-through;color:#888;">R$ ${p.preco.toFixed(2)}</span>` :
+                `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco_promocional.toFixed(2)}</span> <span style="text-decoration:line-through;color:#666;">R$ ${p.preco.toFixed(2)}</span>` :
                 `<span style="font-size:1.3rem;color:var(--gold);font-weight:700;">R$ ${p.preco.toFixed(2)}</span>`;
             const html = `<div style="text-align:center;">
                 <img src="${p.imagem_url || 'https://picsum.photos/seed/'+p.id+'/200/200'}" style="width:100%;max-width:200px;border-radius:12px;margin-bottom:12px;" />
@@ -1285,7 +2511,7 @@
                 <p class="text-muted" style="font-size:0.8rem;">Estoque: ${p.estoque}</p>
                 ${p.estoque > 0 ? (inCart ? '<p class="text-gold"><i class="fas fa-check"></i> Já está no carrinho</p>' :
                 `<button class="btn btn-gold btn-block mt-8" onclick="addToCart('${p.id}')"><i class="fas fa-cart-plus"></i> Adicionar ao carrinho</button>`) :
-                '<p class="text-muted" style="color:var(--red-action);">ESGOTADO</p>'}
+                '<p class="text-muted" style="color:#6a5a4a;">ESGOTADO</p>'}
             </div>`;
             openModal(p.nome, html);
         }
@@ -1298,10 +2524,11 @@
             if (getOrders().some(o => o.cliente_id === user.id && o.produto_id === p.id && o.status === 'carrinho')) {
                 toast('Já está no carrinho.', 'info'); return;
             }
-            const newOrder = { cliente_id: user.id, produto_id: p.id, quantidade: 1, status: 'carrinho', data_pedido: nowISO(), cliente_visto: true };
+            const newOrder = { cliente_id: user.id, produto_id: p.id, quantidade: 1, status: 'carrinho',
+                data_pedido: nowISO(), cliente_visto: true };
             const docId = await addDocument('orders', newOrder);
             if (docId) {
-                toast('🛒 Produto adicionado ao carrinho!','success');
+                toast('🛒 Produto adicionado ao carrinho!', 'success');
                 updateCartBadge();
                 closeModal();
             }
@@ -1324,7 +2551,7 @@
             const user = getCurrentUser();
             if (!user) { toast('Faça login.', 'error'); return; }
             const cart = getOrders().filter(o => o.cliente_id === user.id && o.status === 'carrinho');
-            if (cart.length === 0) { openModal('🛒 Carrinho','<p class="text-muted">Seu carrinho está vazio.</p>'); return; }
+            if (cart.length === 0) { openModal('🛒 Carrinho', '<p class="text-muted">Seu carrinho está vazio.</p>'); return; }
             let html = `<div style="max-height:300px;overflow-y:auto;margin-bottom:12px;">`;
             let total = 0;
             cart.forEach(o => {
@@ -1332,12 +2559,12 @@
                 if (!p) return;
                 const price = p.preco_promocional && p.preco_promocional > 0 ? p.preco_promocional : p.preco;
                 total += price;
-                html += `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid #282828;">
+                html += `<div class="flex-between" style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
                     <span>${p.nome}</span><span>R$ ${price.toFixed(2)}</span>
                     <button class="btn btn-red btn-sm" onclick="removeFromCart('${o.id}')"><i class="fas fa-trash"></i></button>
                 </div>`;
             });
-            html += `</div><div class="flex-between" style="font-size:1.1rem;font-weight:700;border-top:2px solid #333;padding-top:12px;">
+            html += `</div><div class="flex-between" style="font-size:1.1rem;font-weight:600;border-top:1px solid rgba(255,255,255,0.06);padding-top:12px;">
                 <span>Total:</span><span class="text-gold">R$ ${total.toFixed(2)}</span>
             </div><button class="btn btn-gold btn-block mt-12" onclick="finalizeOrder()"><i class="fas fa-check"></i> Finalizar Pedido</button>`;
             openModal('🛒 Meu Carrinho', html);
@@ -1345,7 +2572,7 @@
 
         async function removeFromCart(orderId) {
             await deleteDocument('orders', orderId);
-            toast('Item removido.','info');
+            toast('Item removido.', 'info');
             updateCartBadge();
             showCartModal();
         }
@@ -1354,30 +2581,28 @@
             const user = getCurrentUser();
             if (!user) return;
             const cart = getOrders().filter(o => o.cliente_id === user.id && o.status === 'carrinho');
-            if (cart.length === 0) { toast('Carrinho vazio.','error'); return; }
+            if (cart.length === 0) { toast('Carrinho vazio.', 'error'); return; }
             let hasError = false;
             cart.forEach(o => {
                 const p = getProducts().find(prod => prod.id === o.produto_id);
                 if (!p || p.estoque < o.quantidade) hasError = true;
             });
-            if (hasError) { toast('Algum produto com estoque insuficiente.','error'); return; }
-            // Atualizar estoque dos produtos
+            if (hasError) { toast('Algum produto com estoque insuficiente.', 'error'); return; }
             for (const o of cart) {
                 const p = getProducts().find(prod => prod.id === o.produto_id);
                 if (p) {
                     await updateDocument('products', p.id, { estoque: p.estoque - o.quantidade });
                 }
             }
-            // Atualizar pedidos para aguardando_retirada
             for (const o of cart) {
                 await updateDocument('orders', o.id, { status: 'aguardando_retirada' });
             }
-            toast('✅ Pedido finalizado! Aguarde a retirada.','success');
+            toast('✅ Pedido finalizado! Aguarde a retirada.', 'success');
             updateCartBadge();
             closeModal();
             renderProducts();
-            if (isAdmin()) {
-                toast('📦 Novo pedido recebido!','success');
+            if (isAdmin() || isBarbeiro()) {
+                toast('📦 Novo pedido recebido!', 'success');
                 renderAdminOrders();
             }
             updatePendingOrdersBadge();
@@ -1388,7 +2613,8 @@
         function renderMeusPedidos() {
             const user = getCurrentUser();
             if (!user || user.role !== 'cliente') {
-                document.getElementById('meusPedidosList').innerHTML = '<p class="text-muted">Faça login para ver seus pedidos.</p>';
+                document.getElementById('meusPedidosList').innerHTML =
+                '<p class="text-muted">Faça login para ver seus pedidos.</p>';
                 return;
             }
             const orders = getOrders().filter(o => o.cliente_id === user.id && o.status !== 'carrinho');
@@ -1397,17 +2623,18 @@
                 container.innerHTML = '<p class="text-muted">Você ainda não fez nenhum pedido.</p>';
                 return;
             }
-            // Marcar pedidos prontos como visualizados
             orders.forEach(o => {
                 if (o.status === 'pronto_retirada' && !o.cliente_visto) {
                     updateDocument('orders', o.id, { cliente_visto: true });
                 }
             });
-            container.innerHTML = orders.sort((a,b) => new Date(b.data_pedido) - new Date(a.data_pedido)).map(o => {
+            container.innerHTML = orders.sort((a, b) => new Date(b.data_pedido) - new Date(a.data_pedido)).map(o => {
                 const p = getProducts().find(prod => prod.id === o.produto_id);
                 const prodNome = p ? p.nome : 'Produto removido';
-                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
-                const statusLabel = o.status === 'pronto_retirada' ? '✅ Pronto para retirada' : o.status === 'entregue' ? '✅ Entregue' : '⏳ Aguardando retirada';
+                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ?
+                    'entregue' : 'aguardando');
+                const statusLabel = o.status === 'pronto_retirada' ? '✅ Pronto para retirada' : o.status === 'entregue' ?
+                    '✅ Entregue' : '⏳ Aguardando retirada';
                 return `<div class="pedido-item">
                     <div class="flex-between">
                         <div>
@@ -1427,7 +2654,8 @@
                 document.getElementById('pedidosBadge').style.display = 'none';
                 return;
             }
-            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o.cliente_visto);
+            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o
+            .cliente_visto);
             const count = orders.length;
             const badge = document.getElementById('pedidosBadge');
             if (count > 0) {
@@ -1468,17 +2696,17 @@
                 const newVouchers = (user.vouchers || 0) + 1;
                 await updateDocument('users', user.id, { estrelas: newEstrelas, vouchers: newVouchers });
                 setCurrentUser({ ...user, estrelas: newEstrelas, vouchers: newVouchers });
-                toast('🎉 Corte grátis resgatado!','success');
+                toast('🎉 Corte grátis resgatado!', 'success');
                 renderFidelidade();
                 updateStarsDisplay();
             } else if (user.vouchers > 0) {
                 const newVouchers = user.vouchers - 1;
                 await updateDocument('users', user.id, { vouchers: newVouchers });
                 setCurrentUser({ ...user, vouchers: newVouchers });
-                toast('🎉 Voucher utilizado!','success');
+                toast('🎉 Voucher utilizado!', 'success');
                 renderFidelidade();
             } else {
-                toast('Sem estrelas ou vouchers.','error');
+                toast('Sem estrelas ou vouchers.', 'error');
             }
         }
 
@@ -1492,7 +2720,7 @@
                 return;
             }
             container.innerHTML = history.map(s =>
-                `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
+                `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.03);">
                     <span><i class="fas fa-star text-gold"></i> +1 estrela</span>
                     <span class="text-muted">${formatDateTime(s.data_atribuicao)}</span>
                 </div>`
@@ -1513,7 +2741,8 @@
         function renderProfileHistory() {
             const user = getCurrentUser();
             if (!user) return;
-            const appts = getAppointments().filter(a => a.cliente_id === user.id).sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora));
+            const appts = getAppointments().filter(a => a.cliente_id === user.id).sort((a, b) => new Date(a.data_hora) - new Date(
+                b.data_hora));
             const container = document.getElementById('profileHistory');
             if (appts.length === 0) {
                 container.innerHTML = '<p class="text-muted" style="font-size:0.85rem;">Nenhum agendamento.</p>';
@@ -1524,7 +2753,7 @@
                 const canCancel = a.status === 'pendente' || a.status === 'confirmado';
                 const now = new Date();
                 const apptDate = new Date(a.data_hora);
-                const diff = (apptDate - now) / (1000*60*60);
+                const diff = (apptDate - now) / (1000 * 60 * 60);
                 const showCancel = canCancel && diff > 2;
                 return `<div class="history-item">
                     <div><div>${formatDateTime(a.data_hora)} - ${a.servico}</div>
@@ -1537,7 +2766,7 @@
         async function cancelAppointment(apptId) {
             if (!confirm('Cancelar este agendamento?')) return;
             await updateDocument('appointments', apptId, { status: 'cancelado' });
-            toast('Agendamento cancelado.','info');
+            toast('Agendamento cancelado.', 'info');
             renderPerfil();
             renderHome();
         }
@@ -1549,14 +2778,15 @@
             const telefone = document.getElementById('profileTelefone').value.trim();
             const email = document.getElementById('profileEmail').value.trim();
             const nascimento = document.getElementById('profileNascimento').value;
-            if (!nome || !telefone || !email) { toast('Preencha todos os campos.','error'); return; }
-            // Verificar se email/telefone já existem
+            if (!nome || !telefone || !email) { toast('Preencha todos os campos.', 'error'); return; }
             const users = getUsers();
-            if (users.find(u => u.email === email && u.id !== user.id)) { toast('E-mail já cadastrado por outro usuário.','error'); return; }
-            if (users.find(u => u.telefone === telefone && u.id !== user.id)) { toast('Telefone já cadastrado por outro usuário.','error'); return; }
+            if (users.find(u => u.email === email && u.id !== user.id)) { toast('E-mail já cadastrado por outro usuário.',
+                    'error'); return; }
+            if (users.find(u => u.telefone === telefone && u.id !== user.id)) { toast(
+                    'Telefone já cadastrado por outro usuário.', 'error'); return; }
             await updateDocument('users', user.id, { nome, telefone, email, data_nascimento: nascimento });
             setCurrentUser({ ...user, nome, telefone, email, data_nascimento: nascimento });
-            toast('✅ Perfil atualizado!','success');
+            toast('✅ Perfil atualizado!', 'success');
             renderPerfil();
         }
 
@@ -1567,7 +2797,8 @@
             const messages = getChatMessages().filter(m => m.userId === user.id);
             const container = document.getElementById('chatMessages');
             if (messages.length === 0) {
-                container.innerHTML = '<p class="text-muted" style="text-align:center;padding:20px;">Nenhuma mensagem. Envie uma mensagem para a barbearia!</p>';
+                container.innerHTML =
+                    '<p class="text-muted" style="text-align:center;padding:20px;">Nenhuma mensagem. Envie uma mensagem para a barbearia!</p>';
                 return;
             }
             container.innerHTML = messages.map(m => {
@@ -1594,6 +2825,10 @@
 
         // ----- ADMIN: DASHBOARD -----
         function renderAdminDashboard() {
+            if (!isAdmin() && !isBarbeiro()) return;
+            if (isBarbeiro()) {
+                return;
+            }
             const users = getUsers();
             const appts = getAppointments();
             const products = getProducts();
@@ -1603,7 +2838,8 @@
             const clientes = users.filter(u => u.role === 'cliente');
             const estoqueBaixo = products.filter(p => p.estoque <= 3);
             const mesAtual = new Date().getMonth();
-            const estrelasMes = starsHist.filter(s => { const d = new Date(s.data_atribuicao); return d.getMonth() === mesAtual; });
+            const estrelasMes = starsHist.filter(s => { const d = new Date(s.data_atribuicao); return d.getMonth() ===
+                    mesAtual; });
             document.getElementById('adminDashHoje').textContent = hojeAppts.length;
             document.getElementById('adminDashClientes').textContent = clientes.length;
             document.getElementById('adminDashEstoque').textContent = estoqueBaixo.length;
@@ -1612,11 +2848,12 @@
 
         // ----- ADMIN: AGENDAMENTOS -----
         function renderAdminAppointments() {
+            if (!isAdmin() && !isBarbeiro()) return;
             const appts = getAppointments();
             const users = getUsers();
             const container = document.getElementById('adminApptList');
             if (appts.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum agendamento.</p>'; return; }
-            container.innerHTML = appts.sort((a,b) => new Date(a.data_hora) - new Date(b.data_hora)).map(a => {
+            container.innerHTML = appts.sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora)).map(a => {
                 const user = users.find(u => u.id === a.cliente_id);
                 const nome = user ? user.nome : 'Desconhecido';
                 const statusClass = 'status-' + a.status;
@@ -1636,7 +2873,7 @@
 
         async function adminConfirmAppointment(apptId) {
             await updateDocument('appointments', apptId, { status: 'confirmado' });
-            toast('Agendamento confirmado!','success');
+            toast('Agendamento confirmado!', 'success');
             renderAdminAppointments();
         }
 
@@ -1644,17 +2881,18 @@
             const a = getAppointments().find(x => x.id === apptId);
             if (!a) return;
             const user = getUsers().find(u => u.id === a.cliente_id);
-            if (!user) { toast('Cliente não encontrado.','error'); return; }
+            if (!user) { toast('Cliente não encontrado.', 'error'); return; }
             if (confirm(`Dar 1 estrela para ${user.nome}?`)) {
                 const novasEstrelas = (user.estrelas || 0) + 1;
                 let newVouchers = user.vouchers || 0;
                 if (novasEstrelas >= STAR_GOAL) {
                     newVouchers += 1;
-                    toast('🎉 Cliente atingiu 10 estrelas! Voucher gerado!','success');
+                    toast('🎉 Cliente atingiu 10 estrelas! Voucher gerado!', 'success');
                 }
                 await updateDocument('users', user.id, { estrelas: novasEstrelas, vouchers: newVouchers });
-                await addDocument('starsHistory', { cliente_id: user.id, appointment_id: a.id, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
-                toast(`⭐ +1 estrela para ${user.nome}!`,'success');
+                await addDocument('starsHistory', { cliente_id: user.id, appointment_id: a.id,
+                    data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
+                toast(`⭐ +1 estrela para ${user.nome}!`, 'success');
             }
             await updateDocument('appointments', apptId, { status: 'realizado' });
             renderAdminAppointments();
@@ -1664,19 +2902,20 @@
         async function adminCancelAppointment(apptId) {
             if (!confirm('Cancelar este agendamento?')) return;
             await updateDocument('appointments', apptId, { status: 'cancelado' });
-            toast('Cancelado.','info');
+            toast('Cancelado.', 'info');
             renderAdminAppointments();
         }
 
         async function adminMarkNoShow(apptId) {
             if (!confirm('Marcar como falta?')) return;
             await updateDocument('appointments', apptId, { status: 'falta' });
-            toast('Marcado como falta.','info');
+            toast('Marcado como falta.', 'info');
             renderAdminAppointments();
         }
 
         // ----- ADMIN: FIDELIDADE -----
         function renderFidelitySearch() {
+            if (!isAdmin()) return;
             const query = document.getElementById('fidelitySearch').value.trim().toLowerCase();
             const users = getUsers().filter(u => u.role === 'cliente');
             let filtered = users;
@@ -1697,37 +2936,42 @@
         }
 
         async function adminAddStar(userId) {
+            if (!isAdmin()) return;
             const u = getUsers().find(x => x.id === userId);
             if (!u) return;
-            if (u.estrelas >= STAR_GOAL) { toast('Cliente já tem 10 estrelas!','error'); return; }
+            if (u.estrelas >= STAR_GOAL) { toast('Cliente já tem 10 estrelas!', 'error'); return; }
             const novasEstrelas = (u.estrelas || 0) + 1;
             let newVouchers = u.vouchers || 0;
-            if (novasEstrelas >= STAR_GOAL) { newVouchers += 1; toast('🎉 10 estrelas! Voucher gerado!','success'); }
+            if (novasEstrelas >= STAR_GOAL) { newVouchers += 1;
+                toast('🎉 10 estrelas! Voucher gerado!', 'success'); }
             await updateDocument('users', userId, { estrelas: novasEstrelas, vouchers: newVouchers });
-            await addDocument('starsHistory', { cliente_id: userId, appointment_id: null, data_atribuicao: nowISO(), admin_id: getCurrentUser().id });
-            toast('⭐ Estrela adicionada!','success');
+            await addDocument('starsHistory', { cliente_id: userId, appointment_id: null, data_atribuicao: nowISO(),
+                admin_id: getCurrentUser().id });
+            toast('⭐ Estrela adicionada!', 'success');
             renderFidelitySearch();
             renderAdminDashboard();
         }
 
         async function adminRedeemVoucher(userId) {
+            if (!isAdmin()) return;
             const u = getUsers().find(x => x.id === userId);
             if (!u) return;
             if (u.estrelas >= STAR_GOAL) {
                 const novasEstrelas = u.estrelas - STAR_GOAL;
                 const newVouchers = (u.vouchers || 0) + 1;
                 await updateDocument('users', userId, { estrelas: novasEstrelas, vouchers: newVouchers });
-                toast('Voucher resgatado!','success');
+                toast('Voucher resgatado!', 'success');
             } else if (u.vouchers > 0) {
                 const newVouchers = u.vouchers - 1;
                 await updateDocument('users', userId, { vouchers: newVouchers });
-                toast('Voucher utilizado!','success');
-            } else { toast('Cliente não tem estrelas ou vouchers.','error'); }
+                toast('Voucher utilizado!', 'success');
+            } else { toast('Cliente não tem estrelas ou vouchers.', 'error'); }
             renderFidelitySearch();
         }
 
         // ----- ADMIN: PRODUTOS -----
         function renderAdminProducts() {
+            if (!isAdmin()) return;
             const products = getProducts();
             const container = document.getElementById('adminProductList');
             if (products.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum produto cadastrado.</p>'; return; }
@@ -1748,6 +2992,7 @@
         let pendingImageBase64 = null;
 
         function showProductForm(productId) {
+            if (!isAdmin()) return;
             const p = productId ? getProducts().find(prod => prod.id === productId) : null;
             const isEdit = !!p;
             const currentImage = p ? p.imagem_url : '';
@@ -1766,7 +3011,8 @@
                 <button class="btn btn-gold btn-block" onclick="saveProductForm('${productId || ''}')"><i class="fas fa-save"></i> Salvar</button>
             `;
             openModal(isEdit ? '✏️ Editar Produto' : '➕ Novo Produto', html);
-            if (currentImage) { const preview = document.getElementById('pfImagePreview'); if (preview) preview.style.display = 'block'; }
+            if (currentImage) { const preview = document.getElementById('pfImagePreview'); if (preview) preview.style
+                    .display = 'block'; }
         }
 
         function previewProductImage(event) {
@@ -1777,29 +3023,33 @@
                 const base64 = e.target.result;
                 pendingImageBase64 = base64;
                 const preview = document.getElementById('pfImagePreview');
-                if (preview) { preview.src = base64; preview.style.display = 'block'; }
-                toast('📸 Imagem carregada!','success');
+                if (preview) { preview.src = base64;
+                    preview.style.display = 'block'; }
+                toast('📸 Imagem carregada!', 'success');
             };
             reader.readAsDataURL(file);
         }
 
         async function saveProductForm(productId) {
+            if (!isAdmin()) return;
             const nome = document.getElementById('pfNome').value.trim();
             const desc = document.getElementById('pfDesc').value.trim();
             const preco = parseFloat(document.getElementById('pfPreco').value);
             const estoque = parseInt(document.getElementById('pfEstoque').value);
             const em_promocao = document.getElementById('pfPromo').checked;
             const preco_promocional = parseFloat(document.getElementById('pfPrecoPromo').value) || 0;
-            if (!nome || isNaN(preco) || isNaN(estoque)) { toast('Preencha todos os campos corretamente.','error'); return; }
+            if (!nome || isNaN(preco) || isNaN(estoque)) { toast('Preencha todos os campos corretamente.', 'error'); return; }
             const imagem_url = pendingImageBase64 || 'https://picsum.photos/seed/' + uid() + '/200/200';
             if (!productId) {
-                if (getProducts().length >= MAX_PRODUCTS) { toast(`Limite de ${MAX_PRODUCTS} produtos.`,'error'); return; }
-                const newProduct = { nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 };
+                if (getProducts().length >= MAX_PRODUCTS) { toast(`Limite de ${MAX_PRODUCTS} produtos.`, 'error'); return; }
+                const newProduct = { nome, descricao: desc, preco, estoque, imagem_url, em_promocao,
+                    preco_promocional: em_promocao ? preco_promocional : 0 };
                 await addDocument('products', newProduct);
-                toast('✅ Produto criado!','success');
+                toast('✅ Produto criado!', 'success');
             } else {
-                await updateDocument('products', productId, { nome, descricao: desc, preco, estoque, imagem_url, em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 });
-                toast('✅ Produto atualizado!','success');
+                await updateDocument('products', productId, { nome, descricao: desc, preco, estoque, imagem_url,
+                    em_promocao, preco_promocional: em_promocao ? preco_promocional : 0 });
+                toast('✅ Produto atualizado!', 'success');
             }
             pendingImageBase64 = null;
             closeModal();
@@ -1811,50 +3061,72 @@
         function editProduct(productId) { showProductForm(productId); }
 
         async function deleteProduct(productId) {
+            if (!isAdmin()) return;
             if (!confirm('Excluir este produto permanentemente?')) return;
             await deleteDocument('products', productId);
-            toast('Produto excluído.','info');
+            toast('Produto excluído.', 'info');
             renderAdminProducts();
             renderProducts();
             renderSlideshow();
         }
 
-        // ----- ADMIN: USUÁRIOS -----
+        // ----- ADMIN: USUÁRIOS (SUPERVISOR) -----
         function renderUserList() {
+            if (!podeGerenciarUsuarios()) return;
             const users = getUsers();
             const container = document.getElementById('userList');
             if (users.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum usuário cadastrado.</p>'; return; }
-            const canBlock = isSupervisor();
             container.innerHTML = users.map(u => {
-                const roleLabel = u.role === 'admin' ? '👑 Admin' : u.role === 'supervisor' ? '⭐ Supervisor' : '👤 Cliente';
+                const roleLabel = u.role === 'admin' ? '👑 Admin' : u.role === 'supervisor' ? '⭐ Supervisor' : u
+                .role === 'barbeiro' ? '✂️ Barbeiro' : '👤 Cliente';
                 const blocked = u.bloqueado || false;
-                const blockBtn = canBlock ?
+                const roleSelect = podeGerenciarUsuarios() && u.id !== getCurrentUser().id ?
+                    `<select onchange="alterarRole('${u.id}', this.value)" style="background:rgba(255,255,255,0.03);color:#fff;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:2px 6px;font-size:0.7rem;">
+                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        <option value="supervisor" ${u.role === 'supervisor' ? 'selected' : ''}>Supervisor</option>
+                        <option value="barbeiro" ${u.role === 'barbeiro' ? 'selected' : ''}>Barbeiro</option>
+                        <option value="cliente" ${u.role === 'cliente' ? 'selected' : ''}>Cliente</option>
+                    </select>` :
+                    `<span style="font-size:0.7rem;color:var(--text-secondary);">${u.role}</span>`;
+                const blockBtn = podeGerenciarUsuarios() && u.id !== getCurrentUser().id ?
                     `<button class="btn ${blocked ? 'btn-gold' : 'btn-red'} btn-sm" onclick="toggleBlockUser('${u.id}')">${blocked ? '<i class="fas fa-unlock"></i>' : '<i class="fas fa-lock"></i>'}</button>` :
                     '';
                 return `<div class="client-item">
-                    <div><span class="name">${u.nome}</span><span class="text-muted" style="font-size:0.7rem;margin-left:8px;">${roleLabel}</span>${blocked ? ' <span class="blocked-badge">BLOQUEADO</span>' : ''}</div>
+                    <div><span class="name">${u.nome}</span> ${roleSelect} ${blocked ? ' <span class="blocked-badge">BLOQUEADO</span>' : ''}</div>
                     <div style="display:flex;gap:6px;">${blockBtn}</div>
                 </div>`;
             }).join('');
         }
 
+        async function alterarRole(userId, newRole) {
+            if (!podeGerenciarUsuarios()) return;
+            await updateDocument('users', userId, { role: newRole });
+            toast(`Role alterada para ${newRole}.`, 'success');
+            renderUserList();
+            if (getCurrentUser().id === userId) {
+                const updatedUser = getUsers().find(u => u.id === userId);
+                if (updatedUser) setCurrentUser(updatedUser);
+            }
+        }
+
         async function toggleBlockUser(userId) {
-            if (!isSupervisor()) { toast('Apenas o supervisor pode bloquear usuários.','error'); return; }
+            if (!podeGerenciarUsuarios()) return;
             const user = getUsers().find(u => u.id === userId);
             if (!user) return;
-            if (getCurrentUser().id === userId) { toast('Você não pode bloquear a si mesmo.','error'); return; }
+            if (getCurrentUser().id === userId) { toast('Você não pode bloquear a si mesmo.', 'error'); return; }
             const novoStatus = !user.bloqueado;
             await updateDocument('users', userId, { bloqueado: novoStatus });
-            toast(`Usuário ${novoStatus ? 'bloqueado' : 'desbloqueado'} com sucesso.`,'success');
+            toast(`Usuário ${novoStatus ? 'bloqueado' : 'desbloqueado'} com sucesso.`, 'success');
             renderUserList();
             if (novoStatus && getCurrentUser().id === userId) logout();
         }
 
         // ----- ADMIN: CONFIG -----
         function renderConfig() {
+            if (!isAdmin()) return;
             const config = getConfig();
             const container = document.getElementById('configDays');
-            const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+            const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             container.innerHTML = config.map((c, idx) =>
                 `<label class="${c.ativo ? 'active' : ''}" onclick="toggleDay('${c.id}')">
                     <input type="checkbox" ${c.ativo ? 'checked' : ''} />
@@ -1872,6 +3144,7 @@
         }
 
         async function toggleDay(docId) {
+            if (!isAdmin()) return;
             const config = getConfig();
             const item = config.find(c => c.id === docId);
             if (!item) return;
@@ -1880,30 +3153,32 @@
         }
 
         async function saveConfig() {
+            if (!isAdmin()) return;
             const open = document.getElementById('configOpen').value;
             const close = document.getElementById('configClose').value;
             const duration = parseInt(document.getElementById('configDuration').value);
             const blocksRaw = document.getElementById('configBlocks').value;
             const blocks = blocksRaw.split(',').map(s => s.trim()).filter(s => s.length > 0);
-            // Atualizar todos os documentos de config (ou apenas um, mas vamos simplificar)
             const configs = getConfig();
             for (const c of configs) {
-                await updateDocument('config', c.id, { hora_inicio: open, hora_fim: close, duracao: duration, bloqueios: blocks });
+                await updateDocument('config', c.id, { hora_inicio: open, hora_fim: close, duracao: duration,
+                    bloqueios: blocks });
             }
-            toast('✅ Configurações salvas!','success');
+            toast('✅ Configurações salvas!', 'success');
             renderConfig();
         }
 
         // ----- ADMIN: LOG DE ESTRELAS -----
         function renderStarsLog() {
+            if (!isAdmin()) return;
             const hist = getStarsHistory();
             const users = getUsers();
             const container = document.getElementById('starsLogList');
             if (hist.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum registro.</p>'; return; }
-            container.innerHTML = hist.sort((a,b) => new Date(b.data_atribuicao) - new Date(a.data_atribuicao)).map(s => {
+            container.innerHTML = hist.sort((a, b) => new Date(b.data_atribuicao) - new Date(a.data_atribuicao)).map(s => {
                 const user = users.find(u => u.id === s.cliente_id);
                 const nome = user ? user.nome : 'Desconhecido';
-                return `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid #222;">
+                return `<div class="flex-between" style="padding:4px 0;font-size:0.85rem;border-bottom:1px solid rgba(255,255,255,0.03);">
                     <span><i class="fas fa-star text-gold"></i> ${nome} +1</span>
                     <span class="text-muted">${formatDateTime(s.data_atribuicao)} ${s.appointment_id ? '(corte)' : '(manual)'}</span>
                 </div>`;
@@ -1924,19 +3199,22 @@
                 if (pendingStoryMedia.type === 'image') {
                     preview.innerHTML = `<img src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" />`;
                 } else {
-                    preview.innerHTML = `<video src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" controls></video>`;
+                    preview.innerHTML =
+                        `<video src="${base64}" style="max-width:100%;max-height:200px;border-radius:8px;" controls></video>`;
                 }
             };
             reader.readAsDataURL(file);
         }
 
         async function postStory() {
-            if (!pendingStoryMedia) { toast('Selecione uma mídia primeiro.','error'); return; }
+            if (!pendingStoryMedia) { toast('Selecione uma mídia primeiro.', 'error'); return; }
             const user = getCurrentUser();
-            if (!user) { toast('Faça login.','error'); return; }
-            const story = { userId: user.id, media: pendingStoryMedia.data, tipo: pendingStoryMedia.type, timestamp: nowISO() };
+            if (!user) { toast('Faça login.', 'error'); return; }
+            if (!isAdmin() && !isBarbeiro()) { toast('Permissão negada.', 'error'); return; }
+            const story = { userId: user.id, media: pendingStoryMedia.data, tipo: pendingStoryMedia.type,
+                timestamp: nowISO() };
             await addDocument('stories', story);
-            toast('✅ Story publicado!','success');
+            toast('✅ Story publicado!', 'success');
             pendingStoryMedia = null;
             document.getElementById('storyMediaInput').value = '';
             document.getElementById('storyMediaPreview').innerHTML = '';
@@ -1945,27 +3223,30 @@
         }
 
         function renderAdminStories() {
+            if (!isAdmin() && !isBarbeiro()) return;
             const stories = getStories();
             const now = new Date();
-            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000 * 60 * 60) < STORY_EXPIRY_HOURS);
             const container = document.getElementById('adminStoryList');
             if (active.length === 0) { container.innerHTML = '<p class="text-muted">Nenhum story ativo.</p>'; return; }
             container.innerHTML = active.map(s => {
                 const user = getUsers().find(u => u.id === s.userId);
                 const nome = user ? user.nome : 'Desconhecido';
-                const mediaHtml = s.tipo === 'image' ? `<img src="${s.media}" class="story-preview" />` : `<video src="${s.media}" class="story-preview" muted></video>`;
-                return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #282828;">
+                const mediaHtml = s.tipo === 'image' ? `<img src="${s.media}" class="story-preview" />` :
+                    `<video src="${s.media}" class="story-preview" muted></video>`;
+                return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.03);">
                     ${mediaHtml}
                     <div style="flex:1;"><strong>${nome}</strong><br><span class="text-muted" style="font-size:0.7rem;">${formatDateTime(s.timestamp)}</span></div>
-                    <button class="btn btn-red btn-sm" onclick="deleteStory('${s.id}')"><i class="fas fa-trash"></i></button>
+                    ${isAdmin() ? `<button class="btn btn-red btn-sm" onclick="deleteStory('${s.id}')"><i class="fas fa-trash"></i></button>` : ''}
                 </div>`;
             }).join('');
         }
 
         async function deleteStory(storyId) {
+            if (!isAdmin()) return;
             if (!confirm('Excluir este story?')) return;
             await deleteDocument('stories', storyId);
-            toast('Story excluído.','info');
+            toast('Story excluído.', 'info');
             renderAdminStories();
             renderStories();
         }
@@ -1975,10 +3256,11 @@
             const container = document.getElementById('storiesContainer');
             const stories = getStories();
             const now = new Date();
-            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000 * 60 * 60) < STORY_EXPIRY_HOURS);
             if (active.length === 0) { container.innerHTML = ''; return; }
             const groups = {};
-            active.forEach(s => { if (!groups[s.userId]) groups[s.userId] = []; groups[s.userId].push(s); });
+            active.forEach(s => { if (!groups[s.userId]) groups[s.userId] = [];
+                groups[s.userId].push(s); });
             let html = '';
             Object.keys(groups).forEach(userId => {
                 const user = getUsers().find(u => u.id === userId);
@@ -1997,13 +3279,15 @@
             container.innerHTML = html;
         }
 
-        let currentStoryUser = null, currentStoryIndex = 0, storyViewerTimer = null;
+        let currentStoryUser = null,
+            currentStoryIndex = 0,
+            storyViewerTimer = null;
 
         function openStoryViewer(userId) {
             const stories = getStories().filter(s => s.userId === userId);
             const now = new Date();
-            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
-            if (active.length === 0) { toast('Nenhum story disponível.','info'); return; }
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000 * 60 * 60) < STORY_EXPIRY_HOURS);
+            if (active.length === 0) { toast('Nenhum story disponível.', 'info'); return; }
             currentStoryUser = userId;
             currentStoryIndex = 0;
             document.getElementById('storyViewer').classList.add('open');
@@ -2048,7 +3332,7 @@
         function navigateStory(direction) {
             const stories = getStories().filter(s => s.userId === currentStoryUser);
             const now = new Date();
-            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000*60*60) < STORY_EXPIRY_HOURS);
+            const active = stories.filter(s => (now - new Date(s.timestamp)) / (1000 * 60 * 60) < STORY_EXPIRY_HOURS);
             if (active.length === 0) return;
             clearInterval(storyViewerTimer);
             const newIndex = currentStoryIndex + direction;
@@ -2076,7 +3360,7 @@
             }
             container.innerHTML = users.map(c => {
                 const userMsgs = msgs.filter(m => m.userId === c.id);
-                const lastMsg = userMsgs.length > 0 ? userMsgs[userMsgs.length-1] : null;
+                const lastMsg = userMsgs.length > 0 ? userMsgs[userMsgs.length - 1] : null;
                 const unread = userMsgs.filter(m => !m.read && m.sender === 'cliente').length;
                 return `<div class="client-item" onclick="openAdminChat('${c.id}')" style="cursor:pointer;">
                     <div>
@@ -2092,10 +3376,10 @@
         }
 
         function openAdminChat(userId) {
+            if (!isAdmin()) return;
             const user = getUsers().find(u => u.id === userId);
             if (!user) return;
             const msgs = getChatMessages().filter(m => m.userId === userId);
-            // Marcar mensagens como lidas
             msgs.filter(m => !m.read && m.sender === 'cliente').forEach(m => {
                 updateDocument('chatMessages', m.id, { read: true });
             });
@@ -2125,6 +3409,7 @@
         }
 
         async function sendAdminChatMessage(userId) {
+            if (!isAdmin()) return;
             const input = document.getElementById('adminChatInput');
             const text = input.value.trim();
             if (!text) return;
@@ -2132,7 +3417,6 @@
             const msg = { userId, text, timestamp: nowISO(), sender: admin.role, read: true };
             await addDocument('chatMessages', msg);
             input.value = '';
-            // Atualizar visualização
             const container = document.getElementById('adminChatMessages');
             if (container) {
                 const div = document.createElement('div');
@@ -2146,7 +3430,7 @@
 
         // ----- ADMIN: PEDIDOS -----
         function renderAdminOrders() {
-            if (!isAdmin()) return;
+            if (!isAdmin() && !isBarbeiro()) return;
             const orders = getOrders().filter(o => o.status !== 'carrinho');
             const container = document.getElementById('adminOrderList');
             if (orders.length === 0) {
@@ -2158,8 +3442,10 @@
                 const nome = user ? user.nome : 'Desconhecido';
                 const p = getProducts().find(prod => prod.id === o.produto_id);
                 const prodNome = p ? p.nome : 'Produto removido';
-                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ? 'entregue' : 'aguardando');
-                const statusLabel = o.status === 'pronto_retirada' ? 'Pronto para retirada' : o.status === 'entregue' ? 'Entregue' : 'Aguardando retirada';
+                const statusClass = 'status-' + (o.status === 'pronto_retirada' ? 'pronto' : o.status === 'entregue' ?
+                    'entregue' : 'aguardando');
+                const statusLabel = o.status === 'pronto_retirada' ? 'Pronto para retirada' : o.status === 'entregue' ?
+                    'Entregue' : 'Aguardando retirada';
                 return `<div class="order-item">
                     <div class="flex-between">
                         <div>
@@ -2193,27 +3479,27 @@
         }
 
         async function updateOrderStatus(orderId, newStatus) {
+            if (!isAdmin() && !isBarbeiro()) return;
             const order = getOrders().find(o => o.id === orderId);
             if (!order) return;
             const oldStatus = order.status;
             await updateDocument('orders', orderId, { status: newStatus });
-            // Se o status mudou para pronto_retirada, notificar cliente via toast (será capturado pelo polling)
             if (newStatus === 'pronto_retirada' && oldStatus !== 'pronto_retirada') {
-                // Marcar como não visualizado
                 await updateDocument('orders', orderId, { cliente_visto: false });
-                // Notificar cliente se estiver logado
                 if (getCurrentUser() && getCurrentUser().id === order.cliente_id) {
                     toast('📦 Seu pedido está pronto para retirada!', 'success');
                 }
             }
-            toast(`Status atualizado para ${newStatus === 'pronto_retirada' ? 'Pronto para retirada' : 'Entregue'}.`,'success');
+            toast(`Status atualizado para ${newStatus === 'pronto_retirada' ? 'Pronto para retirada' : 'Entregue'}.`,
+                'success');
             renderAdminOrders();
             updatePendingOrdersBadge();
             updatePedidosBadge();
         }
 
         // ----- SLIDESHOW -----
-        let slideIndex = 0, slideTimer = null;
+        let slideIndex = 0,
+            slideTimer = null;
 
         function renderSlideshow() {
             const container = document.getElementById('slideshowContainer');
@@ -2286,7 +3572,7 @@
                     const given = { ...(user.birthday_star_given || {}), [yearKey]: true };
                     await updateDocument('users', user.id, { estrelas: novasEstrelas, birthday_star_given: given });
                     setCurrentUser({ ...user, estrelas: novasEstrelas, birthday_star_given: given });
-                    toast('🎂 Feliz Aniversário! Você ganhou 1 estrela extra! ⭐','success');
+                    toast('🎂 Feliz Aniversário! Você ganhou 1 estrela extra! ⭐', 'success');
                     updateStarsDisplay();
                     renderFidelidade();
                 }
@@ -2299,14 +3585,14 @@
         function verificarPedidosProntos() {
             const user = getCurrentUser();
             if (!user || user.role !== 'cliente') return;
-            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o.cliente_visto);
+            const orders = getOrders().filter(o => o.cliente_id === user.id && o.status === 'pronto_retirada' && !o
+            .cliente_visto);
             orders.forEach(o => {
                 if (!ultimoStatusPedidos[o.id]) {
                     toast('📦 Seu pedido está pronto para retirada!', 'success');
                     ultimoStatusPedidos[o.id] = true;
                 }
             });
-            // Limpar IDs que não estão mais prontos
             const idsProntos = orders.map(o => o.id);
             Object.keys(ultimoStatusPedidos).forEach(id => {
                 if (!idsProntos.includes(id)) delete ultimoStatusPedidos[id];
@@ -2318,16 +3604,12 @@
         //  INICIALIZAÇÃO
         // ================================================================
         async function init() {
-            // Inicializar Firebase listeners
             initFirebaseListeners();
-
-            // Popular dados iniciais se necessário
             await seedInitialData();
 
-            // Verificar usuário logado (via cache)
             const user = getCurrentUser();
             if (user) {
-                if (user.role === 'admin' || user.role === 'supervisor') {
+                if (user.role === 'admin' || user.role === 'supervisor' || user.role === 'barbeiro') {
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appWrapper').classList.add('visible');
                     showAdminPanel();
@@ -2336,7 +3618,6 @@
                     document.getElementById('appWrapper').classList.add('visible');
                     navigateTo('home');
                     checkBirthdayBonus();
-                    // Iniciar polling para pedidos prontos
                     setInterval(verificarPedidosProntos, 10000);
                 }
             } else {
@@ -2380,6 +3661,7 @@
         window.renderFidelitySearch = renderFidelitySearch;
         window.renderUserList = renderUserList;
         window.toggleBlockUser = toggleBlockUser;
+        window.alterarRole = alterarRole;
         window.closeModal = closeModal;
         window.updateAvailableTimes = updateAvailableTimes;
         window.changeSlide = changeSlide;
