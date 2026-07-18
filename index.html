@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scanner Automático de Cartas</title>
+    <title>Scanner de Cartas - Busca Automática</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
     </script>
     <style>
@@ -362,8 +362,8 @@
 <body>
     <div id="app">
         <h1>
-            🤖 Scanner Automático
-            <small>OCR → Busca → Adiciona</small>
+            🃏 Scanner + Busca Automática
+            <small>OCR → Nome → Preço</small>
         </h1>
 
         <!-- CÂMERA E OCR -->
@@ -373,7 +373,7 @@
             </div>
             <div class="camera-controls">
                 <button id="startCameraBtn" class="primary">📸 Abrir Câmera</button>
-                <button id="scanBtn" class="primary" disabled>⚡ Escanear e Adicionar</button>
+                <button id="scanBtn" class="primary" disabled>🔍 Escanear e Adicionar</button>
                 <button id="stopCameraBtn" class="danger" disabled>⏹️ Fechar</button>
             </div>
             <div id="ocrStatus">Aguardando ação...</div>
@@ -491,6 +491,45 @@
                 ocrStatus.textContent = '⏸️ Câmera fechada.';
             }
 
+            // ========== EXTRAÇÃO DE NOME (ignorando números/preços) ==========
+            function extractCardName(ocrText) {
+                const lines = ocrText.split('\n')
+                    .map(l => l.trim())
+                    .filter(l => l.length > 0);
+
+                // Filtra linhas que contêm apenas números, símbolos monetários ou pontuação
+                const isNumberOrPrice = (line) => {
+                    // Remove espaços e verifica se é basicamente números, vírgulas, pontos, R$, $, etc.
+                    const clean = line.replace(/[\s,.]/g, '');
+                    if (/^[\d]+$/.test(clean)) return true; // só números
+                    if (/^R?\$?[\d]+$/.test(clean)) return true; // preço sem centavos
+                    // Se tiver mais números que letras, considera como preço
+                    const digits = (line.match(/\d/g) || []).length;
+                    const letters = (line.match(/[a-zA-Z]/g) || []).length;
+                    if (digits > letters && digits > 3) return true;
+                    return false;
+                };
+
+                // Pega a primeira linha que não seja número/preço e tenha pelo menos 3 letras
+                for (const line of lines) {
+                    if (isNumberOrPrice(line)) continue;
+                    // Deve ter pelo menos 2 caracteres alfabéticos
+                    const letterCount = (line.match(/[a-zA-Z]/g) || []).length;
+                    if (letterCount >= 2) {
+                        return line;
+                    }
+                }
+
+                // Fallback: primeira linha que não seja vazia
+                for (const line of lines) {
+                    if (!isNumberOrPrice(line) && line.length > 1) {
+                        return line;
+                    }
+                }
+
+                return null;
+            }
+
             // ========== OCR + BUSCA + ADIÇÃO AUTOMÁTICA ==========
             async function scanAndAdd() {
                 if (!isCameraReady || !stream) {
@@ -527,7 +566,7 @@
                     });
                     recognizedText = result.data.text;
                     ocrText.textContent = recognizedText || '(nenhum texto encontrado)';
-                    ocrStatus.textContent = '✅ OCR concluído. Buscando informações...';
+                    ocrStatus.textContent = '✅ OCR concluído. Extraindo nome...';
                 } catch (err) {
                     console.error(err);
                     ocrStatus.textContent = '❌ Erro no OCR: ' + err.message;
@@ -535,17 +574,10 @@
                     return;
                 }
 
-                // 3. Extrair nome do texto
-                const lines = recognizedText.split('\n').map(l => l.trim()).filter(l => l.length > 2);
-                let extractedName = '';
-                if (lines.length > 0) {
-                    // Pega a primeira linha que não pareça ser só números/preço
-                    const nameCandidate = lines.find(l => !l.match(/^[\d,.\s]+$/));
-                    extractedName = nameCandidate || lines[0];
-                }
-
+                // 3. Extrair nome (ignorando números/preços)
+                const extractedName = extractCardName(recognizedText);
                 if (!extractedName) {
-                    ocrStatus.textContent = '⚠️ Nenhum nome identificado. Tente novamente ou adicione manualmente.';
+                    ocrStatus.textContent = '⚠️ Nenhum nome válido identificado. Tente novamente ou adicione manualmente.';
                     scanBtn.disabled = false;
                     return;
                 }
@@ -554,7 +586,7 @@
                 cardName.value = extractedName;
 
                 // 4. Buscar preço na Scryfall
-                searchStatus.textContent = '⏳ Buscando "' + extractedName + '" na Scryfall...';
+                searchStatus.textContent = `⏳ Buscando "${extractedName}" na Scryfall...`;
                 const result = await searchCardPrice(extractedName);
 
                 let priceBRL = 0;
@@ -563,30 +595,26 @@
                 if (result && result.priceBRL !== null) {
                     priceBRL = result.priceBRL;
                     officialName = result.name || extractedName;
-                    // Atualiza campos
                     cardName.value = officialName;
                     cardPrice.value = priceBRL.toFixed(2);
                     searchStatus.textContent = `✅ Encontrado: ${officialName} - R$ ${priceBRL.toFixed(2)}`;
                 } else if (result && result.priceBRL === null) {
-                    // Carta encontrada mas sem preço
                     officialName = result.name || extractedName;
                     cardName.value = officialName;
                     cardPrice.value = '';
                     searchStatus.textContent = `⚠️ Carta "${officialName}" encontrada, mas sem preço disponível.`;
                     priceBRL = 0;
                 } else {
-                    // Não encontrada
                     searchStatus.textContent = `❌ Não foi possível encontrar "${extractedName}". Adicionando sem preço.`;
                     priceBRL = 0;
                 }
 
-                // 5. Adicionar à lista (quantidade = 1, mas respeita o valor do campo qty)
+                // 5. Adicionar à lista
                 const qty = parseInt(cardQty.value) || 1;
                 addCardToList(officialName, qty, priceBRL);
 
-                // 6. Limpa campos para próxima (mantém nome e preço, mas zera quantidade)
+                // 6. Limpar campos para próxima (mantém nome e preço, zera quantidade)
                 cardQty.value = 1;
-                // Opcional: manter nome e preço para referência
                 ocrStatus.textContent = '✅ Carta adicionada! Pronto para escanear outra.';
                 scanBtn.disabled = false;
             }
@@ -749,7 +777,7 @@
             // ========== INICIALIZAÇÃO ==========
             renderList();
             ocrStatus.textContent = '📸 Abra a câmera e escaneie cartas automaticamente.';
-            searchStatus.textContent = 'Ao escanear, a busca será feita automaticamente.';
+            searchStatus.textContent = 'O sistema extrai apenas o nome e busca o preço online.';
 
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 startBtn.disabled = true;
