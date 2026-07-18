@@ -1,661 +1,730 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scanner MTG - Busca por Nome</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📇 MTG Scanner – Câmera Principal</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
+  </script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+    .container {
+      max-width: 700px;
+      width: 100%;
+      background: #161b22;
+      border-radius: 24px;
+      padding: 24px;
+      border: 1px solid #30363d;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h1 small {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #8b949e;
+    }
+    .sub {
+      color: #8b949e;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+      border-left: 3px solid #f0883e;
+      padding-left: 14px;
+    }
 
-    <!-- CDN do Tesseract.js para OCR (opcional, para ler o nome) -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
-    </script>
+    /* Câmera (principal) */
+    .camera-wrapper {
+      background: #0d1117;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid #30363d;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      background: #000;
+    }
+    .camera-overlay {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      color: #f0e6d0;
+      border: 1px solid #f0883e66;
+      pointer-events: none;
+      white-space: nowrap;
+    }
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background: #0d1117;
-            color: #e6edf3;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .container {
-            max-width: 700px;
-            width: 100%;
-            background: #161b22;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
-            border: 1px solid #30363d;
-        }
-        h1 {
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        h1 small {
-            font-size: 0.8rem;
-            font-weight: 400;
-            color: #8b949e;
-        }
-        .sub {
-            color: #8b949e;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            border-left: 3px solid #f0883e;
-            padding-left: 12px;
-        }
-        .video-wrapper {
-            position: relative;
-            background: #0d1117;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid #30363d;
-            margin-bottom: 16px;
-        }
-        video {
-            display: block;
-            width: 100%;
-            aspect-ratio: 4 / 3;
-            object-fit: cover;
-            background: #0d1117;
-        }
-        .frame-hint {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(6px);
-            padding: 4px 16px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            color: #f0e6d0;
-            border: 1px solid #f0883e66;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        .controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-        .controls button,
-        .controls label {
-            background: #21262d;
-            border: 1px solid #30363d;
-            color: #e6edf3;
-            padding: 10px 18px;
-            border-radius: 40px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .controls button:hover {
-            background: #30363d;
-            border-color: #58a6ff;
-        }
-        .controls button.primary {
-            background: #f0883e;
-            border-color: #f0883e;
-            color: #0d1117;
-        }
-        .controls button.primary:hover {
-            background: #d97a2e;
-            border-color: #d97a2e;
-        }
-        .controls button:disabled {
-            opacity: 0.4;
-            pointer-events: none;
-        }
-        #fileInput {
-            display: none;
-        }
+    .camera-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 16px;
+      justify-content: center;
+    }
+    .camera-controls button,
+    .camera-controls label {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .camera-controls button:hover {
+      background: #30363d;
+      border-color: #58a6ff;
+    }
+    .camera-controls button.primary {
+      background: #f0883e;
+      border-color: #f0883e;
+      color: #0d1117;
+    }
+    .camera-controls button.primary:hover {
+      background: #d97a2e;
+    }
+    .camera-controls button:disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    #fileInput {
+      display: none;
+    }
 
-        /* Área de busca manual */
-        .search-area {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-            flex-wrap: wrap;
-        }
-        .search-area input {
-            flex: 1;
-            min-width: 150px;
-            background: #0d1117;
-            border: 1px solid #30363d;
-            border-radius: 40px;
-            padding: 10px 20px;
-            color: #e6edf3;
-            font-size: 0.95rem;
-            outline: none;
-            transition: 0.2s;
-        }
-        .search-area input:focus {
-            border-color: #f0883e;
-            box-shadow: 0 0 0 3px #f0883e33;
-        }
-        .search-area input::placeholder {
-            color: #484f58;
-        }
-        .search-area button {
-            background: #238636;
-            border: 1px solid #2ea043;
-            color: #fff;
-            padding: 10px 24px;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-        }
-        .search-area button:hover {
-            background: #2ea043;
-        }
+    /* Prévia OCR e resultado */
+    .ocr-preview {
+      background: #0d1117;
+      border-radius: 12px;
+      padding: 12px 16px;
+      border: 1px solid #21262d;
+      margin-bottom: 16px;
+      display: none;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .ocr-preview.visible {
+      display: flex;
+    }
+    .ocr-preview canvas {
+      border-radius: 6px;
+      max-height: 64px;
+      border: 1px solid #30363d;
+    }
+    .ocr-preview .ocr-text {
+      font-size: 0.95rem;
+      color: #c9d1d9;
+      flex: 1;
+    }
+    .ocr-preview .ocr-text strong {
+      color: #f0883e;
+    }
+    .ocr-preview .ocr-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .ocr-preview .ocr-actions button {
+      background: #238636;
+      border: none;
+      color: #fff;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .ocr-preview .ocr-actions button:hover {
+      background: #2ea043;
+    }
+    .ocr-preview .ocr-actions button.secondary {
+      background: #21262d;
+      border: 1px solid #30363d;
+    }
+    .ocr-preview .ocr-actions button.secondary:hover {
+      background: #30363d;
+    }
 
-        .status {
-            background: #0d1117;
-            border-radius: 12px;
-            padding: 12px 16px;
-            font-size: 0.9rem;
-            border: 1px solid #21262d;
-            margin-bottom: 16px;
-            min-height: 48px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .status .spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #30363d;
-            border-top-color: #f0883e;
-            border-radius: 50%;
-            animation: spin 0.7s linear infinite;
-            display: none;
-        }
-        .status .spinner.active {
-            display: inline-block;
-        }
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+    /* Status */
+    .status {
+      background: #0d1117;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 0.9rem;
+      border: 1px solid #21262d;
+      margin-bottom: 16px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .status .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #30363d;
+      border-top-color: #f0883e;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .status .spinner.active {
+      display: inline-block;
+    }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-        .result {
-            background: #0d1117;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #21262d;
-            margin-top: 8px;
-            display: none;
-        }
-        .result.visible {
-            display: block;
-        }
-        .result .card-name {
-            font-size: 1.4rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        .result .card-set {
-            color: #8b949e;
-            font-size: 0.95rem;
-            margin-bottom: 12px;
-        }
-        .result .card-detail {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px 20px;
-            font-size: 0.9rem;
-            color: #c9d1d9;
-        }
-        .result .card-detail span {
-            background: #161b22;
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 1px solid #21262d;
-        }
-        .result .card-image {
-            margin-top: 16px;
-            max-width: 100%;
-            max-height: 220px;
-            border-radius: 12px;
-            border: 1px solid #30363d;
-        }
-        .badge {
-            display: inline-block;
-            background: #21262d;
-            padding: 2px 10px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            color: #8b949e;
-            margin-left: 8px;
-        }
-        .warning-ocr {
-            background: #1e1a0b;
-            border: 1px solid #f0883e44;
-            border-radius: 10px;
-            padding: 8px 14px;
-            font-size: 0.8rem;
-            color: #d4a05a;
-            margin-top: 10px;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 0.75rem;
-            color: #484f58;
-            text-align: center;
-            border-top: 1px solid #21262d;
-            padding-top: 16px;
-        }
-        .footer a {
-            color: #58a6ff;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        @media (max-width: 500px) {
-            .container {
-                padding: 16px;
-            }
-            .controls button {
-                padding: 8px 14px;
-                font-size: 0.8rem;
-            }
-            .search-area input {
-                font-size: 0.85rem;
-                padding: 8px 16px;
-            }
-        }
-    </style>
+    /* Resultado */
+    .result {
+      background: #0d1117;
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid #21262d;
+      margin-top: 8px;
+      display: none;
+    }
+    .result.visible {
+      display: block;
+    }
+    .result .card-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .result .card-set {
+      color: #8b949e;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+    .result .card-detail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 16px;
+      font-size: 0.9rem;
+      color: #c9d1d9;
+    }
+    .result .card-detail span {
+      background: #161b22;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid #21262d;
+    }
+    .result .card-image {
+      margin-top: 16px;
+      max-width: 100%;
+      max-height: 240px;
+      border-radius: 12px;
+      border: 1px solid #30363d;
+    }
+
+    /* Busca manual (plus) */
+    .manual-search {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #21262d;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .manual-search input {
+      flex: 1;
+      min-width: 140px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 40px;
+      padding: 10px 18px;
+      color: #e6edf3;
+      font-size: 0.95rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    .manual-search input:focus {
+      border-color: #58a6ff;
+    }
+    .manual-search input::placeholder {
+      color: #484f58;
+    }
+    .manual-search button {
+      background: #21262d;
+      border: 1px solid #30363d;
+      color: #e6edf3;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .manual-search button:hover {
+      background: #30363d;
+      border-color: #58a6ff;
+    }
+    .manual-search label {
+      font-size: 0.85rem;
+      color: #8b949e;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .warning {
+      background: #1e1a0b;
+      border: 1px solid #f0883e44;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.8rem;
+      color: #d4a05a;
+      margin-top: 12px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      font-size: 0.75rem;
+      color: #484f58;
+      text-align: center;
+      border-top: 1px solid #21262d;
+      padding-top: 16px;
+    }
+    .footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 500px) {
+      .container {
+        padding: 16px;
+      }
+      .camera-controls button {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+      }
+      .ocr-preview {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .ocr-preview .ocr-actions {
+        justify-content: flex-end;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>
-            🧙 Scanner MTG
-            <small>busca por nome</small>
-        </h1>
-        <div class="sub">
-            ✍️ Digite o nome da carta no campo abaixo (recomendado) ou aponte a câmera
-            para o <strong>topo da carta</strong> para tentar ler o nome automaticamente.
-        </div>
-
-        <!-- Vídeo / Câmera -->
-        <div class="video-wrapper">
-            <video id="video" autoplay playsinline></video>
-            <div class="frame-hint">⬆️ Enquadre o NOME da carta (topo)</div>
-        </div>
-
-        <!-- Controles da Câmera -->
-        <div class="controls">
-            <button id="startCamera">📷 Iniciar câmera</button>
-            <button id="stopCamera" disabled>⏹️ Parar</button>
-            <button id="scanBtn" class="primary" disabled>🔎 Ler nome com OCR</button>
-            <label for="fileInput">📁 Enviar foto</label>
-            <input type="file" id="fileInput" accept="image/*" />
-        </div>
-
-        <!-- Busca Manual (recomendada) -->
-        <div class="search-area">
-            <input type="text" id="cardNameInput" placeholder="Ex: Black Lotus, Urza's Mine..." />
-            <button id="searchNameBtn">🔍 Buscar carta</button>
-        </div>
-
-        <!-- Status -->
-        <div class="status" id="status">
-            <span class="spinner" id="spinner"></span>
-            <span id="statusText">Aguardando...</span>
-        </div>
-
-        <!-- Resultado -->
-        <div class="result" id="result">
-            <div class="card-name" id="cardName">—</div>
-            <div class="card-set" id="cardSet">—</div>
-            <div class="card-detail" id="cardDetails"></div>
-            <img class="card-image" id="cardImage" alt="Imagem da carta" />
-        </div>
-
-        <div class="warning-ocr">
-            ⚠️ <strong>OCR do nome é experimental</strong>: fontes estilizadas e brilho podem atrapalhar.
-            Prefira digitar o nome para garantir o resultado.
-        </div>
-
-        <div class="footer">
-            Dados fornecidos por <a href="https://scryfall.com" target="_blank">Scryfall</a>
-        </div>
+  <div class="container">
+    <h1>
+      📇 MTG Scanner
+      <small>câmera principal</small>
+    </h1>
+    <div class="sub">
+      📷 Aponte a câmera para o <strong>topo da carta</strong> e clique em <strong>Ler nome</strong>.
     </div>
 
-    <script>
-        // ============================================================
-        //  SCANNER MTG — BUSCA POR NOME (manual + OCR experimental)
-        // ============================================================
+    <!-- Câmera -->
+    <div class="camera-wrapper">
+      <video id="video" autoplay playsinline></video>
+      <div class="camera-overlay">⬆️ Enquadre o NOME da carta</div>
+    </div>
 
-        // ---- Elementos DOM ----
-        const video = document.getElementById('video');
-        const startBtn = document.getElementById('startCamera');
-        const stopBtn = document.getElementById('stopCamera');
-        const scanBtn = document.getElementById('scanBtn');
-        const fileInput = document.getElementById('fileInput');
-        const nameInput = document.getElementById('cardNameInput');
-        const searchNameBtn = document.getElementById('searchNameBtn');
+    <!-- Controles da câmera -->
+    <div class="camera-controls">
+      <button id="startCamera" class="primary">📷 Iniciar câmera</button>
+      <button id="stopCamera" disabled>⏹️ Parar</button>
+      <button id="scanBtn" class="primary" disabled>🔎 Ler nome</button>
+      <label for="fileInput">📁 Enviar foto</label>
+      <input type="file" id="fileInput" accept="image/*" />
+    </div>
 
-        const statusText = document.getElementById('statusText');
-        const spinner = document.getElementById('spinner');
-        const resultDiv = document.getElementById('result');
-        const cardName = document.getElementById('cardName');
-        const cardSet = document.getElementById('cardSet');
-        const cardDetails = document.getElementById('cardDetails');
-        const cardImage = document.getElementById('cardImage');
+    <!-- Prévia do OCR + ações -->
+    <div class="ocr-preview" id="ocrPreview">
+      <canvas id="ocrCanvas"></canvas>
+      <span class="ocr-text">🔤 Nome lido: <strong id="ocrResultText">—</strong></span>
+      <div class="ocr-actions">
+        <button id="applyOcrBtn">✅ Buscar</button>
+        <button id="cancelOcrBtn" class="secondary">✖️ Descartar</button>
+      </div>
+    </div>
 
-        let stream = null;
-        let isScanning = false;
+    <!-- Status -->
+    <div class="status" id="status">
+      <span class="spinner" id="spinner"></span>
+      <span id="statusText">Aguardando...</span>
+    </div>
 
-        // ---- Atualizar status ----
-        function setStatus(msg, loading = false) {
-            statusText.textContent = msg;
-            spinner.classList.toggle('active', loading);
+    <!-- Resultado da busca -->
+    <div class="result" id="result">
+      <div class="card-name" id="cardNameDisplay">—</div>
+      <div class="card-set" id="cardSetDisplay">—</div>
+      <div class="card-detail" id="cardDetails"></div>
+      <img class="card-image" id="cardImage" alt="Imagem da carta" />
+    </div>
+
+    <!-- Busca manual (plus) -->
+    <div class="manual-search">
+      <input type="text" id="manualInput" placeholder="Digite o nome (opcional)..." />
+      <button id="manualSearchBtn">🔍 Buscar</button>
+      <label>✏️ Plus: busca manual</label>
+    </div>
+
+    <div class="warning">
+      ⚠️ O OCR pode errar – sempre confira o nome antes de buscar. Use a busca manual como correção.
+    </div>
+
+    <div class="footer">
+      Dados da <a href="https://scryfall.com" target="_blank">Scryfall API</a>
+    </div>
+  </div>
+
+  <script>
+    // ================================================================
+    //  MTG SCANNER – CÂMERA PRINCIPAL, BUSCA MANUAL COMO PLUS
+    // ================================================================
+
+    // ---- Elementos ----
+    const video = document.getElementById('video');
+    const startCam = document.getElementById('startCamera');
+    const stopCam = document.getElementById('stopCamera');
+    const scanBtn = document.getElementById('scanBtn');
+    const fileInput = document.getElementById('fileInput');
+
+    const ocrPreview = document.getElementById('ocrPreview');
+    const ocrCanvas = document.getElementById('ocrCanvas');
+    const ocrResultText = document.getElementById('ocrResultText');
+    const applyOcrBtn = document.getElementById('applyOcrBtn');
+    const cancelOcrBtn = document.getElementById('cancelOcrBtn');
+
+    const statusText = document.getElementById('statusText');
+    const spinner = document.getElementById('spinner');
+
+    const resultDiv = document.getElementById('result');
+    const cardNameDisplay = document.getElementById('cardNameDisplay');
+    const cardSetDisplay = document.getElementById('cardSetDisplay');
+    const cardDetails = document.getElementById('cardDetails');
+    const cardImage = document.getElementById('cardImage');
+
+    const manualInput = document.getElementById('manualInput');
+    const manualSearchBtn = document.getElementById('manualSearchBtn');
+
+    let stream = null;
+    let isScanning = false;
+    let lastOcrName = '';
+
+    // ---- Atualizar status ----
+    function setStatus(msg, loading = false) {
+      statusText.textContent = msg;
+      spinner.classList.toggle('active', loading);
+    }
+
+    // ---- Buscar carta na Scryfall ----
+    async function searchCard(name) {
+      if (!name || name.trim().length < 2) {
+        setStatus('⚠️ Nome muito curto.');
+        return null;
+      }
+      const trimmed = name.trim();
+      const url =
+        `https://api.scryfall.com/cards/search?q=!"${encodeURIComponent(trimmed)}"&unique=cards`;
+      try {
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          if (resp.status === 404) return null;
+          throw new Error(`Scryfall erro ${resp.status}`);
         }
-
-        // ---- Câmera ----
-        async function startCamera() {
-            try {
-                setStatus('Solicitando acesso à câmera...', true);
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'environment', width: { ideal: 1280 } }
-                });
-                video.srcObject = stream;
-                await video.play();
-
-                startBtn.disabled = true;
-                stopBtn.disabled = false;
-                scanBtn.disabled = false;
-                setStatus('Câmera ativa — aponte para o nome da carta (parte superior)');
-            } catch (err) {
-                setStatus('❌ Erro ao acessar câmera: ' + err.message);
-                console.error(err);
-            }
+        const data = await resp.json();
+        if (data.data && data.data.length > 0) {
+          return data.data[0];
         }
+        return null;
+      } catch (err) {
+        throw err;
+      }
+    }
 
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
-                stream = null;
-            }
-            video.srcObject = null;
-            startBtn.disabled = false;
-            stopBtn.disabled = true;
-            scanBtn.disabled = true;
-            setStatus('Câmera desligada');
+    // ---- Exibir resultado ----
+    function showResult(card, searchedName) {
+      resultDiv.classList.add('visible');
+      if (!card) {
+        cardNameDisplay.textContent = '❌ Carta não encontrada';
+        cardSetDisplay.textContent = `"${searchedName || '—'}"`;
+        cardDetails.innerHTML = '';
+        cardImage.style.display = 'none';
+        return;
+      }
+      cardNameDisplay.textContent = card.name || 'Sem nome';
+      cardSetDisplay.textContent = `${card.set_name || 'Conjunto?'}  •  #${card.collector_number || '?'}`;
+      const parts = [];
+      if (card.rarity) parts.push(`⭐ ${card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1)}`);
+      if (card.mana_cost) parts.push(`💧 ${card.mana_cost}`);
+      if (card.type_line) parts.push(`📜 ${card.type_line}`);
+      if (card.power && card.toughness) parts.push(`⚔️ ${card.power}/${card.toughness}`);
+      if (card.cmc !== undefined) parts.push(`🔢 CMC: ${card.cmc}`);
+      cardDetails.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
+      if (card.image_uris?.normal) {
+        cardImage.src = card.image_uris.normal;
+        cardImage.style.display = 'block';
+      } else if (card.card_faces?.[0]?.image_uris?.normal) {
+        cardImage.src = card.card_faces[0].image_uris.normal;
+        cardImage.style.display = 'block';
+      } else {
+        cardImage.style.display = 'none';
+      }
+    }
+
+    // ---- Executar busca ----
+    async function executeSearch(name) {
+      if (!name || name.trim() === '') {
+        setStatus('⚠️ Digite o nome ou use o OCR.');
+        return;
+      }
+      const trimmed = name.trim();
+      setStatus(`🔍 Buscando "${trimmed}"...`, true);
+      try {
+        const card = await searchCard(trimmed);
+        if (card) {
+          setStatus(`✅ Encontrado: ${card.name}`);
+          showResult(card, trimmed);
+        } else {
+          setStatus(`❌ Nenhuma carta com o nome "${trimmed}"`);
+          showResult(null, trimmed);
         }
+      } catch (err) {
+        setStatus('❌ Erro: ' + err.message);
+        console.error(err);
+      }
+    }
 
-        // ---- Capturar frame do vídeo ----
-        function captureFrame() {
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 1280;
-            canvas.height = video.videoHeight || 720;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            return canvas;
-        }
-
-        // ---- Recortar a região do NOME (parte superior central) ----
-        function cropNameArea(canvas) {
-            const w = canvas.width;
-            const h = canvas.height;
-            // Pega ~60% da largura centralizada e ~25% da altura a partir do topo
-            const cropX = w * 0.20;
-            const cropY = h * 0.05;
-            const cropW = w * 0.60;
-            const cropH = h * 0.22;
-
-            const cropped = document.createElement('canvas');
-            cropped.width = cropW;
-            cropped.height = cropH;
-            const ctx = cropped.getContext('2d');
-            ctx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-            return cropped;
-        }
-
-        // ---- OCR com Tesseract.js (lê o nome) ----
-        async function ocrCardName(canvas) {
-            const imageData = canvas.toDataURL('image/png');
-
-            // Tenta reconhecer texto em inglês (idioma padrão das cartas)
-            const result = await Tesseract.recognize(imageData, 'eng', {
-                tessedit_pageseg_mode: '7', // linha de texto única
-            });
-
-            let text = result.data.text.trim();
-            // Remove caracteres estranhos, mantém letras, números, espaços e apóstrofos
-            text = text.replace(/[^a-zA-Z0-9\s'\-]/g, '');
-            // Remove espaços múltiplos
-            text = text.replace(/\s+/g, ' ').trim();
-            return text;
-        }
-
-        // ---- Buscar carta na Scryfall pelo NOME ----
-        async function searchCardByName(name) {
-            if (!name || name.trim().length < 1) {
-                setStatus('⚠️ Digite o nome da carta primeiro.');
-                return null;
-            }
-
-            const trimmed = name.trim();
-            // Busca exata usando !"nome" para evitar falsos positivos
-            const url =
-                `https://api.scryfall.com/cards/search?q=!"${encodeURIComponent(trimmed)}"&unique=cards`;
-
-            try {
-                const resp = await fetch(url);
-                if (!resp.ok) {
-                    if (resp.status === 404) return null;
-                    throw new Error(`Scryfall erro ${resp.status}`);
-                }
-                const data = await resp.json();
-                if (data.data && data.data.length > 0) {
-                    // Pega o primeiro resultado (geralmente a versão mais recente/imprimir)
-                    return data.data[0];
-                }
-                return null;
-            } catch (err) {
-                throw err;
-            }
-        }
-
-        // ---- Exibir resultado ----
-        function showResult(card, searchedName) {
-            resultDiv.classList.add('visible');
-
-            if (!card) {
-                cardName.textContent = '❌ Carta não encontrada';
-                cardSet.textContent = `Busca: "${searchedName || '—'}"`;
-                cardDetails.innerHTML = '';
-                cardImage.style.display = 'none';
-                return;
-            }
-
-            cardName.textContent = card.name || 'Nome desconhecido';
-            cardSet.textContent = `${card.set_name || 'Conjunto desconhecido'}  •  #${card.collector_number || '—'}`;
-
-            // Detalhes
-            const parts = [];
-            if (card.rarity) parts.push(`⭐ ${card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1)}`);
-            if (card.mana_cost) parts.push(`💧 ${card.mana_cost}`);
-            if (card.type_line) parts.push(`📜 ${card.type_line}`);
-            if (card.power && card.toughness) parts.push(`⚔️ ${card.power}/${card.toughness}`);
-            if (card.cmc !== undefined) parts.push(`🔢 CMC: ${card.cmc}`);
-            cardDetails.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
-
-            // Imagem
-            if (card.image_uris && card.image_uris.normal) {
-                cardImage.src = card.image_uris.normal;
-                cardImage.style.display = 'block';
-            } else if (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris) {
-                cardImage.src = card.card_faces[0].image_uris.normal;
-                cardImage.style.display = 'block';
-            } else {
-                cardImage.style.display = 'none';
-            }
-        }
-
-        // ---- Fluxo principal: busca por nome (manual ou via OCR) ----
-        async function executeSearch(name) {
-            if (!name || name.trim() === '') {
-                setStatus('⚠️ Por favor, digite o nome da carta.');
-                return;
-            }
-
-            setStatus(`🔍 Buscando por "${name.trim()}"...`, true);
-            try {
-                const card = await searchCardByName(name.trim());
-                if (card) {
-                    setStatus(`✅ Carta encontrada: ${card.name}`);
-                    showResult(card, name.trim());
-                } else {
-                    setStatus(`⚠️ Nenhuma carta encontrada com o nome "${name.trim()}"`);
-                    showResult(null, name.trim());
-                }
-            } catch (err) {
-                setStatus('❌ Erro na busca: ' + err.message);
-                console.error(err);
-            }
-        }
-
-        // ---- Ação do botão "Buscar carta" (manual) ----
-        searchNameBtn.addEventListener('click', () => {
-            executeSearch(nameInput.value);
+    // ---- Câmera ----
+    async function startCamera() {
+      try {
+        setStatus('📷 Acessando câmera...', true);
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment', width: { ideal: 1280 } }
         });
+        video.srcObject = stream;
+        await video.play();
+        startCam.disabled = true;
+        stopCam.disabled = false;
+        scanBtn.disabled = false;
+        setStatus('📷 Câmera ativa – enquadre o topo da carta e clique em "Ler nome"');
+      } catch (err) {
+        setStatus('❌ Erro ao acessar câmera: ' + err.message);
+        console.error(err);
+      }
+    }
 
-        // Enter no campo de texto também dispara a busca
-        nameInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                executeSearch(nameInput.value);
-            }
-        });
+    function stopCamera() {
+      if (stream) {
+        stream.getTracks().forEach(t => t.stop());
+        stream = null;
+      }
+      video.srcObject = null;
+      startCam.disabled = false;
+      stopCam.disabled = true;
+      scanBtn.disabled = true;
+      setStatus('Câmera desligada');
+      ocrPreview.classList.remove('visible');
+    }
 
-        // ---- Ação do botão "Ler nome com OCR" (câmera) ----
-        async function scanCardName() {
-            if (isScanning) return;
-            if (!video.srcObject) {
-                setStatus('⚠️ Ligue a câmera primeiro');
-                return;
-            }
+    // ---- Capturar frame ----
+    function captureFrame() {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      return canvas;
+    }
 
-            isScanning = true;
-            scanBtn.disabled = true;
-            setStatus('📸 Capturando imagem...', true);
+    // ---- Recortar área do NOME (topo central) ----
+    function cropNameArea(canvas) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cropX = w * 0.20;
+      const cropY = h * 0.05;
+      const cropW = w * 0.60;
+      const cropH = h * 0.22;
+      const cropped = document.createElement('canvas');
+      cropped.width = cropW;
+      cropped.height = cropH;
+      const ctx = cropped.getContext('2d');
+      ctx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+      return cropped;
+    }
 
-            try {
-                // 1. Captura o frame
-                const fullCanvas = captureFrame();
+    // ---- OCR ----
+    async function ocrName(canvas) {
+      const dataUrl = canvas.toDataURL('image/png');
+      const result = await Tesseract.recognize(dataUrl, 'eng', {
+        tessedit_pageseg_mode: '7',
+      });
+      let text = result.data.text.trim();
+      text = text.replace(/[^a-zA-Z0-9\s'\-]/g, '');
+      text = text.replace(/\s+/g, ' ').trim();
+      return text;
+    }
 
-                // 2. Recorta a região do nome (topo)
-                const croppedCanvas = cropNameArea(fullCanvas);
+    // ---- Ação de escanear (OCR) ----
+    async function scanCardName() {
+      if (isScanning) return;
+      if (!video.srcObject) {
+        setStatus('⚠️ Ligue a câmera primeiro.');
+        return;
+      }
 
-                // 3. OCR
-                setStatus('🔎 Lendo o nome com OCR...', true);
-                const recognizedName = await ocrCardName(croppedCanvas);
+      isScanning = true;
+      scanBtn.disabled = true;
+      setStatus('📸 Capturando e processando...', true);
 
-                if (!recognizedName || recognizedName.length < 2) {
-                    setStatus('⚠️ Nenhum nome válido identificado. Tente enquadrar melhor o topo da carta.');
-                    // Limpa o campo e não faz busca
-                    nameInput.value = '';
-                    showResult(null, '—');
-                    return;
-                }
+      try {
+        const fullCanvas = captureFrame();
+        const cropped = cropNameArea(fullCanvas);
 
-                // 4. Preenche o campo de texto com o nome reconhecido
-                nameInput.value = recognizedName;
-                setStatus(`📝 Nome lido: "${recognizedName}" — buscando...`, true);
+        // Mostra a prévia
+        ocrPreview.classList.add('visible');
+        const ctx = ocrCanvas.getContext('2d');
+        ocrCanvas.width = cropped.width;
+        ocrCanvas.height = cropped.height;
+        ctx.drawImage(cropped, 0, 0);
 
-                // 5. Executa a busca com o nome reconhecido
-                const card = await searchCardByName(recognizedName);
-                if (card) {
-                    setStatus(`✅ Carta encontrada: ${card.name}`);
-                    showResult(card, recognizedName);
-                } else {
-                    setStatus(`⚠️ Nenhuma carta encontrada para "${recognizedName}"`);
-                    showResult(null, recognizedName);
-                }
+        setStatus('🔎 Lendo o nome com OCR...', true);
+        const recognized = await ocrName(cropped);
 
-            } catch (err) {
-                setStatus('❌ Erro no OCR: ' + err.message);
-                console.error(err);
-            } finally {
-                isScanning = false;
-                scanBtn.disabled = false;
-            }
+        if (recognized && recognized.length >= 2) {
+          lastOcrName = recognized;
+          ocrResultText.textContent = recognized;
+          applyOcrBtn.style.display = 'inline-block';
+          setStatus(`📝 Nome lido: "${recognized}" — clique em "Buscar" para pesquisar.`);
+        } else {
+          lastOcrName = '';
+          ocrResultText.textContent = '❌ Nome não reconhecido';
+          applyOcrBtn.style.display = 'none';
+          setStatus('⚠️ Não foi possível ler o nome. Tente enquadrar melhor ou use a busca manual.');
         }
+      } catch (err) {
+        setStatus('❌ Erro no OCR: ' + err.message);
+        console.error(err);
+      } finally {
+        isScanning = false;
+        scanBtn.disabled = false;
+      }
+    }
 
-        // ---- Upload de imagem (também faz OCR do nome) ----
-        async function handleFileUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
+    // ---- Aplicar OCR e buscar ----
+    applyOcrBtn.addEventListener('click', () => {
+      if (lastOcrName) {
+        // Opcional: coloca no campo manual para referência
+        manualInput.value = lastOcrName;
+        executeSearch(lastOcrName);
+        // Fecha a prévia após buscar
+        ocrPreview.classList.remove('visible');
+      }
+    });
 
-            try {
-                setStatus('📂 Processando imagem...', true);
-                const img = new Image();
-                img.onload = async () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-                    // Recorta e faz OCR
-                    const cropped = cropNameArea(canvas);
-                    const recognizedName = await ocrCardName(cropped);
-                    if (!recognizedName || recognizedName.length < 2) {
-                        setStatus('⚠️ Nenhum nome válido identificado na imagem.');
-                        nameInput.value = '';
-                        showResult(null, '—');
-                        return;
-                    }
-                    nameInput.value = recognizedName;
-                    setStatus(`📝 Nome lido: "${recognizedName}" — buscando...`, true);
-                    const card = await searchCardByName(recognizedName);
-                    if (card) {
-                        setStatus(`✅ ${card.name}`);
-                        showResult(card, recognizedName);
-                    } else {
-                        setStatus(`⚠️ Carta não encontrada (${recognizedName})`);
-                        showResult(null, recognizedName);
-                    }
-                };
-                img.src = URL.createObjectURL(file);
-            } catch (err) {
-                setStatus('❌ Erro ao processar imagem: ' + err.message);
-            }
-            fileInput.value = '';
-        }
+    // ---- Cancelar OCR (descartar) ----
+    cancelOcrBtn.addEventListener('click', () => {
+      ocrPreview.classList.remove('visible');
+      lastOcrName = '';
+      setStatus('OCR descartado. Use a busca manual ou tente novamente.');
+    });
 
-        // ---- Event Listeners ----
-        startBtn.addEventListener('click', startCamera);
-        stopBtn.addEventListener('click', stopCamera);
-        scanBtn.addEventListener('click', scanCardName);
-        fileInput.addEventListener('change', handleFileUpload);
+    // ---- Upload de foto ----
+    async function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      setStatus('📂 Processando imagem...', true);
+      try {
+        const img = new Image();
+        img.onload = async () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          const cropped = cropNameArea(canvas);
+          ocrPreview.classList.add('visible');
+          const c = ocrCanvas.getContext('2d');
+          ocrCanvas.width = cropped.width;
+          ocrCanvas.height = cropped.height;
+          c.drawImage(cropped, 0, 0);
+          const recognized = await ocrName(cropped);
+          if (recognized && recognized.length >= 2) {
+            lastOcrName = recognized;
+            ocrResultText.textContent = recognized;
+            applyOcrBtn.style.display = 'inline-block';
+            setStatus(`📝 Nome lido: "${recognized}" — clique em "Buscar".`);
+          } else {
+            lastOcrName = '';
+            ocrResultText.textContent = '❌ Nome não reconhecido';
+            applyOcrBtn.style.display = 'none';
+            setStatus('⚠️ Não foi possível ler o nome na imagem.');
+          }
+        };
+        img.src = URL.createObjectURL(file);
+      } catch (err) {
+        setStatus('❌ Erro: ' + err.message);
+      }
+      fileInput.value = '';
+    }
 
-        // ---- Inicialização ----
-        setStatus('📷 Ligue a câmera para OCR ou digite o nome da carta.');
-        resultDiv.classList.remove('visible');
-    </script>
+    // ---- Eventos da busca manual (plus) ----
+    manualSearchBtn.addEventListener('click', () => {
+      executeSearch(manualInput.value);
+    });
+    manualInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') executeSearch(manualInput.value);
+    });
+
+    // ---- Event listeners da câmera ----
+    startCam.addEventListener('click', startCamera);
+    stopCam.addEventListener('click', stopCamera);
+    scanBtn.addEventListener('click', scanCardName);
+    fileInput.addEventListener('change', handleFileUpload);
+
+    // ---- Inicialização ----
+    setStatus('📷 Clique em "Iniciar câmera" para começar.');
+    resultDiv.classList.remove('visible');
+    ocrPreview.classList.remove('visible');
+    applyOcrBtn.style.display = 'none';
+  </script>
 </body>
 </html>
