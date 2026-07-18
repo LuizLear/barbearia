@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📸 MTG Scanner + Análise de Efeito</title>
+    <title>📸 MTG Scanner + Coleção</title>
 
     <style>
         * {
@@ -18,7 +18,6 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
             padding: 12px;
         }
         .container {
@@ -32,50 +31,12 @@
             margin: 10px 0;
         }
 
-        /* Abas */
-        .tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 16px;
-            background: #0d1117;
-            border-radius: 16px;
-            padding: 4px;
-            border: 1px solid #21262d;
-        }
-        .tabs button {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #8b949e;
-            padding: 10px 0;
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .tabs button:hover {
-            color: #e6edf3;
-            background: #21262d;
-        }
-        .tabs button.active {
-            background: #21262d;
-            color: #f0883e;
-        }
-
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-
         /* Cabeçalho */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             flex-wrap: wrap;
         }
         .header h1 {
@@ -97,6 +58,45 @@
             border-radius: 40px;
             font-size: 0.7rem;
             border: 1px solid #2ea04355;
+        }
+
+        /* Abas */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            background: #0d1117;
+            border-radius: 60px;
+            padding: 4px;
+            border: 1px solid #21262d;
+        }
+        .tabs button {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 40px;
+            background: transparent;
+            color: #8b949e;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .tabs button:hover {
+            color: #e6edf3;
+        }
+        .tabs button.active {
+            background: #f0883e;
+            color: #0d1117;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
 
         /* Câmera */
@@ -148,7 +148,7 @@
             border: 1px solid #f0883e55;
         }
 
-        /* Controles */
+        /* Controles da câmera */
         .cam-controls {
             display: flex;
             gap: 10px;
@@ -225,7 +225,7 @@
             }
         }
 
-        /* Área de correção manual */
+        /* Área de correção manual (scanner) */
         .manual-area {
             display: flex;
             gap: 10px;
@@ -266,7 +266,7 @@
             background: #2ea043;
         }
 
-        /* Resultado da carta (aba scanner) */
+        /* Resultado da carta escaneada */
         .result {
             background: #0d1117;
             border-radius: 16px;
@@ -294,6 +294,7 @@
             gap: 6px 14px;
             font-size: 0.9rem;
             color: #c9d1d9;
+            margin-bottom: 8px;
         }
         .result .card-detail span {
             background: #161b22;
@@ -301,8 +302,20 @@
             border-radius: 20px;
             border: 1px solid #21262d;
         }
+        .result .card-text {
+            background: #161b22;
+            border-left: 3px solid #f0883e;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 0.9rem;
+            color: #c9d1d9;
+            white-space: pre-wrap;
+            word-break: break-word;
+            font-style: italic;
+        }
         .result .card-image {
-            margin-top: 14px;
+            margin-top: 10px;
             max-width: 100%;
             max-height: 180px;
             border-radius: 12px;
@@ -324,144 +337,48 @@
             background: #d97a2e;
         }
 
-        /* === ABA DETALHES === */
-        .detail-card {
+        /* Coleção - Filtros */
+        .collection-filters {
             display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        .detail-top {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-        .detail-top img {
-            max-width: 200px;
-            border-radius: 12px;
-            border: 1px solid #30363d;
-            background: #000;
-        }
-        .detail-top .info {
-            flex: 1;
-        }
-        .detail-top .info .name {
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-        .detail-top .info .set {
-            color: #8b949e;
-            font-size: 0.9rem;
-            margin-bottom: 6px;
-        }
-        .detail-top .info .attrs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px 12px;
-            font-size: 0.9rem;
-            color: #c9d1d9;
-            margin-bottom: 6px;
-        }
-        .detail-top .info .attrs span {
-            background: #161b22;
-            padding: 2px 10px;
-            border-radius: 20px;
-            border: 1px solid #21262d;
-        }
-
-        .detail-effect {
-            background: #0d1117;
-            border-radius: 16px;
-            padding: 16px;
-            border: 1px solid #21262d;
-        }
-        .detail-effect h3 {
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-            color: #f0883e;
-        }
-        .detail-effect .effect-text {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #c9d1d9;
-            white-space: pre-wrap;
-        }
-        .detail-effect .oracle-text {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #21262d;
-            font-size: 0.85rem;
-            color: #8b949e;
-            font-style: italic;
-        }
-        .detail-effect .oracle-text strong {
-            color: #c9d1d9;
-            font-style: normal;
-        }
-
-        .detail-flavor {
-            font-size: 0.85rem;
-            color: #8b949e;
-            font-style: italic;
-            border-left: 3px solid #f0883e44;
-            padding-left: 12px;
-            margin-top: 4px;
-        }
-
-        /* Coleção */
-        .collection-section {
-            margin-top: 16px;
-            border-top: 2px solid #21262d;
-            padding-top: 16px;
-        }
-        .collection-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-        .collection-header h2 {
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            background: #0d1117;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border: 1px solid #21262d;
+            align-items: center;
         }
-        .collection-header h2 span {
-            background: #21262d;
-            padding: 0 12px;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            color: #8b949e;
-        }
-        .collection-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .collection-actions button {
-            background: #21262d;
+        .collection-filters input,
+        .collection-filters select {
+            background: #161b22;
             border: 1px solid #30363d;
+            border-radius: 40px;
+            padding: 8px 16px;
             color: #e6edf3;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: 0.2s;
+            font-size: 0.9rem;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
         }
-        .collection-actions button:hover {
-            background: #30363d;
+        .collection-filters input:focus,
+        .collection-filters select:focus {
             border-color: #f0883e;
+            box-shadow: 0 0 0 3px #f0883e33;
         }
-        .collection-actions button.danger {
-            border-color: #da3633;
-            color: #f85149;
+        .collection-filters select {
+            flex: 0.5;
+            cursor: pointer;
         }
-        .collection-actions button.danger:hover {
-            background: #2d1a1a;
-            border-color: #f85149;
+        .collection-filters .filter-label {
+            color: #8b949e;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
 
+        /* Lista da coleção */
         .collection-list {
-            max-height: 200px;
+            max-height: 400px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -530,8 +447,41 @@
         .collection-empty {
             color: #484f58;
             text-align: center;
-            padding: 20px 0;
+            padding: 30px 0;
             font-size: 0.9rem;
+        }
+        .collection-count {
+            color: #8b949e;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+        .collection-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .collection-actions button {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .collection-actions button:hover {
+            background: #30363d;
+            border-color: #f0883e;
+        }
+        .collection-actions button.danger {
+            border-color: #da3633;
+            color: #f85149;
+        }
+        .collection-actions button.danger:hover {
+            background: #2d1a1a;
+            border-color: #f85149;
         }
 
         .footnote {
@@ -561,12 +511,10 @@
             .manual-area input {
                 font-size: 0.85rem;
             }
-            .detail-top {
-                flex-direction: column;
-                align-items: center;
-            }
-            .detail-top img {
-                max-width: 150px;
+            .collection-filters input,
+            .collection-filters select {
+                font-size: 0.8rem;
+                padding: 6px 12px;
             }
             .collection-item .info .name {
                 font-size: 0.8rem;
@@ -579,18 +527,18 @@
     <div class="container">
         <!-- Cabeçalho -->
         <div class="header">
-            <h1>📸 MTG <small>Scanner + Análise</small></h1>
+            <h1>📸 MTG <small>Scanner + Coleção</small></h1>
             <span class="badge-api">OCR.space</span>
         </div>
 
         <!-- Abas -->
         <div class="tabs" id="tabContainer">
-            <button class="active" data-tab="scanner">📸 Scanner</button>
-            <button data-tab="details">🔍 Detalhes</button>
+            <button class="active" data-tab="tabScanner">🔍 Scanner</button>
+            <button data-tab="tabColecao">📚 Coleção</button>
         </div>
 
-        <!-- ==================== ABA SCANNER ==================== -->
-        <div class="tab-content active" id="tabScanner">
+        <!-- ========== ABA SCANNER ========== -->
+        <div id="tabScanner" class="tab-content active">
             <!-- Câmera -->
             <div class="camera-wrapper">
                 <video id="video" autoplay playsinline></video>
@@ -616,56 +564,57 @@
 
             <!-- Busca manual -->
             <div class="manual-area">
-                <input type="text" id="cardName" placeholder="✏️ Corrija o nome aqui se necessário" />
+                <input type="text" id="cardName" placeholder="✏️ Corrija o nome aqui ou digite manualmente" />
                 <button id="searchManual">Buscar</button>
             </div>
 
-            <!-- Resultado da carta escaneada -->
+            <!-- Resultado -->
             <div class="result" id="result">
                 <div class="card-name" id="cardNameDisplay">—</div>
                 <div class="card-set" id="cardSetDisplay">—</div>
                 <div class="card-detail" id="cardDetails"></div>
+                <div class="card-text" id="cardText"></div>
                 <img class="card-image" id="cardImage" alt="Imagem da carta" />
                 <button class="add-collection-btn" id="addToCollectionBtn">➕ Adicionar à coleção</button>
             </div>
-
-            <!-- Coleção -->
-            <div class="collection-section">
-                <div class="collection-header">
-                    <h2>📚 Minha Coleção <span id="collectionCount">0</span></h2>
-                    <div class="collection-actions">
-                        <button id="exportCollectionBtn">📤 Exportar JSON</button>
-                        <button id="clearCollectionBtn" class="danger">🗑️ Limpar tudo</button>
-                    </div>
-                </div>
-                <div class="collection-list" id="collectionList">
-                    <div class="collection-empty">Nenhuma carta na coleção ainda.</div>
-                </div>
-            </div>
         </div>
 
-        <!-- ==================== ABA DETALHES ==================== -->
-        <div class="tab-content" id="tabDetails">
-            <div id="detailContent">
-                <div style="text-align:center;color:#484f58;padding:40px 0;">
-                    <p style="font-size:2rem;margin-bottom:10px;">🔍</p>
-                    <p>Nenhuma carta selecionada.</p>
-                    <p style="font-size:0.85rem;">Escanear ou buscar uma carta para ver seus detalhes e efeito.</p>
-                </div>
+        <!-- ========== ABA COLEÇÃO ========== -->
+        <div id="tabColecao" class="tab-content">
+            <!-- Filtros -->
+            <div class="collection-filters">
+                <span class="filter-label">🔍 Filtros:</span>
+                <input type="text" id="filterName" placeholder="Buscar por nome..." />
+                <select id="filterRarity">
+                    <option value="">Todas as raridades</option>
+                </select>
+            </div>
+
+            <!-- Lista -->
+            <div class="collection-list" id="collectionList">
+                <div class="collection-empty">Nenhuma carta na coleção ainda.</div>
+            </div>
+
+            <!-- Ações -->
+            <div class="collection-actions">
+                <span style="flex:1;color:#8b949e;font-size:0.85rem;" id="collectionCount">0 cartas</span>
+                <button id="exportCollectionBtn">📤 Exportar JSON</button>
+                <button id="clearCollectionBtn" class="danger">🗑️ Limpar tudo</button>
             </div>
         </div>
 
         <div class="footnote">
-            Dados da <a href="https://scryfall.com" target="_blank">Scryfall</a> &bull; OCR via <a href="https://ocr.space" target="_blank">OCR.space</a> &bull; Análise de efeito gerada automaticamente
+            Dados da <a href="https://scryfall.com" target="_blank">Scryfall</a> &bull; OCR via <a href="https://ocr.space" target="_blank">OCR.space</a> &bull; Coleção salva localmente
         </div>
     </div>
 
     <script>
         // ================================================================
-        //  MTG SCANNER – CÂMERA + OCR ONLINE + COLEÇÃO + ANÁLISE DE EFEITO
+        //  APP COMPLETO – SCANNER + COLEÇÃO COM FILTROS
         // ================================================================
 
         // ---- Elementos ----
+        // Scanner
         const video = document.getElementById('video');
         const startCam = document.getElementById('startCam');
         const stopCam = document.getElementById('stopCam');
@@ -677,48 +626,81 @@
         const cardNameDisplay = document.getElementById('cardNameDisplay');
         const cardSetDisplay = document.getElementById('cardSetDisplay');
         const cardDetails = document.getElementById('cardDetails');
+        const cardText = document.getElementById('cardText');
         const cardImage = document.getElementById('cardImage');
         const nameInput = document.getElementById('cardName');
         const searchManualBtn = document.getElementById('searchManual');
         const addToCollectionBtn = document.getElementById('addToCollectionBtn');
+
+        // Coleção
         const collectionList = document.getElementById('collectionList');
         const collectionCount = document.getElementById('collectionCount');
+        const filterName = document.getElementById('filterName');
+        const filterRarity = document.getElementById('filterRarity');
         const clearCollectionBtn = document.getElementById('clearCollectionBtn');
         const exportCollectionBtn = document.getElementById('exportCollectionBtn');
-        const detailContent = document.getElementById('detailContent');
-        const tabContainer = document.getElementById('tabContainer');
+
+        // Abas
+        const tabButtons = document.querySelectorAll('.tabs button');
+        const tabContents = {
+            tabScanner: document.getElementById('tabScanner'),
+            tabColecao: document.getElementById('tabColecao')
+        };
 
         let stream = null;
         let isProcessing = false;
-        let lastScannedCard = null; // guarda a última carta encontrada
-
-        // ---- Coleção ----
+        let lastScannedCard = null;
         let collection = [];
 
+        // ---- Gerenciamento de abas ----
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                // Atualiza botões
+                tabButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                // Atualiza conteúdos
+                Object.keys(tabContents).forEach(key => {
+                    tabContents[key].classList.toggle('active', key === tabId);
+                });
+                // Se for a aba de coleção, renderiza com filtros atuais
+                if (tabId === 'tabColecao') {
+                    renderCollection();
+                }
+            });
+        });
+
+        // ---- Coleção ----
         function loadCollection() {
             try {
                 const saved = localStorage.getItem('mtg_collection');
                 collection = saved ? JSON.parse(saved) : [];
             } catch (e) { collection = []; }
+            // Atualiza dropdown de raridades
+            updateRarityFilter();
             renderCollection();
         }
 
         function saveCollection() {
             localStorage.setItem('mtg_collection', JSON.stringify(collection));
+            updateRarityFilter();
             renderCollection();
         }
 
         function addCardToCollection(card) {
             if (!card) return;
+            // Evita duplicatas exatas? Pode permitir repetição, mas vamos verificar se já existe (opcional)
+            // Para simplificar, sempre adiciona.
             const entry = {
                 id: Date.now(),
                 name: card.name,
                 set_name: card.set_name || 'Desconhecido',
                 collector_number: card.collector_number || '—',
-                rarity: card.rarity || '—',
+                rarity: card.rarity || 'comum',
                 type_line: card.type_line || '—',
                 mana_cost: card.mana_cost || '—',
                 image_uri: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
+                oracle_text: card.oracle_text || '',
                 added_at: new Date().toISOString()
             };
             collection.push(entry);
@@ -733,7 +715,7 @@
 
         function clearCollection() {
             if (collection.length === 0) return;
-            if (confirm('Tem certeza que deseja remover todas as cartas da coleção?')) {
+            if (confirm('Tem certeza que deseja remover todas as cartas?')) {
                 collection = [];
                 saveCollection();
                 setStatus('🗑️ Coleção limpa.');
@@ -742,7 +724,7 @@
 
         function exportCollection() {
             if (collection.length === 0) {
-                setStatus('⚠️ Coleção vazia, nada para exportar.');
+                setStatus('⚠️ Coleção vazia.');
                 return;
             }
             const dataStr = JSON.stringify(collection, null, 2);
@@ -756,14 +738,46 @@
             setStatus('📤 Coleção exportada!');
         }
 
+        // Atualiza o dropdown de raridades com base na coleção atual
+        function updateRarityFilter() {
+            const rarities = new Set();
+            collection.forEach(c => { if (c.rarity) rarities.add(c.rarity); });
+            const currentValue = filterRarity.value;
+            filterRarity.innerHTML = '<option value="">Todas as raridades</option>';
+            // Ordena: common, uncommon, rare, mythic, special, etc.
+            const order = { common: 1, uncommon: 2, rare: 3, mythic: 4, special: 5, bonus: 6 };
+            const sorted = Array.from(rarities).sort((a, b) => (order[a] || 99) - (order[b] || 99));
+            sorted.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.textContent = r.charAt(0).toUpperCase() + r.slice(1);
+                filterRarity.appendChild(opt);
+            });
+            filterRarity.value = currentValue;
+        }
+
+        // Renderiza a coleção com filtros
         function renderCollection() {
-            const count = collection.length;
-            collectionCount.textContent = count;
-            if (count === 0) {
-                collectionList.innerHTML = `<div class="collection-empty">Nenhuma carta na coleção ainda.</div>`;
+            const nameFilter = filterName.value.toLowerCase().trim();
+            const rarityFilter = filterRarity.value;
+
+            let filtered = collection;
+            if (nameFilter) {
+                filtered = filtered.filter(c => c.name.toLowerCase().includes(nameFilter));
+            }
+            if (rarityFilter) {
+                filtered = filtered.filter(c => c.rarity === rarityFilter);
+            }
+
+            collectionCount.textContent = `${filtered.length} cartas (total: ${collection.length})`;
+
+            if (filtered.length === 0) {
+                collectionList.innerHTML = `<div class="collection-empty">Nenhuma carta encontrada com os filtros atuais.</div>`;
                 return;
             }
-            const sorted = [...collection].reverse();
+
+            // Ordena: mais recentes primeiro
+            const sorted = [...filtered].reverse();
             let html = '';
             for (const item of sorted) {
                 const imgHtml = item.image_uri ?
@@ -783,20 +797,22 @@
                 `;
             }
             collectionList.innerHTML = html;
+
+            // Eventos de remoção
             document.querySelectorAll('.collection-item .remove-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    removeCardFromCollection(Number(this.dataset.id));
+                    const id = Number(this.dataset.id);
+                    removeCardFromCollection(id);
                 });
             });
         }
 
-        // ---- Status ----
+        // ---- Scanner ----
         function setStatus(msg, loading = false) {
             statusText.textContent = msg;
             spinner.classList.toggle('active', loading);
         }
 
-        // ---- Câmera ----
         async function startCamera() {
             try {
                 setStatus('📷 Solicitando câmera...', true);
@@ -827,7 +843,6 @@
             setStatus('Câmera desligada');
         }
 
-        // ---- Capturar frame ----
         function captureFrame() {
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth || 1280;
@@ -837,7 +852,6 @@
             return canvas;
         }
 
-        // ---- Recortar + pré-processamento ----
         function cropAndPreprocess(canvas) {
             const w = canvas.width;
             const h = canvas.height;
@@ -865,7 +879,6 @@
             return cropped;
         }
 
-        // ---- OCR online ----
         async function ocrOnline(canvas) {
             const base64 = canvas.toDataURL('image/png').split(',')[1];
             const formData = new FormData();
@@ -884,10 +897,10 @@
             if (!response.ok) throw new Error(`OCR.space erro ${response.status}`);
             const data = await response.json();
             if (data.IsErroredOnProcessing) throw new Error(data.ErrorMessage || 'Erro no OCR');
-            return data.ParsedResults.map(r => r.ParsedText).join(' ').trim();
+            const parsedText = data.ParsedResults.map(r => r.ParsedText).join(' ');
+            return parsedText.trim();
         }
 
-        // ---- Extrair nome do OCR ----
         function extractCardName(ocrText) {
             if (!ocrText) return null;
             const lines = ocrText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -901,7 +914,6 @@
             return lines[0] || null;
         }
 
-        // ---- Buscar carta na Scryfall ----
         async function searchCard(name) {
             if (!name || name.trim().length < 2) return null;
             const trimmed = name.trim();
@@ -916,92 +928,23 @@
             return data.data && data.data.length > 0 ? data.data[0] : null;
         }
 
-        // ---- Gerar explicação do efeito em português ----
-        function generateEffectExplanation(card) {
-            if (!card) return 'Carta não disponível.';
-            const oracle = card.oracle_text || '';
-            const type = card.type_line || '';
-            const isCreature = type.toLowerCase().includes('creature');
-            const isSorcery = type.toLowerCase().includes('sorcery');
-            const isInstant = type.toLowerCase().includes('instant');
-            const isEnchantment = type.toLowerCase().includes('enchantment');
-            const isArtifact = type.toLowerCase().includes('artifact');
-            const isPlaneswalker = type.toLowerCase().includes('planeswalker');
-            const isLand = type.toLowerCase().includes('land');
-
-            let explanation = `📜 **${card.name}** é uma carta do tipo **${type}**.\n\n`;
-
-            if (oracle) {
-                explanation += `**Texto da carta (Oracle):**\n"${oracle}"\n\n`;
-            }
-
-            // Explicação baseada no tipo
-            if (isCreature) {
-                explanation +=
-                    `⚔️ **Criatura** – pode atacar e bloquear. Possui poder ${card.power || '?'} e resistência ${card.toughness || '?'}. `;
-                if (oracle.includes('flying')) explanation += 'Possui **voar** (só pode ser bloqueada por criaturas com voar ou alcance). ';
-                if (oracle.includes('trample')) explanation += 'Possui **atropelar** (excesso de dano é aplicado ao jogador). ';
-                if (oracle.includes('haste')) explanation += 'Possui **pressa** (pode atacar no turno em que entrou). ';
-                if (oracle.includes('vigilance')) explanation += 'Possui **vigilância** (não é virada ao atacar). ';
-                if (oracle.includes('death touch')) explanation += 'Possui **toque mortífero** (qualquer dano destrui a criatura). ';
-                if (oracle.includes('lifelink')) explanation += 'Possui **ligadura** (ganha vida igual ao dano causado). ';
-            } else if (isSorcery) {
-                explanation +=
-                    `✨ **Feitiço** – só pode ser conjurado em sua própria fase principal, e vai para o cemitério após a resolução. `;
-            } else if (isInstant) {
-                explanation +=
-                    `⚡ **Mágica instantânea** – pode ser conjurada a qualquer momento, inclusive durante o turno do oponente. `;
-            } else if (isEnchantment) {
-                explanation += `🌀 **Encantamento** – permanece em jogo com um efeito contínuo. `;
-            } else if (isArtifact) {
-                explanation += `⚙️ **Artefato** – pode ter habilidades ativadas ou contínuas. `;
-            } else if (isPlaneswalker) {
-                explanation +=
-                    `🛡️ **Planeswalker** – tem lealdade e habilidades que podem ser ativadas uma vez por turno. Você pode ativar uma habilidade por turno. `;
-            } else if (isLand) {
-                explanation += `🏞️ **Terreno** – gera mana para conjurar outras mágicas. `;
-            }
-
-            // Explicações específicas com base em palavras-chave
-            const keywords = [];
-            if (oracle.includes('counter')) keywords.push('🔹 **Contra-ataque** – anula uma mágica ou habilidade.');
-            if (oracle.includes('destroy')) keywords.push('💥 **Destruir** – envia permanente para o cemitério.');
-            if (oracle.includes('exile')) keywords.push('🚫 **Exilar** – remove permanentemente do jogo.');
-            if (oracle.includes('draw')) keywords.push('🃏 **Comprar** – pega cartas do topo do grimório.');
-            if (oracle.includes('discard')) keywords.push('🗑️ **Descartar** – coloca cartas da mão no cemitério.');
-            if (oracle.includes('search')) keywords.push('🔎 **Buscar** – procura cartas no grimório.');
-            if (oracle.includes('tokens')) keywords.push('🧟 **Gerar fichas** – cria criaturas ou outros permanentes.');
-            if (oracle.includes('sacrifice')) keywords.push('💀 **Sacrificar** – coloca uma permanente que você controla no cemitério.');
-            if (oracle.includes('gain life')) keywords.push('❤️ **Ganhar vida** – aumenta seu total de pontos de vida.');
-            if (oracle.includes('deal damage')) keywords.push('🔥 **Causar dano** – reduz a vida de oponentes ou criaturas.');
-
-            if (keywords.length > 0) {
-                explanation += '\n\n**Palavras-chave no efeito:**\n' + keywords.join('\n');
-            }
-
-            if (card.flavor_text) {
-                explanation += `\n\n💬 *"${card.flavor_text}"* (texto de sabor)`;
-            }
-
-            return explanation;
-        }
-
-        // ---- Exibir resultado na aba Scanner ----
         function showResult(card, searchedName) {
             resultDiv.classList.add('visible');
             if (!card) {
                 cardNameDisplay.textContent = '❌ Carta não encontrada';
                 cardSetDisplay.textContent = `"${searchedName || '—'}"`;
                 cardDetails.innerHTML = '';
+                cardText.textContent = '';
+                cardText.style.display = 'none';
                 cardImage.style.display = 'none';
                 addToCollectionBtn.style.display = 'none';
                 lastScannedCard = null;
-                updateDetails(null);
                 return;
             }
             lastScannedCard = card;
-            cardNameDisplay.textContent = card.name;
+            cardNameDisplay.textContent = card.name || 'Sem nome';
             cardSetDisplay.textContent = `${card.set_name || '?'}  •  #${card.collector_number || '?'}`;
+
             const parts = [];
             if (card.rarity) parts.push(`⭐ ${card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1)}`);
             if (card.mana_cost) parts.push(`💧 ${card.mana_cost}`);
@@ -1009,6 +952,17 @@
             if (card.power && card.toughness) parts.push(`⚔️ ${card.power}/${card.toughness}`);
             if (card.cmc !== undefined) parts.push(`🔢 CMC: ${card.cmc}`);
             cardDetails.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
+
+            // Texto da carta (efeito)
+            const oracle = card.oracle_text || '';
+            if (oracle) {
+                cardText.textContent = oracle;
+                cardText.style.display = 'block';
+            } else {
+                cardText.textContent = '';
+                cardText.style.display = 'none';
+            }
+
             if (card.image_uris?.normal) {
                 cardImage.src = card.image_uris.normal;
                 cardImage.style.display = 'block';
@@ -1019,54 +973,9 @@
                 cardImage.style.display = 'none';
             }
             addToCollectionBtn.style.display = 'inline-block';
-
-            // Atualiza a aba de detalhes
-            updateDetails(card);
         }
 
-        // ---- Atualizar aba de detalhes ----
-        function updateDetails(card) {
-            if (!card) {
-                detailContent.innerHTML = `
-                    <div style="text-align:center;color:#484f58;padding:40px 0;">
-                        <p style="font-size:2rem;margin-bottom:10px;">🔍</p>
-                        <p>Nenhuma carta selecionada.</p>
-                        <p style="font-size:0.85rem;">Escanear ou buscar uma carta para ver seus detalhes e efeito.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const imgSrc = card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || '';
-            const explanation = generateEffectExplanation(card);
-
-            detailContent.innerHTML = `
-                <div class="detail-card">
-                    <div class="detail-top">
-                        ${imgSrc ? `<img src="${imgSrc}" alt="${card.name}" />` : ''}
-                        <div class="info">
-                            <div class="name">${card.name}</div>
-                            <div class="set">${card.set_name || '?'} • #${card.collector_number || '?'}</div>
-                            <div class="attrs">
-                                ${card.rarity ? `<span>⭐ ${card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1)}</span>` : ''}
-                                ${card.mana_cost ? `<span>💧 ${card.mana_cost}</span>` : ''}
-                                ${card.type_line ? `<span>📜 ${card.type_line}</span>` : ''}
-                                ${card.power && card.toughness ? `<span>⚔️ ${card.power}/${card.toughness}</span>` : ''}
-                                ${card.cmc !== undefined ? `<span>🔢 CMC: ${card.cmc}</span>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                    <div class="detail-effect">
-                        <h3>📖 Efeito e análise</h3>
-                        <div class="effect-text">${explanation.replace(/\n/g, '<br />')}</div>
-                        ${card.oracle_text ? `<div class="oracle-text"><strong>Oracle (inglês):</strong> ${card.oracle_text}</div>` : ''}
-                        ${card.flavor_text ? `<div class="detail-flavor">💬 "${card.flavor_text}"</div>` : ''}
-                    </div>
-                </div>
-            `;
-        }
-
-        // ---- Fluxo principal: escanear ----
+        // ---- Fluxo escanear ----
         async function scanCard() {
             if (isProcessing) return;
             if (!video.srcObject) {
@@ -1179,29 +1088,14 @@
             fileInput.value = '';
         }
 
-        // ---- Adicionar à coleção ----
+        // ---- Adicionar à coleção (botão) ----
         function handleAddToCollection() {
             if (lastScannedCard) {
                 addCardToCollection(lastScannedCard);
             } else {
-                setStatus('⚠️ Nenhuma carta escaneada para adicionar.');
+                setStatus('⚠️ Nenhuma carta escaneada.');
             }
         }
-
-        // ---- Abas ----
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
-            document.querySelector(`.tabs button[data-tab="${tabId}"]`).classList.add('active');
-        }
-
-        tabContainer.addEventListener('click', (e) => {
-            const btn = e.target.closest('button');
-            if (!btn) return;
-            const tab = btn.dataset.tab;
-            if (tab) switchTab(tab);
-        });
 
         // ---- Event listeners ----
         startCam.addEventListener('click', startCamera);
@@ -1215,13 +1109,17 @@
         addToCollectionBtn.addEventListener('click', handleAddToCollection);
         clearCollectionBtn.addEventListener('click', clearCollection);
         exportCollectionBtn.addEventListener('click', exportCollection);
+        filterName.addEventListener('input', renderCollection);
+        filterRarity.addEventListener('change', renderCollection);
 
         // ---- Inicialização ----
         loadCollection();
-        setStatus('📷 Clique em "Iniciar" e aponte para o nome da carta');
+        setStatus('📷 Clique em "Iniciar" para ativar a câmera');
         resultDiv.classList.remove('visible');
         addToCollectionBtn.style.display = 'none';
-        updateDetails(null);
+
+        // Se a aba de coleção for a primeira ativa, já renderiza
+        // (já foi carregada)
     </script>
 </body>
 </html>
