@@ -3,790 +3,547 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scanner de Cartas - Busca Automática</title>
+    <title>Scanner MTG - Número do Colecionador</title>
+
+    <!-- CDN do Tesseract.js para OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
     </script>
+
     <style>
         * {
             box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         body {
-            background: #f4f6f9;
-            margin: 0;
-            padding: 20px;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        #app {
-            max-width: 960px;
+        .container {
+            max-width: 700px;
             width: 100%;
-            background: white;
+            background: #161b22;
             border-radius: 24px;
-            padding: 25px 30px;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            padding: 24px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+            border: 1px solid #30363d;
         }
         h1 {
-            margin-top: 0;
-            color: #0f172a;
-            font-weight: 700;
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 10px;
-            flex-wrap: wrap;
         }
         h1 small {
-            font-size: 0.6rem;
+            font-size: 0.8rem;
             font-weight: 400;
-            color: #64748b;
-            margin-left: auto;
+            color: #8b949e;
         }
-        .camera-section {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            border: 1px solid #e2e8f0;
+        .sub {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border-left: 3px solid #f0883e;
+            padding-left: 12px;
         }
         .video-wrapper {
             position: relative;
-            width: 100%;
-            max-width: 640px;
-            margin: 0 auto 15px;
-            background: #0f172a;
-            border-radius: 12px;
+            background: #0d1117;
+            border-radius: 16px;
             overflow: hidden;
-            aspect-ratio: 4 / 3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            border: 1px solid #30363d;
+            margin-bottom: 16px;
         }
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        video {
             display: block;
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            background: #0d1117;
         }
-        #canvas {
-            display: none;
+        .frame-hint {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(6px);
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #f0e6d0;
+            border: 1px solid #f0883e66;
+            pointer-events: none;
+            white-space: nowrap;
         }
-        .camera-controls {
+        .controls {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 18px;
         }
-        .camera-controls button {
-            padding: 10px 22px;
-            border: none;
-            border-radius: 30px;
-            background: #e2e8f0;
-            color: #1e293b;
-            font-weight: 600;
+        .controls button,
+        .controls label {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            padding: 10px 18px;
+            border-radius: 40px;
             font-size: 0.9rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .camera-controls button:hover {
-            background: #cbd5e1;
-        }
-        .camera-controls button.primary {
-            background: #2563eb;
-            color: white;
-        }
-        .camera-controls button.primary:hover {
-            background: #1d4ed8;
-        }
-        .camera-controls button.danger {
-            background: #ef4444;
-            color: white;
-        }
-        .camera-controls button.danger:hover {
-            background: #dc2626;
-        }
-        .camera-controls button:disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        #ocrStatus {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #475569;
-            min-height: 1.5rem;
-            margin: 6px 0;
-        }
-        #ocrText {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            padding: 12px 16px;
-            font-size: 0.95rem;
-            white-space: pre-wrap;
-            word-break: break-word;
-            max-height: 120px;
-            overflow-y: auto;
-            margin: 8px 0 0;
-            color: #0f172a;
-        }
-        .manual-section {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 24px;
-            border: 1px solid #e2e8f0;
-        }
-        .manual-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: flex-end;
-        }
-        .manual-row .form-group {
-            flex: 1 1 180px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .manual-row .form-group label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #334155;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        .manual-row .form-group input {
-            padding: 10px 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            font-size: 1rem;
-            background: white;
-            transition: 0.2s;
-            width: 100%;
-        }
-        .manual-row .form-group input:focus {
-            outline: none;
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
-        .manual-row .form-group.price-group {
-            flex: 0 1 160px;
-        }
-        .btn-add {
-            padding: 10px 28px;
-            background: #22c55e;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-            height: 44px;
-            align-self: flex-end;
-        }
-        .btn-add:hover {
-            background: #16a34a;
-        }
-        .btn-add:disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        .list-section {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-        }
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .list-header h3 {
-            margin: 0;
-            color: #1e293b;
-        }
-        .list-actions {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        .list-actions button {
-            padding: 8px 18px;
-            border: none;
-            border-radius: 30px;
-            background: #e2e8f0;
-            color: #1e293b;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .list-actions button:hover {
-            background: #cbd5e1;
-        }
-        .list-actions button.copy {
-            background: #2563eb;
-            color: white;
-        }
-        .list-actions button.copy:hover {
-            background: #1d4ed8;
-        }
-        #cardTable {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.95rem;
-        }
-        #cardTable th {
-            text-align: left;
-            padding: 10px 8px;
-            border-bottom: 2px solid #e2e8f0;
-            color: #475569;
-            font-weight: 600;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-        #cardTable td {
-            padding: 10px 8px;
-            border-bottom: 1px solid #e2e8f0;
-            vertical-align: middle;
-        }
-        #cardTable tr:last-child td {
-            border-bottom: none;
-        }
-        .qty-cell {
-            font-weight: 600;
-            text-align: center;
-        }
-        .price-cell {
-            font-weight: 600;
-            color: #0f172a;
-        }
-        .remove-btn {
-            background: #fee2e2;
-            border: none;
-            color: #b91c1c;
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            font-weight: 700;
+            font-weight: 500;
             cursor: pointer;
             transition: 0.2s;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
+            gap: 8px;
         }
-        .remove-btn:hover {
-            background: #fecaca;
+        .controls button:hover {
+            background: #30363d;
+            border-color: #58a6ff;
         }
-        .empty-msg {
-            color: #94a3b8;
-            text-align: center;
-            padding: 20px 0;
-            font-style: italic;
+        .controls button.primary {
+            background: #f0883e;
+            border-color: #f0883e;
+            color: #0d1117;
         }
-        #copyFeedback {
-            font-size: 0.8rem;
-            color: #16a34a;
-            margin-left: 10px;
-            opacity: 0;
-            transition: 0.2s;
+        .controls button.primary:hover {
+            background: #d97a2e;
+            border-color: #d97a2e;
         }
-        #copyFeedback.show {
-            opacity: 1;
+        .controls button:disabled {
+            opacity: 0.4;
+            pointer-events: none;
         }
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+        #fileInput {
+            display: none;
+        }
+        .status {
+            background: #0d1117;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            border: 1px solid #21262d;
+            margin-bottom: 16px;
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .status .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #30363d;
+            border-top-color: #f0883e;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.6s linear infinite;
-            vertical-align: middle;
-            margin-right: 6px;
+            animation: spin 0.7s linear infinite;
+            display: none;
+        }
+        .status .spinner.active {
+            display: inline-block;
         }
         @keyframes spin {
             to {
                 transform: rotate(360deg);
             }
         }
-        .status-badge {
-            display: inline-block;
+        .result {
+            background: #0d1117;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #21262d;
+            margin-top: 8px;
+            display: none;
+        }
+        .result.visible {
+            display: block;
+        }
+        .result .card-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .result .card-set {
+            color: #8b949e;
+            font-size: 0.95rem;
+            margin-bottom: 12px;
+        }
+        .result .card-detail {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 20px;
+            font-size: 0.9rem;
+            color: #c9d1d9;
+        }
+        .result .card-detail span {
+            background: #161b22;
             padding: 4px 12px;
             border-radius: 20px;
+            border: 1px solid #21262d;
+        }
+        .result .card-image {
+            margin-top: 16px;
+            max-width: 100%;
+            max-height: 220px;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+        }
+        .result .not-found {
+            color: #f0883e;
+        }
+        .badge {
+            display: inline-block;
+            background: #21262d;
+            padding: 2px 10px;
+            border-radius: 30px;
             font-size: 0.75rem;
-            font-weight: 600;
-            background: #e2e8f0;
-            color: #475569;
+            color: #8b949e;
+            margin-left: 8px;
         }
-        .status-badge.success {
-            background: #dcfce7;
-            color: #166534;
+        .footer {
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #484f58;
+            text-align: center;
+            border-top: 1px solid #21262d;
+            padding-top: 16px;
         }
-        .status-badge.error {
-            background: #fee2e2;
-            color: #991b1b;
+        .footer a {
+            color: #58a6ff;
+            text-decoration: none;
         }
-        .status-badge.loading {
-            background: #fef9c3;
-            color: #854d0e;
+        .footer a:hover {
+            text-decoration: underline;
         }
-        @media (max-width: 600px) {
-            #app {
-                padding: 15px;
+        @media (max-width: 500px) {
+            .container {
+                padding: 16px;
             }
-            .manual-row {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .btn-add {
-                width: 100%;
-                justify-content: center;
-            }
-            .list-header {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .list-actions {
-                justify-content: flex-start;
+            .controls button {
+                padding: 8px 14px;
+                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
-    <div id="app">
+
+    <div class="container">
         <h1>
-            🃏 Scanner + Busca Automática
-            <small>OCR → Nome → Preço</small>
+            🧙 Scanner MTG
+            <small>por número do colecionador</small>
         </h1>
-
-        <!-- CÂMERA E OCR -->
-        <div class="camera-section">
-            <div class="video-wrapper">
-                <video id="video" autoplay playsinline></video>
-            </div>
-            <div class="camera-controls">
-                <button id="startCameraBtn" class="primary">📸 Abrir Câmera</button>
-                <button id="scanBtn" class="primary" disabled>🔍 Escanear e Adicionar</button>
-                <button id="stopCameraBtn" class="danger" disabled>⏹️ Fechar</button>
-            </div>
-            <div id="ocrStatus">Aguardando ação...</div>
-            <div id="ocrText"></div>
+        <div class="sub">
+            📷 Aponte a câmera para o <strong>canto inferior esquerdo</strong> da carta,
+            onde fica o número do colecionador.
         </div>
 
-        <!-- ÁREA MANUAL (opcional) -->
-        <div class="manual-section">
-            <div class="manual-row">
-                <div class="form-group">
-                    <label for="cardName">Nome da carta</label>
-                    <input type="text" id="cardName" placeholder="Ex: Black Lotus" />
-                </div>
-                <div class="form-group" style="flex: 0 1 100px;">
-                    <label for="cardQty">Qtd</label>
-                    <input type="number" id="cardQty" value="1" min="1" step="1" />
-                </div>
-                <div class="form-group price-group">
-                    <label for="cardPrice">Preço (R$)</label>
-                    <input type="number" id="cardPrice" step="0.01" placeholder="Busca automática" />
-                </div>
-                <button id="addBtn" class="btn-add">➕ Adicionar manual</button>
-            </div>
-            <div id="searchStatus" style="margin-top: 10px; font-size:0.9rem; color:#475569;"></div>
+        <!-- Vídeo / Câmera -->
+        <div class="video-wrapper">
+            <video id="video" autoplay playsinline></video>
+            <div class="frame-hint">⬇️ Enquadre o número do colecionador</div>
         </div>
 
-        <!-- LISTA -->
-        <div class="list-section">
-            <div class="list-header">
-                <h3>📋 Lista de Cartas</h3>
-                <div class="list-actions">
-                    <button id="copyBtn" class="copy">📄 Copiar Lista</button>
-                    <button id="clearBtn">🗑️ Limpar</button>
-                    <span id="copyFeedback">Copiado!</span>
-                </div>
-            </div>
-            <table id="cardTable">
-                <thead>
-                    <tr><th>Qtd</th><th>Nome</th><th>Preço (R$)</th><th style="width:60px;"></th></tr>
-                </thead>
-                <tbody id="cardBody">
-                    <tr><td colspan="4" class="empty-msg">Nenhuma carta adicionada.</td></tr>
-                </tbody>
-            </table>
+        <!-- Controles -->
+        <div class="controls">
+            <button id="startCamera">📷 Iniciar câmera</button>
+            <button id="stopCamera" disabled>⏹️ Parar</button>
+            <button id="scanBtn" class="primary" disabled>🔍 Escanear</button>
+            <label for="fileInput">📁 Enviar foto</label>
+            <input type="file" id="fileInput" accept="image/*" />
+        </div>
+
+        <!-- Status -->
+        <div class="status" id="status">
+            <span class="spinner" id="spinner"></span>
+            <span id="statusText">Aguardando...</span>
+        </div>
+
+        <!-- Resultado -->
+        <div class="result" id="result">
+            <div class="card-name" id="cardName">—</div>
+            <div class="card-set" id="cardSet">—</div>
+            <div class="card-detail" id="cardDetails"></div>
+            <img class="card-image" id="cardImage" alt="Imagem da carta" />
+        </div>
+
+        <div class="footer">
+            Dados fornecidos por <a href="https://scryfall.com" target="_blank">Scryfall</a> •
+            Projeto inspirado no <a href="https://github.com/GrimbiXcode/mtgscan" target="_blank">mtgscan</a>
         </div>
     </div>
 
     <script>
-        (function() {
-            'use strict';
+        // ============================================================
+        //  SCANNER MTG — CÂMERA + OCR (Tesseract.js) + SCRYFALL API
+        // ============================================================
 
-            // Elementos
-            const video = document.getElementById('video');
-            const canvas = document.createElement('canvas');
-            const ocrText = document.getElementById('ocrText');
-            const ocrStatus = document.getElementById('ocrStatus');
-            const searchStatus = document.getElementById('searchStatus');
+        // ---- Elementos DOM ----
+        const video = document.getElementById('video');
+        const startBtn = document.getElementById('startCamera');
+        const stopBtn = document.getElementById('stopCamera');
+        const scanBtn = document.getElementById('scanBtn');
+        const fileInput = document.getElementById('fileInput');
+        const statusText = document.getElementById('statusText');
+        const spinner = document.getElementById('spinner');
+        const resultDiv = document.getElementById('result');
+        const cardName = document.getElementById('cardName');
+        const cardSet = document.getElementById('cardSet');
+        const cardDetails = document.getElementById('cardDetails');
+        const cardImage = document.getElementById('cardImage');
 
-            const startBtn = document.getElementById('startCameraBtn');
-            const scanBtn = document.getElementById('scanBtn');
-            const stopBtn = document.getElementById('stopCameraBtn');
+        let stream = null;
+        let isScanning = false;
 
-            const cardName = document.getElementById('cardName');
-            const cardQty = document.getElementById('cardQty');
-            const cardPrice = document.getElementById('cardPrice');
-            const addBtn = document.getElementById('addBtn');
+        // ---- Atualizar status ----
+        function setStatus(msg, loading = false) {
+            statusText.textContent = msg;
+            spinner.classList.toggle('active', loading);
+        }
 
-            const cardBody = document.getElementById('cardBody');
-            const copyBtn = document.getElementById('copyBtn');
-            const clearBtn = document.getElementById('clearBtn');
-            const copyFeedback = document.getElementById('copyFeedback');
+        // ---- Câmera ----
+        async function startCamera() {
+            try {
+                setStatus('Solicitando acesso à câmera...', true);
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment', width: { ideal: 1280 } }
+                });
+                video.srcObject = stream;
+                await video.play();
 
-            let stream = null;
-            let isCameraReady = false;
-
-            // Lista de cartas
-            let cards = [];
-
-            // Taxa de câmbio (cache)
-            let exchangeRate = null;
-            let exchangeRateTimestamp = 0;
-
-            // ========== CÂMERA ==========
-            async function startCamera() {
-                try {
-                    if (stream) stopCamera();
-                    stream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
-                        audio: false
-                    });
-                    video.srcObject = stream;
-                    await video.play();
-                    isCameraReady = true;
-                    startBtn.disabled = true;
-                    scanBtn.disabled = false;
-                    stopBtn.disabled = false;
-                    ocrStatus.textContent = '✅ Câmera ativa. Aponte para a carta e clique em "Escanear e Adicionar".';
-                    ocrText.textContent = '';
-                } catch (err) {
-                    console.error(err);
-                    ocrStatus.textContent = '❌ Erro ao acessar a câmera: ' + err.message;
-                }
-            }
-
-            function stopCamera() {
-                if (stream) {
-                    stream.getTracks().forEach(t => t.stop());
-                    stream = null;
-                }
-                video.srcObject = null;
-                isCameraReady = false;
-                startBtn.disabled = false;
-                scanBtn.disabled = true;
-                stopBtn.disabled = true;
-                ocrStatus.textContent = '⏸️ Câmera fechada.';
-            }
-
-            // ========== EXTRAÇÃO DE NOME (ignorando números/preços) ==========
-            function extractCardName(ocrText) {
-                const lines = ocrText.split('\n')
-                    .map(l => l.trim())
-                    .filter(l => l.length > 0);
-
-                // Filtra linhas que contêm apenas números, símbolos monetários ou pontuação
-                const isNumberOrPrice = (line) => {
-                    // Remove espaços e verifica se é basicamente números, vírgulas, pontos, R$, $, etc.
-                    const clean = line.replace(/[\s,.]/g, '');
-                    if (/^[\d]+$/.test(clean)) return true; // só números
-                    if (/^R?\$?[\d]+$/.test(clean)) return true; // preço sem centavos
-                    // Se tiver mais números que letras, considera como preço
-                    const digits = (line.match(/\d/g) || []).length;
-                    const letters = (line.match(/[a-zA-Z]/g) || []).length;
-                    if (digits > letters && digits > 3) return true;
-                    return false;
-                };
-
-                // Pega a primeira linha que não seja número/preço e tenha pelo menos 3 letras
-                for (const line of lines) {
-                    if (isNumberOrPrice(line)) continue;
-                    // Deve ter pelo menos 2 caracteres alfabéticos
-                    const letterCount = (line.match(/[a-zA-Z]/g) || []).length;
-                    if (letterCount >= 2) {
-                        return line;
-                    }
-                }
-
-                // Fallback: primeira linha que não seja vazia
-                for (const line of lines) {
-                    if (!isNumberOrPrice(line) && line.length > 1) {
-                        return line;
-                    }
-                }
-
-                return null;
-            }
-
-            // ========== OCR + BUSCA + ADIÇÃO AUTOMÁTICA ==========
-            async function scanAndAdd() {
-                if (!isCameraReady || !stream) {
-                    ocrStatus.textContent = '⚠️ Ative a câmera primeiro.';
-                    return;
-                }
-
-                // 1. Capturar imagem
-                const vw = video.videoWidth || 640;
-                const vh = video.videoHeight || 480;
-                canvas.width = vw;
-                canvas.height = vh;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, vw, vh);
-
-                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
-                if (!blob) {
-                    ocrStatus.textContent = '❌ Falha ao capturar imagem.';
-                    return;
-                }
-
-                // 2. OCR
-                ocrStatus.textContent = '⏳ Reconhecendo texto...';
-                scanBtn.disabled = true;
-                let recognizedText = '';
-
-                try {
-                    const result = await Tesseract.recognize(blob, 'por', {
-                        logger: m => {
-                            if (m.status === 'recognizing text') {
-                                ocrStatus.textContent = `⏳ OCR: ${Math.round(m.progress * 100)}%`;
-                            }
-                        }
-                    });
-                    recognizedText = result.data.text;
-                    ocrText.textContent = recognizedText || '(nenhum texto encontrado)';
-                    ocrStatus.textContent = '✅ OCR concluído. Extraindo nome...';
-                } catch (err) {
-                    console.error(err);
-                    ocrStatus.textContent = '❌ Erro no OCR: ' + err.message;
-                    scanBtn.disabled = false;
-                    return;
-                }
-
-                // 3. Extrair nome (ignorando números/preços)
-                const extractedName = extractCardName(recognizedText);
-                if (!extractedName) {
-                    ocrStatus.textContent = '⚠️ Nenhum nome válido identificado. Tente novamente ou adicione manualmente.';
-                    scanBtn.disabled = false;
-                    return;
-                }
-
-                // Atualiza o campo nome
-                cardName.value = extractedName;
-
-                // 4. Buscar preço na Scryfall
-                searchStatus.textContent = `⏳ Buscando "${extractedName}" na Scryfall...`;
-                const result = await searchCardPrice(extractedName);
-
-                let priceBRL = 0;
-                let officialName = extractedName;
-
-                if (result && result.priceBRL !== null) {
-                    priceBRL = result.priceBRL;
-                    officialName = result.name || extractedName;
-                    cardName.value = officialName;
-                    cardPrice.value = priceBRL.toFixed(2);
-                    searchStatus.textContent = `✅ Encontrado: ${officialName} - R$ ${priceBRL.toFixed(2)}`;
-                } else if (result && result.priceBRL === null) {
-                    officialName = result.name || extractedName;
-                    cardName.value = officialName;
-                    cardPrice.value = '';
-                    searchStatus.textContent = `⚠️ Carta "${officialName}" encontrada, mas sem preço disponível.`;
-                    priceBRL = 0;
-                } else {
-                    searchStatus.textContent = `❌ Não foi possível encontrar "${extractedName}". Adicionando sem preço.`;
-                    priceBRL = 0;
-                }
-
-                // 5. Adicionar à lista
-                const qty = parseInt(cardQty.value) || 1;
-                addCardToList(officialName, qty, priceBRL);
-
-                // 6. Limpar campos para próxima (mantém nome e preço, zera quantidade)
-                cardQty.value = 1;
-                ocrStatus.textContent = '✅ Carta adicionada! Pronto para escanear outra.';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
                 scanBtn.disabled = false;
+                setStatus('Câmera ativa — aponte para o número do colecionador');
+            } catch (err) {
+                setStatus('❌ Erro ao acessar câmera: ' + err.message);
+                console.error(err);
             }
+        }
 
-            // ========== BUSCA NA SCRYFALL ==========
-            async function fetchExchangeRate() {
-                const now = Date.now();
-                if (exchangeRate && (now - exchangeRateTimestamp) < 3600000) {
-                    return exchangeRate;
-                }
-                try {
-                    const resp = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-                    if (!resp.ok) throw new Error('Erro ao obter cotação');
-                    const data = await resp.json();
-                    const rate = data.rates.BRL;
-                    if (!rate) throw new Error('Moeda BRL não encontrada');
-                    exchangeRate = rate;
-                    exchangeRateTimestamp = now;
-                    return rate;
-                } catch (err) {
-                    console.warn('Erro ao buscar cotação, usando taxa fixa 5.00', err);
-                    return 5.00;
-                }
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
             }
+            video.srcObject = null;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            scanBtn.disabled = true;
+            setStatus('Câmera desligada');
+        }
 
-            async function searchCardPrice(cardNameStr) {
-                if (!cardNameStr.trim()) return null;
-                try {
-                    const url = `https://api.scryfall.com/cards/named?fuzzy=${encodeURIComponent(cardNameStr.trim())}`;
-                    const resp = await fetch(url);
-                    if (!resp.ok) {
-                        if (resp.status === 404) return null;
-                        throw new Error(`HTTP ${resp.status}`);
-                    }
-                    const data = await resp.json();
+        // ---- Capturar frame do vídeo ----
+        function captureFrame() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth || 1280;
+            canvas.height = video.videoHeight || 720;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            return canvas;
+        }
 
-                    let priceUSD = data.prices?.usd || data.prices?.eur || data.prices?.tix || null;
-                    if (!priceUSD) {
-                        return { name: data.name, priceBRL: null, set: data.set_name };
-                    }
-                    const rate = await fetchExchangeRate();
-                    const priceBRL = parseFloat(priceUSD) * rate;
-                    return {
-                        name: data.name,
-                        priceUSD: parseFloat(priceUSD),
-                        set: data.set_name,
-                        priceBRL: priceBRL
-                    };
-                } catch (err) {
-                    console.error(err);
-                    return null;
-                }
-            }
+        // ---- Recortar a região do número do colecionador (canto inferior esquerdo) ----
+        function cropCollectorArea(canvas) {
+            const w = canvas.width;
+            const h = canvas.height;
+            // Pega ~30% da largura e ~25% da altura a partir do canto inferior esquerdo
+            const cropX = 0;
+            const cropY = h * 0.72;
+            const cropW = w * 0.30;
+            const cropH = h * 0.25;
 
-            // ========== MANIPULAÇÃO DA LISTA ==========
-            function addCardToList(name, qty, price) {
-                if (!name.trim()) {
-                    alert('Nome inválido.');
-                    return false;
-                }
-                const qtyNum = parseInt(qty) || 1;
-                const priceNum = parseFloat(price) || 0;
-                cards.push({
-                    name: name.trim(),
-                    qty: qtyNum,
-                    price: priceNum
-                });
-                renderList();
-                return true;
-            }
+            const cropped = document.createElement('canvas');
+            cropped.width = cropW;
+            cropped.height = cropH;
+            const ctx = cropped.getContext('2d');
+            ctx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+            return cropped;
+        }
 
-            function removeCard(index) {
-                cards.splice(index, 1);
-                renderList();
-            }
+        // ---- OCR com Tesseract.js ----
+        async function ocrCollectorNumber(canvas) {
+            // Converte o canvas para imagem (data URL)
+            const imageData = canvas.toDataURL('image/png');
 
-            function clearList() {
-                if (cards.length === 0) return;
-                if (confirm('Limpar toda a lista?')) {
-                    cards = [];
-                    renderList();
-                }
-            }
-
-            function renderList() {
-                if (cards.length === 0) {
-                    cardBody.innerHTML = `<tr><td colspan="4" class="empty-msg">Nenhuma carta adicionada.</td></tr>`;
-                    return;
-                }
-                let html = '';
-                cards.forEach((card, index) => {
-                    const priceStr = card.price ? card.price.toFixed(2).replace('.', ',') : '—';
-                    html += `
-                        <tr>
-                            <td class="qty-cell">${card.qty}</td>
-                            <td><strong>${escapeHtml(card.name)}</strong></td>
-                            <td class="price-cell">R$ ${priceStr}</td>
-                            <td><button class="remove-btn" data-index="${index}" title="Remover">✕</button></td>
-                        </tr>
-                    `;
-                });
-                cardBody.innerHTML = html;
-                document.querySelectorAll('.remove-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        removeCard(parseInt(this.dataset.index));
-                    });
-                });
-            }
-
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-
-            // ========== COPIAR ==========
-            function copyList() {
-                if (cards.length === 0) {
-                    alert('Lista vazia.');
-                    return;
-                }
-                const lines = cards.map(c => {
-                    const priceStr = c.price ? c.price.toFixed(2).replace('.', ',') : '—';
-                    return `${c.qty}x ${c.name} - R$ ${priceStr}`;
-                });
-                const text = lines.join('\n');
-                navigator.clipboard.writeText(text).then(() => {
-                    copyFeedback.classList.add('show');
-                    setTimeout(() => copyFeedback.classList.remove('show'), 2500);
-                }).catch(() => alert('Erro ao copiar.'));
-            }
-
-            // ========== EVENTOS ==========
-            startBtn.addEventListener('click', startCamera);
-            stopBtn.addEventListener('click', stopCamera);
-            scanBtn.addEventListener('click', scanAndAdd);
-
-            addBtn.addEventListener('click', function() {
-                const name = cardName.value.trim();
-                const qty = parseInt(cardQty.value) || 1;
-                const price = parseFloat(cardPrice.value.replace(',', '.')) || 0;
-                if (!name) { alert('Digite o nome.'); return; }
-                addCardToList(name, qty, price);
-                cardQty.value = 1;
-                cardName.focus();
-                cardName.select();
+            // Configura o Tesseract para reconhecer apenas números (digits)
+            const result = await Tesseract.recognize(imageData, 'eng', {
+                tessedit_char_whitelist: '0123456789',
+                tessedit_pageseg_mode: '7', // linha de texto única
             });
 
-            // Enter nos campos
-            cardName.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault();
-                    scanBtn.click(); } });
-            cardPrice.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault();
-                    addBtn.click(); } });
-            cardQty.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault();
-                    scanBtn.click(); } });
+            const text = result.data.text.trim();
+            // Remove tudo que não for número
+            const cleaned = text.replace(/\D/g, '');
+            return cleaned;
+        }
 
-            copyBtn.addEventListener('click', copyList);
-            clearBtn.addEventListener('click', clearList);
+        // ---- Buscar carta na Scryfall ----
+        async function fetchCard(collectorNumber) {
+            if (!collectorNumber || collectorNumber.length < 1) {
+                return null;
+            }
+            // Busca pelo número do colecionador (em qualquer conjunto)
+            // Ex: "number:123" — retorna todas as cartas com esse número
+            const url =
+                `https://api.scryfall.com/cards/search?q=number%3A${encodeURIComponent(collectorNumber)}&unique=prints`;
 
-            // ========== INICIALIZAÇÃO ==========
-            renderList();
-            ocrStatus.textContent = '📸 Abra a câmera e escaneie cartas automaticamente.';
-            searchStatus.textContent = 'O sistema extrai apenas o nome e busca o preço online.';
+            const resp = await fetch(url);
+            if (!resp.ok) {
+                if (resp.status === 404) return null;
+                throw new Error(`Scryfall erro ${resp.status}`);
+            }
+            const data = await resp.json();
+            if (data.data && data.data.length > 0) {
+                // Pega a primeira correspondência (mais recente)
+                return data.data[0];
+            }
+            return null;
+        }
 
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                startBtn.disabled = true;
-                ocrStatus.textContent = '❌ Câmera não suportada.';
+        // ---- Exibir resultado ----
+        function showResult(card, collectorNumber) {
+            resultDiv.classList.add('visible');
+
+            if (!card) {
+                cardName.textContent = '❌ Carta não encontrada';
+                cardSet.textContent = `Número: ${collectorNumber || '—'}`;
+                cardDetails.innerHTML = '';
+                cardImage.style.display = 'none';
+                return;
             }
 
-            // Pré-carrega cotação
-            fetchExchangeRate().catch(() => {});
-        })();
+            cardName.textContent = card.name || 'Nome desconhecido';
+            cardSet.textContent = `${card.set_name || 'Conjunto desconhecido'}  •  #${card.collector_number || '—'}`;
+
+            // Detalhes
+            const parts = [];
+            if (card.rarity) parts.push(`⭐ ${card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1)}`);
+            if (card.mana_cost) parts.push(`💧 ${card.mana_cost}`);
+            if (card.type_line) parts.push(`📜 ${card.type_line}`);
+            if (card.power && card.toughness) parts.push(`⚔️ ${card.power}/${card.toughness}`);
+            cardDetails.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
+
+            // Imagem
+            if (card.image_uris && card.image_uris.normal) {
+                cardImage.src = card.image_uris.normal;
+                cardImage.style.display = 'block';
+            } else if (card.card_faces && card.card_faces[0] && card.card_faces[0].image_uris) {
+                cardImage.src = card.card_faces[0].image_uris.normal;
+                cardImage.style.display = 'block';
+            } else {
+                cardImage.style.display = 'none';
+            }
+        }
+
+        // ---- Fluxo principal de escaneamento ----
+        async function scanCard() {
+            if (isScanning) return;
+            if (!video.srcObject) {
+                setStatus('⚠️ Ligue a câmera primeiro');
+                return;
+            }
+
+            isScanning = true;
+            scanBtn.disabled = true;
+            setStatus('📸 Capturando imagem...', true);
+
+            try {
+                // 1. Captura o frame
+                const fullCanvas = captureFrame();
+
+                // 2. Recorta a região do número do colecionador
+                const croppedCanvas = cropCollectorArea(fullCanvas);
+
+                // 3. OCR
+                setStatus('🔎 Lendo o número com OCR...', true);
+                const collectorNumber = await ocrCollectorNumber(croppedCanvas);
+
+                if (!collectorNumber) {
+                    setStatus('⚠️ Nenhum número identificado. Tente enquadrar melhor.');
+                    showResult(null, '—');
+                    return;
+                }
+
+                setStatus(`🔍 Número detectado: ${collectorNumber} — consultando Scryfall...`, true);
+
+                // 4. Busca na Scryfall
+                const card = await fetchCard(collectorNumber);
+
+                if (card) {
+                    setStatus(`✅ Carta encontrada: ${card.name} (${card.set_name})`);
+                    showResult(card, collectorNumber);
+                } else {
+                    setStatus(`⚠️ Nenhuma carta encontrada com o número ${collectorNumber}`);
+                    showResult(null, collectorNumber);
+                }
+
+            } catch (err) {
+                setStatus('❌ Erro: ' + err.message);
+                console.error(err);
+            } finally {
+                isScanning = false;
+                scanBtn.disabled = false;
+            }
+        }
+
+        // ---- Upload de imagem ----
+        async function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                setStatus('📂 Processando imagem...', true);
+                const img = new Image();
+                img.onload = async () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    // Mesmo fluxo: recortar e OCR
+                    const cropped = cropCollectorArea(canvas);
+                    const num = await ocrCollectorNumber(cropped);
+                    if (!num) {
+                        setStatus('⚠️ Nenhum número identificado na imagem.');
+                        showResult(null, '—');
+                        return;
+                    }
+                    setStatus(`🔍 Número: ${num} — consultando Scryfall...`, true);
+                    const card = await fetchCard(num);
+                    if (card) {
+                        setStatus(`✅ ${card.name}`);
+                        showResult(card, num);
+                    } else {
+                        setStatus(`⚠️ Carta não encontrada (${num})`);
+                        showResult(null, num);
+                    }
+                };
+                img.src = URL.createObjectURL(file);
+            } catch (err) {
+                setStatus('❌ Erro ao processar imagem: ' + err.message);
+            }
+            // Limpa o input para permitir reenvio
+            fileInput.value = '';
+        }
+
+        // ---- Event Listeners ----
+        startBtn.addEventListener('click', startCamera);
+        stopBtn.addEventListener('click', stopCamera);
+        scanBtn.addEventListener('click', scanCard);
+        fileInput.addEventListener('change', handleFileUpload);
+
+        // ---- Inicialização ----
+        setStatus('📷 Clique em "Iniciar câmera" para começar');
+        resultDiv.classList.remove('visible');
     </script>
 </body>
 </html>
