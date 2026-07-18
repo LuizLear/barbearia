@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Scanner MTG - Número do Colecionador</title>
+    <title>Scanner MTG - Busca por Nome</title>
 
-    <!-- CDN do Tesseract.js para OCR -->
+    <!-- CDN do Tesseract.js para OCR (opcional, para ler o nome) -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
     </script>
 
@@ -71,12 +71,12 @@
         }
         .frame-hint {
             position: absolute;
-            bottom: 16px;
+            top: 12px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(6px);
-            padding: 6px 16px;
+            padding: 4px 16px;
             border-radius: 40px;
             font-size: 0.8rem;
             color: #f0e6d0;
@@ -88,7 +88,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
         .controls button,
         .controls label {
@@ -125,6 +125,48 @@
         #fileInput {
             display: none;
         }
+
+        /* Área de busca manual */
+        .search-area {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .search-area input {
+            flex: 1;
+            min-width: 150px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 40px;
+            padding: 10px 20px;
+            color: #e6edf3;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .search-area input:focus {
+            border-color: #f0883e;
+            box-shadow: 0 0 0 3px #f0883e33;
+        }
+        .search-area input::placeholder {
+            color: #484f58;
+        }
+        .search-area button {
+            background: #238636;
+            border: 1px solid #2ea043;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            white-space: nowrap;
+        }
+        .search-area button:hover {
+            background: #2ea043;
+        }
+
         .status {
             background: #0d1117;
             border-radius: 12px;
@@ -155,6 +197,7 @@
                 transform: rotate(360deg);
             }
         }
+
         .result {
             background: #0d1117;
             border-radius: 16px;
@@ -196,9 +239,6 @@
             border-radius: 12px;
             border: 1px solid #30363d;
         }
-        .result .not-found {
-            color: #f0883e;
-        }
         .badge {
             display: inline-block;
             background: #21262d;
@@ -207,6 +247,15 @@
             font-size: 0.75rem;
             color: #8b949e;
             margin-left: 8px;
+        }
+        .warning-ocr {
+            background: #1e1a0b;
+            border: 1px solid #f0883e44;
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 0.8rem;
+            color: #d4a05a;
+            margin-top: 10px;
         }
         .footer {
             margin-top: 20px;
@@ -231,6 +280,10 @@
                 padding: 8px 14px;
                 font-size: 0.8rem;
             }
+            .search-area input {
+                font-size: 0.85rem;
+                padding: 8px 16px;
+            }
         }
     </style>
 </head>
@@ -239,26 +292,32 @@
     <div class="container">
         <h1>
             🧙 Scanner MTG
-            <small>por número do colecionador</small>
+            <small>busca por nome</small>
         </h1>
         <div class="sub">
-            📷 Aponte a câmera para o <strong>canto inferior esquerdo</strong> da carta,
-            onde fica o número do colecionador.
+            ✍️ Digite o nome da carta no campo abaixo (recomendado) ou aponte a câmera
+            para o <strong>topo da carta</strong> para tentar ler o nome automaticamente.
         </div>
 
         <!-- Vídeo / Câmera -->
         <div class="video-wrapper">
             <video id="video" autoplay playsinline></video>
-            <div class="frame-hint">⬇️ Enquadre o número do colecionador</div>
+            <div class="frame-hint">⬆️ Enquadre o NOME da carta (topo)</div>
         </div>
 
-        <!-- Controles -->
+        <!-- Controles da Câmera -->
         <div class="controls">
             <button id="startCamera">📷 Iniciar câmera</button>
             <button id="stopCamera" disabled>⏹️ Parar</button>
-            <button id="scanBtn" class="primary" disabled>🔍 Escanear</button>
+            <button id="scanBtn" class="primary" disabled>🔎 Ler nome com OCR</button>
             <label for="fileInput">📁 Enviar foto</label>
             <input type="file" id="fileInput" accept="image/*" />
+        </div>
+
+        <!-- Busca Manual (recomendada) -->
+        <div class="search-area">
+            <input type="text" id="cardNameInput" placeholder="Ex: Black Lotus, Urza's Mine..." />
+            <button id="searchNameBtn">🔍 Buscar carta</button>
         </div>
 
         <!-- Status -->
@@ -275,15 +334,19 @@
             <img class="card-image" id="cardImage" alt="Imagem da carta" />
         </div>
 
+        <div class="warning-ocr">
+            ⚠️ <strong>OCR do nome é experimental</strong>: fontes estilizadas e brilho podem atrapalhar.
+            Prefira digitar o nome para garantir o resultado.
+        </div>
+
         <div class="footer">
-            Dados fornecidos por <a href="https://scryfall.com" target="_blank">Scryfall</a> •
-            Projeto inspirado no <a href="https://github.com/GrimbiXcode/mtgscan" target="_blank">mtgscan</a>
+            Dados fornecidos por <a href="https://scryfall.com" target="_blank">Scryfall</a>
         </div>
     </div>
 
     <script>
         // ============================================================
-        //  SCANNER MTG — CÂMERA + OCR (Tesseract.js) + SCRYFALL API
+        //  SCANNER MTG — BUSCA POR NOME (manual + OCR experimental)
         // ============================================================
 
         // ---- Elementos DOM ----
@@ -292,6 +355,9 @@
         const stopBtn = document.getElementById('stopCamera');
         const scanBtn = document.getElementById('scanBtn');
         const fileInput = document.getElementById('fileInput');
+        const nameInput = document.getElementById('cardNameInput');
+        const searchNameBtn = document.getElementById('searchNameBtn');
+
         const statusText = document.getElementById('statusText');
         const spinner = document.getElementById('spinner');
         const resultDiv = document.getElementById('result');
@@ -322,7 +388,7 @@
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
                 scanBtn.disabled = false;
-                setStatus('Câmera ativa — aponte para o número do colecionador');
+                setStatus('Câmera ativa — aponte para o nome da carta (parte superior)');
             } catch (err) {
                 setStatus('❌ Erro ao acessar câmera: ' + err.message);
                 console.error(err);
@@ -351,15 +417,15 @@
             return canvas;
         }
 
-        // ---- Recortar a região do número do colecionador (canto inferior esquerdo) ----
-        function cropCollectorArea(canvas) {
+        // ---- Recortar a região do NOME (parte superior central) ----
+        function cropNameArea(canvas) {
             const w = canvas.width;
             const h = canvas.height;
-            // Pega ~30% da largura e ~25% da altura a partir do canto inferior esquerdo
-            const cropX = 0;
-            const cropY = h * 0.72;
-            const cropW = w * 0.30;
-            const cropH = h * 0.25;
+            // Pega ~60% da largura centralizada e ~25% da altura a partir do topo
+            const cropX = w * 0.20;
+            const cropY = h * 0.05;
+            const cropW = w * 0.60;
+            const cropH = h * 0.22;
 
             const cropped = document.createElement('canvas');
             cropped.width = cropW;
@@ -369,53 +435,59 @@
             return cropped;
         }
 
-        // ---- OCR com Tesseract.js ----
-        async function ocrCollectorNumber(canvas) {
-            // Converte o canvas para imagem (data URL)
+        // ---- OCR com Tesseract.js (lê o nome) ----
+        async function ocrCardName(canvas) {
             const imageData = canvas.toDataURL('image/png');
 
-            // Configura o Tesseract para reconhecer apenas números (digits)
+            // Tenta reconhecer texto em inglês (idioma padrão das cartas)
             const result = await Tesseract.recognize(imageData, 'eng', {
-                tessedit_char_whitelist: '0123456789',
                 tessedit_pageseg_mode: '7', // linha de texto única
             });
 
-            const text = result.data.text.trim();
-            // Remove tudo que não for número
-            const cleaned = text.replace(/\D/g, '');
-            return cleaned;
+            let text = result.data.text.trim();
+            // Remove caracteres estranhos, mantém letras, números, espaços e apóstrofos
+            text = text.replace(/[^a-zA-Z0-9\s'\-]/g, '');
+            // Remove espaços múltiplos
+            text = text.replace(/\s+/g, ' ').trim();
+            return text;
         }
 
-        // ---- Buscar carta na Scryfall ----
-        async function fetchCard(collectorNumber) {
-            if (!collectorNumber || collectorNumber.length < 1) {
+        // ---- Buscar carta na Scryfall pelo NOME ----
+        async function searchCardByName(name) {
+            if (!name || name.trim().length < 1) {
+                setStatus('⚠️ Digite o nome da carta primeiro.');
                 return null;
             }
-            // Busca pelo número do colecionador (em qualquer conjunto)
-            // Ex: "number:123" — retorna todas as cartas com esse número
-            const url =
-                `https://api.scryfall.com/cards/search?q=number%3A${encodeURIComponent(collectorNumber)}&unique=prints`;
 
-            const resp = await fetch(url);
-            if (!resp.ok) {
-                if (resp.status === 404) return null;
-                throw new Error(`Scryfall erro ${resp.status}`);
+            const trimmed = name.trim();
+            // Busca exata usando !"nome" para evitar falsos positivos
+            const url =
+                `https://api.scryfall.com/cards/search?q=!"${encodeURIComponent(trimmed)}"&unique=cards`;
+
+            try {
+                const resp = await fetch(url);
+                if (!resp.ok) {
+                    if (resp.status === 404) return null;
+                    throw new Error(`Scryfall erro ${resp.status}`);
+                }
+                const data = await resp.json();
+                if (data.data && data.data.length > 0) {
+                    // Pega o primeiro resultado (geralmente a versão mais recente/imprimir)
+                    return data.data[0];
+                }
+                return null;
+            } catch (err) {
+                throw err;
             }
-            const data = await resp.json();
-            if (data.data && data.data.length > 0) {
-                // Pega a primeira correspondência (mais recente)
-                return data.data[0];
-            }
-            return null;
         }
 
         // ---- Exibir resultado ----
-        function showResult(card, collectorNumber) {
+        function showResult(card, searchedName) {
             resultDiv.classList.add('visible');
 
             if (!card) {
                 cardName.textContent = '❌ Carta não encontrada';
-                cardSet.textContent = `Número: ${collectorNumber || '—'}`;
+                cardSet.textContent = `Busca: "${searchedName || '—'}"`;
                 cardDetails.innerHTML = '';
                 cardImage.style.display = 'none';
                 return;
@@ -430,6 +502,7 @@
             if (card.mana_cost) parts.push(`💧 ${card.mana_cost}`);
             if (card.type_line) parts.push(`📜 ${card.type_line}`);
             if (card.power && card.toughness) parts.push(`⚔️ ${card.power}/${card.toughness}`);
+            if (card.cmc !== undefined) parts.push(`🔢 CMC: ${card.cmc}`);
             cardDetails.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
 
             // Imagem
@@ -444,8 +517,43 @@
             }
         }
 
-        // ---- Fluxo principal de escaneamento ----
-        async function scanCard() {
+        // ---- Fluxo principal: busca por nome (manual ou via OCR) ----
+        async function executeSearch(name) {
+            if (!name || name.trim() === '') {
+                setStatus('⚠️ Por favor, digite o nome da carta.');
+                return;
+            }
+
+            setStatus(`🔍 Buscando por "${name.trim()}"...`, true);
+            try {
+                const card = await searchCardByName(name.trim());
+                if (card) {
+                    setStatus(`✅ Carta encontrada: ${card.name}`);
+                    showResult(card, name.trim());
+                } else {
+                    setStatus(`⚠️ Nenhuma carta encontrada com o nome "${name.trim()}"`);
+                    showResult(null, name.trim());
+                }
+            } catch (err) {
+                setStatus('❌ Erro na busca: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        // ---- Ação do botão "Buscar carta" (manual) ----
+        searchNameBtn.addEventListener('click', () => {
+            executeSearch(nameInput.value);
+        });
+
+        // Enter no campo de texto também dispara a busca
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                executeSearch(nameInput.value);
+            }
+        });
+
+        // ---- Ação do botão "Ler nome com OCR" (câmera) ----
+        async function scanCardName() {
             if (isScanning) return;
             if (!video.srcObject) {
                 setStatus('⚠️ Ligue a câmera primeiro');
@@ -460,34 +568,37 @@
                 // 1. Captura o frame
                 const fullCanvas = captureFrame();
 
-                // 2. Recorta a região do número do colecionador
-                const croppedCanvas = cropCollectorArea(fullCanvas);
+                // 2. Recorta a região do nome (topo)
+                const croppedCanvas = cropNameArea(fullCanvas);
 
                 // 3. OCR
-                setStatus('🔎 Lendo o número com OCR...', true);
-                const collectorNumber = await ocrCollectorNumber(croppedCanvas);
+                setStatus('🔎 Lendo o nome com OCR...', true);
+                const recognizedName = await ocrCardName(croppedCanvas);
 
-                if (!collectorNumber) {
-                    setStatus('⚠️ Nenhum número identificado. Tente enquadrar melhor.');
+                if (!recognizedName || recognizedName.length < 2) {
+                    setStatus('⚠️ Nenhum nome válido identificado. Tente enquadrar melhor o topo da carta.');
+                    // Limpa o campo e não faz busca
+                    nameInput.value = '';
                     showResult(null, '—');
                     return;
                 }
 
-                setStatus(`🔍 Número detectado: ${collectorNumber} — consultando Scryfall...`, true);
+                // 4. Preenche o campo de texto com o nome reconhecido
+                nameInput.value = recognizedName;
+                setStatus(`📝 Nome lido: "${recognizedName}" — buscando...`, true);
 
-                // 4. Busca na Scryfall
-                const card = await fetchCard(collectorNumber);
-
+                // 5. Executa a busca com o nome reconhecido
+                const card = await searchCardByName(recognizedName);
                 if (card) {
-                    setStatus(`✅ Carta encontrada: ${card.name} (${card.set_name})`);
-                    showResult(card, collectorNumber);
+                    setStatus(`✅ Carta encontrada: ${card.name}`);
+                    showResult(card, recognizedName);
                 } else {
-                    setStatus(`⚠️ Nenhuma carta encontrada com o número ${collectorNumber}`);
-                    showResult(null, collectorNumber);
+                    setStatus(`⚠️ Nenhuma carta encontrada para "${recognizedName}"`);
+                    showResult(null, recognizedName);
                 }
 
             } catch (err) {
-                setStatus('❌ Erro: ' + err.message);
+                setStatus('❌ Erro no OCR: ' + err.message);
                 console.error(err);
             } finally {
                 isScanning = false;
@@ -495,7 +606,7 @@
             }
         }
 
-        // ---- Upload de imagem ----
+        // ---- Upload de imagem (também faz OCR do nome) ----
         async function handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -509,40 +620,41 @@
                     canvas.height = img.height;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
-                    // Mesmo fluxo: recortar e OCR
-                    const cropped = cropCollectorArea(canvas);
-                    const num = await ocrCollectorNumber(cropped);
-                    if (!num) {
-                        setStatus('⚠️ Nenhum número identificado na imagem.');
+                    // Recorta e faz OCR
+                    const cropped = cropNameArea(canvas);
+                    const recognizedName = await ocrCardName(cropped);
+                    if (!recognizedName || recognizedName.length < 2) {
+                        setStatus('⚠️ Nenhum nome válido identificado na imagem.');
+                        nameInput.value = '';
                         showResult(null, '—');
                         return;
                     }
-                    setStatus(`🔍 Número: ${num} — consultando Scryfall...`, true);
-                    const card = await fetchCard(num);
+                    nameInput.value = recognizedName;
+                    setStatus(`📝 Nome lido: "${recognizedName}" — buscando...`, true);
+                    const card = await searchCardByName(recognizedName);
                     if (card) {
                         setStatus(`✅ ${card.name}`);
-                        showResult(card, num);
+                        showResult(card, recognizedName);
                     } else {
-                        setStatus(`⚠️ Carta não encontrada (${num})`);
-                        showResult(null, num);
+                        setStatus(`⚠️ Carta não encontrada (${recognizedName})`);
+                        showResult(null, recognizedName);
                     }
                 };
                 img.src = URL.createObjectURL(file);
             } catch (err) {
                 setStatus('❌ Erro ao processar imagem: ' + err.message);
             }
-            // Limpa o input para permitir reenvio
             fileInput.value = '';
         }
 
         // ---- Event Listeners ----
         startBtn.addEventListener('click', startCamera);
         stopBtn.addEventListener('click', stopCamera);
-        scanBtn.addEventListener('click', scanCard);
+        scanBtn.addEventListener('click', scanCardName);
         fileInput.addEventListener('change', handleFileUpload);
 
         // ---- Inicialização ----
-        setStatus('📷 Clique em "Iniciar câmera" para começar');
+        setStatus('📷 Ligue a câmera para OCR ou digite o nome da carta.');
         resultDiv.classList.remove('visible');
     </script>
 </body>
