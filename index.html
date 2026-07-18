@@ -6,6 +6,7 @@
     <title>📸 MTG Scanner + Coleção</title>
 
     <style>
+        /* ===== ESTILOS BASE ===== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -31,7 +32,6 @@
             margin: 10px 0;
         }
 
-        /* Cabeçalho */
         .header {
             display: flex;
             justify-content: space-between;
@@ -60,7 +60,6 @@
             border: 1px solid #2ea04355;
         }
 
-        /* Abas */
         .tabs {
             display: flex;
             gap: 4px;
@@ -148,7 +147,6 @@
             border: 1px solid #f0883e55;
         }
 
-        /* Controles da câmera */
         .cam-controls {
             display: flex;
             gap: 10px;
@@ -193,7 +191,6 @@
             display: none;
         }
 
-        /* Status */
         .status {
             background: #0d1117;
             border-radius: 14px;
@@ -225,7 +222,6 @@
             }
         }
 
-        /* Área de correção manual (scanner) */
         .manual-area {
             display: flex;
             gap: 10px;
@@ -266,7 +262,6 @@
             background: #2ea043;
         }
 
-        /* Resultado da carta escaneada */
         .result {
             background: #0d1117;
             border-radius: 16px;
@@ -336,6 +331,21 @@
         .result .add-collection-btn:hover {
             background: #d97a2e;
         }
+        /* Link de fallback */
+        .result .fallback-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #58a6ff;
+            text-decoration: none;
+            border: 1px solid #58a6ff66;
+            padding: 6px 18px;
+            border-radius: 40px;
+            transition: 0.2s;
+        }
+        .result .fallback-link:hover {
+            background: #1c2a3a;
+            border-color: #58a6ff;
+        }
 
         /* Coleção - Filtros */
         .collection-filters {
@@ -376,7 +386,6 @@
             font-weight: 500;
         }
 
-        /* Lista da coleção */
         .collection-list {
             max-height: 400px;
             overflow-y: auto;
@@ -407,6 +416,11 @@
             border: 1px solid #21262d;
             gap: 12px;
             flex-wrap: wrap;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .collection-item:hover {
+            background: #1c2128;
         }
         .collection-item .info {
             display: flex;
@@ -414,6 +428,7 @@
             gap: 12px;
             flex: 1;
             min-width: 150px;
+            pointer-events: none;
         }
         .collection-item .info img {
             width: 32px;
@@ -440,6 +455,7 @@
             padding: 4px 8px;
             border-radius: 8px;
             transition: 0.2s;
+            pointer-events: auto;
         }
         .collection-item .remove-btn:hover {
             background: #2d1a1a;
@@ -482,6 +498,66 @@
         .collection-actions button.danger:hover {
             background: #2d1a1a;
             border-color: #f85149;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            cursor: pointer;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
+            border: 2px solid #30363d;
+            background: #161b22;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: default;
+        }
+        .modal-content img {
+            max-width: 100%;
+            max-height: 75vh;
+            border-radius: 12px;
+            display: block;
+        }
+        .modal-content .modal-card-name {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #e6edf3;
+            text-align: center;
+        }
+        .modal-content .modal-close {
+            align-self: flex-end;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 0 8px;
+            transition: 0.2s;
+        }
+        .modal-content .modal-close:hover {
+            color: #e6edf3;
+            transform: scale(1.1);
         }
 
         .footnote {
@@ -564,7 +640,7 @@
 
             <!-- Busca manual -->
             <div class="manual-area">
-                <input type="text" id="cardName" placeholder="✏️ Corrija o nome aqui ou digite manualmente" />
+                <input type="text" id="cardName" placeholder="✏️ Corrija o nome ou digite manualmente" />
                 <button id="searchManual">Buscar</button>
             </div>
 
@@ -576,6 +652,7 @@
                 <div class="card-text" id="cardText"></div>
                 <img class="card-image" id="cardImage" alt="Imagem da carta" />
                 <button class="add-collection-btn" id="addToCollectionBtn">➕ Adicionar à coleção</button>
+                <div id="fallbackContainer"></div>
             </div>
         </div>
 
@@ -608,13 +685,21 @@
         </div>
     </div>
 
+    <!-- ===== MODAL ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">✕</button>
+            <img id="modalImage" src="" alt="Imagem da carta" />
+            <div class="modal-card-name" id="modalCardName"></div>
+        </div>
+    </div>
+
     <script>
         // ================================================================
-        //  APP COMPLETO – SCANNER + COLEÇÃO COM FILTROS
+        //  APP – SCANNER + COLEÇÃO + FALLBACK PARA PESQUISA NA WEB
         // ================================================================
 
         // ---- Elementos ----
-        // Scanner
         const video = document.getElementById('video');
         const startCam = document.getElementById('startCam');
         const stopCam = document.getElementById('stopCam');
@@ -631,6 +716,7 @@
         const nameInput = document.getElementById('cardName');
         const searchManualBtn = document.getElementById('searchManual');
         const addToCollectionBtn = document.getElementById('addToCollectionBtn');
+        const fallbackContainer = document.getElementById('fallbackContainer');
 
         // Coleção
         const collectionList = document.getElementById('collectionList');
@@ -639,6 +725,12 @@
         const filterRarity = document.getElementById('filterRarity');
         const clearCollectionBtn = document.getElementById('clearCollectionBtn');
         const exportCollectionBtn = document.getElementById('exportCollectionBtn');
+
+        // Modal
+        const modalOverlay = document.getElementById('modalOverlay');
+        const modalImage = document.getElementById('modalImage');
+        const modalCardName = document.getElementById('modalCardName');
+        const modalClose = document.getElementById('modalClose');
 
         // Abas
         const tabButtons = document.querySelectorAll('.tabs button');
@@ -656,18 +748,43 @@
         tabButtons.forEach(btn => {
             btn.addEventListener('click', function() {
                 const tabId = this.dataset.tab;
-                // Atualiza botões
                 tabButtons.forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                // Atualiza conteúdos
                 Object.keys(tabContents).forEach(key => {
                     tabContents[key].classList.toggle('active', key === tabId);
                 });
-                // Se for a aba de coleção, renderiza com filtros atuais
                 if (tabId === 'tabColecao') {
                     renderCollection();
                 }
             });
+        });
+
+        // ---- Modal ----
+        function openModal(imageUrl, cardName) {
+            if (!imageUrl) {
+                modalImage.src = '';
+                modalImage.alt = 'Sem imagem';
+                modalCardName.textContent = cardName + ' (sem imagem disponível)';
+            } else {
+                modalImage.src = imageUrl;
+                modalImage.alt = cardName;
+                modalCardName.textContent = cardName;
+            }
+            modalOverlay.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        modalOverlay.addEventListener('click', function(e) {
+            if (e.target === modalOverlay) closeModal();
+        });
+        modalClose.addEventListener('click', closeModal);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
         });
 
         // ---- Coleção ----
@@ -676,7 +793,6 @@
                 const saved = localStorage.getItem('mtg_collection');
                 collection = saved ? JSON.parse(saved) : [];
             } catch (e) { collection = []; }
-            // Atualiza dropdown de raridades
             updateRarityFilter();
             renderCollection();
         }
@@ -689,8 +805,6 @@
 
         function addCardToCollection(card) {
             if (!card) return;
-            // Evita duplicatas exatas? Pode permitir repetição, mas vamos verificar se já existe (opcional)
-            // Para simplificar, sempre adiciona.
             const entry = {
                 id: Date.now(),
                 name: card.name,
@@ -738,13 +852,11 @@
             setStatus('📤 Coleção exportada!');
         }
 
-        // Atualiza o dropdown de raridades com base na coleção atual
         function updateRarityFilter() {
             const rarities = new Set();
             collection.forEach(c => { if (c.rarity) rarities.add(c.rarity); });
             const currentValue = filterRarity.value;
             filterRarity.innerHTML = '<option value="">Todas as raridades</option>';
-            // Ordena: common, uncommon, rare, mythic, special, etc.
             const order = { common: 1, uncommon: 2, rare: 3, mythic: 4, special: 5, bonus: 6 };
             const sorted = Array.from(rarities).sort((a, b) => (order[a] || 99) - (order[b] || 99));
             sorted.forEach(r => {
@@ -756,7 +868,6 @@
             filterRarity.value = currentValue;
         }
 
-        // Renderiza a coleção com filtros
         function renderCollection() {
             const nameFilter = filterName.value.toLowerCase().trim();
             const rarityFilter = filterRarity.value;
@@ -776,7 +887,6 @@
                 return;
             }
 
-            // Ordena: mais recentes primeiro
             const sorted = [...filtered].reverse();
             let html = '';
             for (const item of sorted) {
@@ -784,7 +894,7 @@
                     `<img src="${item.image_uri}" alt="${item.name}" loading="lazy" />` :
                     `<div style="width:32px;height:44px;background:#161b22;border-radius:4px;border:1px solid #30363d;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#484f58;">?</div>`;
                 html += `
-                    <div class="collection-item">
+                    <div class="collection-item" data-id="${item.id}" data-image="${item.image_uri || ''}" data-name="${item.name}">
                         <div class="info">
                             ${imgHtml}
                             <div>
@@ -798,9 +908,20 @@
             }
             collectionList.innerHTML = html;
 
-            // Eventos de remoção
+            // Clique no item -> abre modal
+            document.querySelectorAll('.collection-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('remove-btn')) return;
+                    const imageUrl = this.dataset.image;
+                    const cardName = this.dataset.name;
+                    openModal(imageUrl, cardName);
+                });
+            });
+
+            // Remoção
             document.querySelectorAll('.collection-item .remove-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
                     const id = Number(this.dataset.id);
                     removeCardFromCollection(id);
                 });
@@ -928,8 +1049,20 @@
             return data.data && data.data.length > 0 ? data.data[0] : null;
         }
 
-        function showResult(card, searchedName) {
+        // ---- FALLBACK: Abrir pesquisa na web ----
+        function openWebSearch(cardName) {
+            const query = encodeURIComponent(`"${cardName}" Magic The Gathering card`);
+            const url = `https://duckduckgo.com/?q=${query}`;
+            window.open(url, '_blank');
+            return url;
+        }
+
+        // ---- Exibir resultado (com fallback) ----
+        function showResult(card, searchedName, fallbackUrl = null) {
             resultDiv.classList.add('visible');
+            // Limpa fallback anterior
+            fallbackContainer.innerHTML = '';
+
             if (!card) {
                 cardNameDisplay.textContent = '❌ Carta não encontrada';
                 cardSetDisplay.textContent = `"${searchedName || '—'}"`;
@@ -939,8 +1072,23 @@
                 cardImage.style.display = 'none';
                 addToCollectionBtn.style.display = 'none';
                 lastScannedCard = null;
+
+                // Se tiver uma URL de fallback, exibe o link
+                if (fallbackUrl) {
+                    const link = document.createElement('a');
+                    link.href = fallbackUrl;
+                    link.target = '_blank';
+                    link.className = 'fallback-link';
+                    link.textContent = '🔍 Pesquisar esta carta na web';
+                    fallbackContainer.appendChild(link);
+                    setStatus(`⚠️ Carta não encontrada na Scryfall. Abrimos uma pesquisa na web.`);
+                } else {
+                    setStatus(`⚠️ Carta não encontrada. Tente corrigir o nome.`);
+                }
                 return;
             }
+
+            // Carta encontrada
             lastScannedCard = card;
             cardNameDisplay.textContent = card.name || 'Sem nome';
             cardSetDisplay.textContent = `${card.set_name || '?'}  •  #${card.collector_number || '?'}`;
@@ -953,7 +1101,6 @@
             if (card.cmc !== undefined) parts.push(`🔢 CMC: ${card.cmc}`);
             cardDetails.innerHTML = parts.map(p => `<span>${p}</span>`).join('');
 
-            // Texto da carta (efeito)
             const oracle = card.oracle_text || '';
             if (oracle) {
                 cardText.textContent = oracle;
@@ -973,9 +1120,10 @@
                 cardImage.style.display = 'none';
             }
             addToCollectionBtn.style.display = 'inline-block';
+            setStatus(`✅ Encontrado: ${card.name}`);
         }
 
-        // ---- Fluxo escanear ----
+        // ---- Fluxo principal: escanear ----
         async function scanCard() {
             if (isProcessing) return;
             if (!video.srcObject) {
@@ -1008,11 +1156,11 @@
 
                 const card = await searchCard(guessedName);
                 if (card) {
-                    setStatus(`✅ Encontrado: ${card.name}`);
                     showResult(card, guessedName);
                 } else {
-                    setStatus(`⚠️ Nenhuma carta com "${guessedName}" — tente corrigir o nome acima.`);
-                    showResult(null, guessedName);
+                    // FALLBACK: abre pesquisa na web
+                    const fallbackUrl = openWebSearch(guessedName);
+                    showResult(null, guessedName, fallbackUrl);
                 }
 
             } catch (err) {
@@ -1035,11 +1183,10 @@
             try {
                 const card = await searchCard(name);
                 if (card) {
-                    setStatus(`✅ Encontrado: ${card.name}`);
                     showResult(card, name);
                 } else {
-                    setStatus(`❌ Nenhuma carta com "${name}"`);
-                    showResult(null, name);
+                    const fallbackUrl = openWebSearch(name);
+                    showResult(null, name, fallbackUrl);
                 }
             } catch (err) {
                 setStatus('❌ Erro: ' + err.message);
@@ -1069,11 +1216,10 @@
                         setStatus(`📝 Nome lido: "${guessed}" — buscando...`, true);
                         const card = await searchCard(guessed);
                         if (card) {
-                            setStatus(`✅ ${card.name}`);
                             showResult(card, guessed);
                         } else {
-                            setStatus(`⚠️ Nenhuma carta com "${guessed}"`);
-                            showResult(null, guessed);
+                            const fallbackUrl = openWebSearch(guessed);
+                            showResult(null, guessed, fallbackUrl);
                         }
                     } else {
                         setStatus('❌ Não foi possível ler o nome na imagem.');
@@ -1088,7 +1234,7 @@
             fileInput.value = '';
         }
 
-        // ---- Adicionar à coleção (botão) ----
+        // ---- Adicionar à coleção ----
         function handleAddToCollection() {
             if (lastScannedCard) {
                 addCardToCollection(lastScannedCard);
@@ -1117,9 +1263,6 @@
         setStatus('📷 Clique em "Iniciar" para ativar a câmera');
         resultDiv.classList.remove('visible');
         addToCollectionBtn.style.display = 'none';
-
-        // Se a aba de coleção for a primeira ativa, já renderiza
-        // (já foi carregada)
     </script>
 </body>
 </html>
