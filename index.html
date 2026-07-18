@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>📸 Scanner MTG – Câmera + OCR online</title>
+    <title>📸 MTG Scanner + Análise de Efeito</title>
 
     <style>
         * {
@@ -18,25 +18,65 @@
             min-height: 100vh;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             padding: 12px;
         }
         .container {
-            max-width: 700px;
+            max-width: 780px;
             width: 100%;
             background: #161b22;
             border-radius: 28px;
             padding: 20px;
             border: 1px solid #30363d;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+            margin: 10px 0;
         }
 
-        /* Título */
+        /* Abas */
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            background: #0d1117;
+            border-radius: 16px;
+            padding: 4px;
+            border: 1px solid #21262d;
+        }
+        .tabs button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            padding: 10px 0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tabs button:hover {
+            color: #e6edf3;
+            background: #21262d;
+        }
+        .tabs button.active {
+            background: #21262d;
+            color: #f0883e;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Cabeçalho */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
+            flex-wrap: wrap;
         }
         .header h1 {
             font-size: 1.6rem;
@@ -59,7 +99,7 @@
             border: 1px solid #2ea04355;
         }
 
-        /* Câmera - DESTAQUE */
+        /* Câmera */
         .camera-wrapper {
             position: relative;
             background: #000;
@@ -108,7 +148,7 @@
             border: 1px solid #f0883e55;
         }
 
-        /* Controles da câmera */
+        /* Controles */
         .cam-controls {
             display: flex;
             gap: 10px;
@@ -185,7 +225,7 @@
             }
         }
 
-        /* Área de correção manual (plus) */
+        /* Área de correção manual */
         .manual-area {
             display: flex;
             gap: 10px;
@@ -226,7 +266,7 @@
             background: #2ea043;
         }
 
-        /* Resultado */
+        /* Resultado da carta (aba scanner) */
         .result {
             background: #0d1117;
             border-radius: 16px;
@@ -234,6 +274,7 @@
             border: 1px solid #21262d;
             display: none;
             margin-top: 4px;
+            margin-bottom: 16px;
         }
         .result.visible {
             display: block;
@@ -263,10 +304,236 @@
         .result .card-image {
             margin-top: 14px;
             max-width: 100%;
-            max-height: 220px;
+            max-height: 180px;
             border-radius: 12px;
             border: 1px solid #30363d;
         }
+        .result .add-collection-btn {
+            margin-top: 12px;
+            background: #f0883e;
+            border: none;
+            color: #0d1117;
+            padding: 8px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.9rem;
+        }
+        .result .add-collection-btn:hover {
+            background: #d97a2e;
+        }
+
+        /* === ABA DETALHES === */
+        .detail-card {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .detail-top {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .detail-top img {
+            max-width: 200px;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            background: #000;
+        }
+        .detail-top .info {
+            flex: 1;
+        }
+        .detail-top .info .name {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        .detail-top .info .set {
+            color: #8b949e;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+        .detail-top .info .attrs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            font-size: 0.9rem;
+            color: #c9d1d9;
+            margin-bottom: 6px;
+        }
+        .detail-top .info .attrs span {
+            background: #161b22;
+            padding: 2px 10px;
+            border-radius: 20px;
+            border: 1px solid #21262d;
+        }
+
+        .detail-effect {
+            background: #0d1117;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #21262d;
+        }
+        .detail-effect h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #f0883e;
+        }
+        .detail-effect .effect-text {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #c9d1d9;
+            white-space: pre-wrap;
+        }
+        .detail-effect .oracle-text {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #21262d;
+            font-size: 0.85rem;
+            color: #8b949e;
+            font-style: italic;
+        }
+        .detail-effect .oracle-text strong {
+            color: #c9d1d9;
+            font-style: normal;
+        }
+
+        .detail-flavor {
+            font-size: 0.85rem;
+            color: #8b949e;
+            font-style: italic;
+            border-left: 3px solid #f0883e44;
+            padding-left: 12px;
+            margin-top: 4px;
+        }
+
+        /* Coleção */
+        .collection-section {
+            margin-top: 16px;
+            border-top: 2px solid #21262d;
+            padding-top: 16px;
+        }
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .collection-header h2 {
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .collection-header h2 span {
+            background: #21262d;
+            padding: 0 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #8b949e;
+        }
+        .collection-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .collection-actions button {
+            background: #21262d;
+            border: 1px solid #30363d;
+            color: #e6edf3;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .collection-actions button:hover {
+            background: #30363d;
+            border-color: #f0883e;
+        }
+        .collection-actions button.danger {
+            border-color: #da3633;
+            color: #f85149;
+        }
+        .collection-actions button.danger:hover {
+            background: #2d1a1a;
+            border-color: #f85149;
+        }
+
+        .collection-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 4px;
+        }
+        .collection-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .collection-list::-webkit-scrollbar-track {
+            background: #0d1117;
+            border-radius: 10px;
+        }
+        .collection-list::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 10px;
+        }
+
+        .collection-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0d1117;
+            padding: 8px 14px;
+            border-radius: 12px;
+            border: 1px solid #21262d;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .collection-item .info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 150px;
+        }
+        .collection-item .info img {
+            width: 32px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #30363d;
+            background: #000;
+        }
+        .collection-item .info .name {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .collection-item .info .set {
+            font-size: 0.7rem;
+            color: #8b949e;
+        }
+        .collection-item .remove-btn {
+            background: transparent;
+            border: none;
+            color: #f85149;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: 0.2s;
+        }
+        .collection-item .remove-btn:hover {
+            background: #2d1a1a;
+        }
+        .collection-empty {
+            color: #484f58;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 0.9rem;
+        }
+
         .footnote {
             margin-top: 14px;
             font-size: 0.7rem;
@@ -282,6 +549,29 @@
         .footnote a:hover {
             text-decoration: underline;
         }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 12px;
+            }
+            .cam-controls button {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+            .manual-area input {
+                font-size: 0.85rem;
+            }
+            .detail-top {
+                flex-direction: column;
+                align-items: center;
+            }
+            .detail-top img {
+                max-width: 150px;
+            }
+            .collection-item .info .name {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -289,55 +579,90 @@
     <div class="container">
         <!-- Cabeçalho -->
         <div class="header">
-            <h1>📸 MTG <small>Scanner</small></h1>
+            <h1>📸 MTG <small>Scanner + Análise</small></h1>
             <span class="badge-api">OCR.space</span>
         </div>
 
-        <!-- Câmera (principal) -->
-        <div class="camera-wrapper">
-            <video id="video" autoplay playsinline></video>
-            <div class="scan-overlay">
-                <div class="box"></div>
+        <!-- Abas -->
+        <div class="tabs" id="tabContainer">
+            <button class="active" data-tab="scanner">📸 Scanner</button>
+            <button data-tab="details">🔍 Detalhes</button>
+        </div>
+
+        <!-- ==================== ABA SCANNER ==================== -->
+        <div class="tab-content active" id="tabScanner">
+            <!-- Câmera -->
+            <div class="camera-wrapper">
+                <video id="video" autoplay playsinline></video>
+                <div class="scan-overlay">
+                    <div class="box"></div>
+                </div>
+            </div>
+
+            <!-- Controles -->
+            <div class="cam-controls">
+                <button id="startCam">📷 Iniciar</button>
+                <button id="stopCam" disabled>⏹ Parar</button>
+                <button id="scanBtn" class="primary" disabled>📸 Escanear</button>
+                <label for="fileInput" style="flex:0.5;text-align:center;background:#21262d;padding:10px 0;border-radius:60px;border:1px solid #30363d;cursor:pointer;">📁</label>
+                <input type="file" id="fileInput" accept="image/*" />
+            </div>
+
+            <!-- Status -->
+            <div class="status" id="status">
+                <span class="spinner" id="spinner"></span>
+                <span id="statusText">🔌 Clique em "Iniciar" para ativar a câmera</span>
+            </div>
+
+            <!-- Busca manual -->
+            <div class="manual-area">
+                <input type="text" id="cardName" placeholder="✏️ Corrija o nome aqui se necessário" />
+                <button id="searchManual">Buscar</button>
+            </div>
+
+            <!-- Resultado da carta escaneada -->
+            <div class="result" id="result">
+                <div class="card-name" id="cardNameDisplay">—</div>
+                <div class="card-set" id="cardSetDisplay">—</div>
+                <div class="card-detail" id="cardDetails"></div>
+                <img class="card-image" id="cardImage" alt="Imagem da carta" />
+                <button class="add-collection-btn" id="addToCollectionBtn">➕ Adicionar à coleção</button>
+            </div>
+
+            <!-- Coleção -->
+            <div class="collection-section">
+                <div class="collection-header">
+                    <h2>📚 Minha Coleção <span id="collectionCount">0</span></h2>
+                    <div class="collection-actions">
+                        <button id="exportCollectionBtn">📤 Exportar JSON</button>
+                        <button id="clearCollectionBtn" class="danger">🗑️ Limpar tudo</button>
+                    </div>
+                </div>
+                <div class="collection-list" id="collectionList">
+                    <div class="collection-empty">Nenhuma carta na coleção ainda.</div>
+                </div>
             </div>
         </div>
 
-        <!-- Controles da câmera -->
-        <div class="cam-controls">
-            <button id="startCam">📷 Iniciar</button>
-            <button id="stopCam" disabled>⏹ Parar</button>
-            <button id="scanBtn" class="primary" disabled>📸 Escanear</button>
-            <label for="fileInput" style="flex:0.5;text-align:center;background:#21262d;padding:10px 0;border-radius:60px;border:1px solid #30363d;cursor:pointer;">📁</label>
-            <input type="file" id="fileInput" accept="image/*" />
-        </div>
-
-        <!-- Status -->
-        <div class="status" id="status">
-            <span class="spinner" id="spinner"></span>
-            <span id="statusText">🔌 Clique em "Iniciar" para ativar a câmera</span>
-        </div>
-
-        <!-- Área de correção manual (plus) -->
-        <div class="manual-area">
-            <input type="text" id="cardName" placeholder="✏️ Corrija o nome aqui se necessário" />
-            <button id="searchManual">Buscar</button>
-        </div>
-
-        <!-- Resultado da carta -->
-        <div class="result" id="result">
-            <div class="card-name" id="cardNameDisplay">—</div>
-            <div class="card-set" id="cardSetDisplay">—</div>
-            <div class="card-detail" id="cardDetails"></div>
-            <img class="card-image" id="cardImage" alt="Imagem da carta" />
+        <!-- ==================== ABA DETALHES ==================== -->
+        <div class="tab-content" id="tabDetails">
+            <div id="detailContent">
+                <div style="text-align:center;color:#484f58;padding:40px 0;">
+                    <p style="font-size:2rem;margin-bottom:10px;">🔍</p>
+                    <p>Nenhuma carta selecionada.</p>
+                    <p style="font-size:0.85rem;">Escanear ou buscar uma carta para ver seus detalhes e efeito.</p>
+                </div>
+            </div>
         </div>
 
         <div class="footnote">
-            Dados da <a href="https://scryfall.com" target="_blank">Scryfall</a> &bull; OCR via <a href="https://ocr.space" target="_blank">OCR.space</a> (gratuito)
+            Dados da <a href="https://scryfall.com" target="_blank">Scryfall</a> &bull; OCR via <a href="https://ocr.space" target="_blank">OCR.space</a> &bull; Análise de efeito gerada automaticamente
         </div>
     </div>
 
     <script>
         // ================================================================
-        //  SCANNER MTG – CÂMERA + OCR ONLINE (OCR.space)
+        //  MTG SCANNER – CÂMERA + OCR ONLINE + COLEÇÃO + ANÁLISE DE EFEITO
         // ================================================================
 
         // ---- Elementos ----
@@ -355,11 +680,117 @@
         const cardImage = document.getElementById('cardImage');
         const nameInput = document.getElementById('cardName');
         const searchManualBtn = document.getElementById('searchManual');
+        const addToCollectionBtn = document.getElementById('addToCollectionBtn');
+        const collectionList = document.getElementById('collectionList');
+        const collectionCount = document.getElementById('collectionCount');
+        const clearCollectionBtn = document.getElementById('clearCollectionBtn');
+        const exportCollectionBtn = document.getElementById('exportCollectionBtn');
+        const detailContent = document.getElementById('detailContent');
+        const tabContainer = document.getElementById('tabContainer');
 
         let stream = null;
         let isProcessing = false;
+        let lastScannedCard = null; // guarda a última carta encontrada
 
-        // ---- Atualizar status ----
+        // ---- Coleção ----
+        let collection = [];
+
+        function loadCollection() {
+            try {
+                const saved = localStorage.getItem('mtg_collection');
+                collection = saved ? JSON.parse(saved) : [];
+            } catch (e) { collection = []; }
+            renderCollection();
+        }
+
+        function saveCollection() {
+            localStorage.setItem('mtg_collection', JSON.stringify(collection));
+            renderCollection();
+        }
+
+        function addCardToCollection(card) {
+            if (!card) return;
+            const entry = {
+                id: Date.now(),
+                name: card.name,
+                set_name: card.set_name || 'Desconhecido',
+                collector_number: card.collector_number || '—',
+                rarity: card.rarity || '—',
+                type_line: card.type_line || '—',
+                mana_cost: card.mana_cost || '—',
+                image_uri: card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || null,
+                added_at: new Date().toISOString()
+            };
+            collection.push(entry);
+            saveCollection();
+            setStatus(`✅ "${card.name}" adicionado à coleção!`);
+        }
+
+        function removeCardFromCollection(id) {
+            collection = collection.filter(c => c.id !== id);
+            saveCollection();
+        }
+
+        function clearCollection() {
+            if (collection.length === 0) return;
+            if (confirm('Tem certeza que deseja remover todas as cartas da coleção?')) {
+                collection = [];
+                saveCollection();
+                setStatus('🗑️ Coleção limpa.');
+            }
+        }
+
+        function exportCollection() {
+            if (collection.length === 0) {
+                setStatus('⚠️ Coleção vazia, nada para exportar.');
+                return;
+            }
+            const dataStr = JSON.stringify(collection, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mtg_collection_${new Date().toISOString().slice(0,10)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            setStatus('📤 Coleção exportada!');
+        }
+
+        function renderCollection() {
+            const count = collection.length;
+            collectionCount.textContent = count;
+            if (count === 0) {
+                collectionList.innerHTML = `<div class="collection-empty">Nenhuma carta na coleção ainda.</div>`;
+                return;
+            }
+            const sorted = [...collection].reverse();
+            let html = '';
+            for (const item of sorted) {
+                const imgHtml = item.image_uri ?
+                    `<img src="${item.image_uri}" alt="${item.name}" loading="lazy" />` :
+                    `<div style="width:32px;height:44px;background:#161b22;border-radius:4px;border:1px solid #30363d;display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:#484f58;">?</div>`;
+                html += `
+                    <div class="collection-item">
+                        <div class="info">
+                            ${imgHtml}
+                            <div>
+                                <div class="name">${item.name}</div>
+                                <div class="set">${item.set_name} #${item.collector_number} • ${item.rarity}</div>
+                            </div>
+                        </div>
+                        <button class="remove-btn" data-id="${item.id}">✕</button>
+                    </div>
+                `;
+            }
+            collectionList.innerHTML = html;
+            document.querySelectorAll('.collection-item .remove-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    removeCardFromCollection(Number(this.dataset.id));
+                });
+            });
+        }
+
+        // ---- Status ----
         function setStatus(msg, loading = false) {
             statusText.textContent = msg;
             spinner.classList.toggle('active', loading);
@@ -406,11 +837,10 @@
             return canvas;
         }
 
-        // ---- Recortar área do NOME (topo central) e aplicar pré-processamento ----
+        // ---- Recortar + pré-processamento ----
         function cropAndPreprocess(canvas) {
             const w = canvas.width;
             const h = canvas.height;
-            // Recorte: 60% da largura centralizado, 25% do topo
             const cropX = w * 0.20;
             const cropY = h * 0.04;
             const cropW = w * 0.60;
@@ -422,35 +852,28 @@
             const ctx = cropped.getContext('2d');
             ctx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
 
-            // Aumenta contraste e binariza para melhorar OCR
             const imageData = ctx.getImageData(0, 0, cropW, cropH);
             const data = imageData.data;
             for (let i = 0; i < data.length; i += 4) {
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
-                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-                const val = gray > 128 ? 255 : 0; // binarização simples
+                const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                const val = gray > 128 ? 255 : 0;
                 data[i] = val;
                 data[i + 1] = val;
                 data[i + 2] = val;
             }
             ctx.putImageData(imageData, 0, 0);
-
             return cropped;
         }
 
-        // ---- Enviar imagem para OCR.space (API gratuita) ----
+        // ---- OCR online ----
         async function ocrOnline(canvas) {
-            // Converte canvas para base64
             const base64 = canvas.toDataURL('image/png').split(',')[1];
-
             const formData = new FormData();
             formData.append('base64Image', `data:image/png;base64,${base64}`);
-            formData.append('apikey', 'K80807337088957'); // Chave gratuita pública do OCR.space (limitada)
+            formData.append('apikey', 'K80807337088957');
             formData.append('language', 'eng');
             formData.append('scale', 'true');
-            formData.append('OCREngine', '2'); // Engine mais moderna
+            formData.append('OCREngine', '2');
             formData.append('isTable', 'false');
             formData.append('detectOrientation', 'true');
 
@@ -458,34 +881,23 @@
                 method: 'POST',
                 body: formData
             });
-
-            if (!response.ok) {
-                throw new Error(`OCR.space erro ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`OCR.space erro ${response.status}`);
             const data = await response.json();
-            if (data.IsErroredOnProcessing) {
-                throw new Error(data.ErrorMessage || 'Erro no OCR');
-            }
-            // Junta todo o texto reconhecido
-            const parsedText = data.ParsedResults.map(r => r.ParsedText).join(' ');
-            return parsedText.trim();
+            if (data.IsErroredOnProcessing) throw new Error(data.ErrorMessage || 'Erro no OCR');
+            return data.ParsedResults.map(r => r.ParsedText).join(' ').trim();
         }
 
-        // ---- Extrair o nome da carta do texto do OCR ----
+        // ---- Extrair nome do OCR ----
         function extractCardName(ocrText) {
             if (!ocrText) return null;
-            // Remove linhas vazias e pega a primeira linha que pareça um nome de carta
             const lines = ocrText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
             for (const line of lines) {
-                // Ignora linhas com muitas palavras (tipo, texto da carta) - pega a primeira linha curta
                 const words = line.split(/\s+/).length;
                 if (words <= 6 && words >= 1) {
-                    // Remove caracteres estranhos
                     const clean = line.replace(/[^a-zA-Z0-9\s'\-]/g, '');
                     if (clean.length >= 2) return clean;
                 }
             }
-            // Fallback: pega a primeira linha não vazia
             return lines[0] || null;
         }
 
@@ -504,7 +916,77 @@
             return data.data && data.data.length > 0 ? data.data[0] : null;
         }
 
-        // ---- Exibir resultado ----
+        // ---- Gerar explicação do efeito em português ----
+        function generateEffectExplanation(card) {
+            if (!card) return 'Carta não disponível.';
+            const oracle = card.oracle_text || '';
+            const type = card.type_line || '';
+            const isCreature = type.toLowerCase().includes('creature');
+            const isSorcery = type.toLowerCase().includes('sorcery');
+            const isInstant = type.toLowerCase().includes('instant');
+            const isEnchantment = type.toLowerCase().includes('enchantment');
+            const isArtifact = type.toLowerCase().includes('artifact');
+            const isPlaneswalker = type.toLowerCase().includes('planeswalker');
+            const isLand = type.toLowerCase().includes('land');
+
+            let explanation = `📜 **${card.name}** é uma carta do tipo **${type}**.\n\n`;
+
+            if (oracle) {
+                explanation += `**Texto da carta (Oracle):**\n"${oracle}"\n\n`;
+            }
+
+            // Explicação baseada no tipo
+            if (isCreature) {
+                explanation +=
+                    `⚔️ **Criatura** – pode atacar e bloquear. Possui poder ${card.power || '?'} e resistência ${card.toughness || '?'}. `;
+                if (oracle.includes('flying')) explanation += 'Possui **voar** (só pode ser bloqueada por criaturas com voar ou alcance). ';
+                if (oracle.includes('trample')) explanation += 'Possui **atropelar** (excesso de dano é aplicado ao jogador). ';
+                if (oracle.includes('haste')) explanation += 'Possui **pressa** (pode atacar no turno em que entrou). ';
+                if (oracle.includes('vigilance')) explanation += 'Possui **vigilância** (não é virada ao atacar). ';
+                if (oracle.includes('death touch')) explanation += 'Possui **toque mortífero** (qualquer dano destrui a criatura). ';
+                if (oracle.includes('lifelink')) explanation += 'Possui **ligadura** (ganha vida igual ao dano causado). ';
+            } else if (isSorcery) {
+                explanation +=
+                    `✨ **Feitiço** – só pode ser conjurado em sua própria fase principal, e vai para o cemitério após a resolução. `;
+            } else if (isInstant) {
+                explanation +=
+                    `⚡ **Mágica instantânea** – pode ser conjurada a qualquer momento, inclusive durante o turno do oponente. `;
+            } else if (isEnchantment) {
+                explanation += `🌀 **Encantamento** – permanece em jogo com um efeito contínuo. `;
+            } else if (isArtifact) {
+                explanation += `⚙️ **Artefato** – pode ter habilidades ativadas ou contínuas. `;
+            } else if (isPlaneswalker) {
+                explanation +=
+                    `🛡️ **Planeswalker** – tem lealdade e habilidades que podem ser ativadas uma vez por turno. Você pode ativar uma habilidade por turno. `;
+            } else if (isLand) {
+                explanation += `🏞️ **Terreno** – gera mana para conjurar outras mágicas. `;
+            }
+
+            // Explicações específicas com base em palavras-chave
+            const keywords = [];
+            if (oracle.includes('counter')) keywords.push('🔹 **Contra-ataque** – anula uma mágica ou habilidade.');
+            if (oracle.includes('destroy')) keywords.push('💥 **Destruir** – envia permanente para o cemitério.');
+            if (oracle.includes('exile')) keywords.push('🚫 **Exilar** – remove permanentemente do jogo.');
+            if (oracle.includes('draw')) keywords.push('🃏 **Comprar** – pega cartas do topo do grimório.');
+            if (oracle.includes('discard')) keywords.push('🗑️ **Descartar** – coloca cartas da mão no cemitério.');
+            if (oracle.includes('search')) keywords.push('🔎 **Buscar** – procura cartas no grimório.');
+            if (oracle.includes('tokens')) keywords.push('🧟 **Gerar fichas** – cria criaturas ou outros permanentes.');
+            if (oracle.includes('sacrifice')) keywords.push('💀 **Sacrificar** – coloca uma permanente que você controla no cemitério.');
+            if (oracle.includes('gain life')) keywords.push('❤️ **Ganhar vida** – aumenta seu total de pontos de vida.');
+            if (oracle.includes('deal damage')) keywords.push('🔥 **Causar dano** – reduz a vida de oponentes ou criaturas.');
+
+            if (keywords.length > 0) {
+                explanation += '\n\n**Palavras-chave no efeito:**\n' + keywords.join('\n');
+            }
+
+            if (card.flavor_text) {
+                explanation += `\n\n💬 *"${card.flavor_text}"* (texto de sabor)`;
+            }
+
+            return explanation;
+        }
+
+        // ---- Exibir resultado na aba Scanner ----
         function showResult(card, searchedName) {
             resultDiv.classList.add('visible');
             if (!card) {
@@ -512,8 +994,12 @@
                 cardSetDisplay.textContent = `"${searchedName || '—'}"`;
                 cardDetails.innerHTML = '';
                 cardImage.style.display = 'none';
+                addToCollectionBtn.style.display = 'none';
+                lastScannedCard = null;
+                updateDetails(null);
                 return;
             }
+            lastScannedCard = card;
             cardNameDisplay.textContent = card.name;
             cardSetDisplay.textContent = `${card.set_name || '?'}  •  #${card.collector_number || '?'}`;
             const parts = [];
@@ -532,6 +1018,52 @@
             } else {
                 cardImage.style.display = 'none';
             }
+            addToCollectionBtn.style.display = 'inline-block';
+
+            // Atualiza a aba de detalhes
+            updateDetails(card);
+        }
+
+        // ---- Atualizar aba de detalhes ----
+        function updateDetails(card) {
+            if (!card) {
+                detailContent.innerHTML = `
+                    <div style="text-align:center;color:#484f58;padding:40px 0;">
+                        <p style="font-size:2rem;margin-bottom:10px;">🔍</p>
+                        <p>Nenhuma carta selecionada.</p>
+                        <p style="font-size:0.85rem;">Escanear ou buscar uma carta para ver seus detalhes e efeito.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const imgSrc = card.image_uris?.normal || card.card_faces?.[0]?.image_uris?.normal || '';
+            const explanation = generateEffectExplanation(card);
+
+            detailContent.innerHTML = `
+                <div class="detail-card">
+                    <div class="detail-top">
+                        ${imgSrc ? `<img src="${imgSrc}" alt="${card.name}" />` : ''}
+                        <div class="info">
+                            <div class="name">${card.name}</div>
+                            <div class="set">${card.set_name || '?'} • #${card.collector_number || '?'}</div>
+                            <div class="attrs">
+                                ${card.rarity ? `<span>⭐ ${card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1)}</span>` : ''}
+                                ${card.mana_cost ? `<span>💧 ${card.mana_cost}</span>` : ''}
+                                ${card.type_line ? `<span>📜 ${card.type_line}</span>` : ''}
+                                ${card.power && card.toughness ? `<span>⚔️ ${card.power}/${card.toughness}</span>` : ''}
+                                ${card.cmc !== undefined ? `<span>🔢 CMC: ${card.cmc}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="detail-effect">
+                        <h3>📖 Efeito e análise</h3>
+                        <div class="effect-text">${explanation.replace(/\n/g, '<br />')}</div>
+                        ${card.oracle_text ? `<div class="oracle-text"><strong>Oracle (inglês):</strong> ${card.oracle_text}</div>` : ''}
+                        ${card.flavor_text ? `<div class="detail-flavor">💬 "${card.flavor_text}"</div>` : ''}
+                    </div>
+                </div>
+            `;
         }
 
         // ---- Fluxo principal: escanear ----
@@ -547,26 +1079,21 @@
             setStatus('📸 Capturando imagem...', true);
 
             try {
-                // 1. Captura e pré-processa
                 const fullCanvas = captureFrame();
                 const processedCanvas = cropAndPreprocess(fullCanvas);
 
-                // 2. OCR online
                 setStatus('🔎 Enviando para OCR.space...', true);
                 const ocrText = await ocrOnline(processedCanvas);
                 console.log('OCR bruto:', ocrText);
 
-                // 3. Extrai o nome
                 const guessedName = extractCardName(ocrText);
                 if (!guessedName) {
                     setStatus('❌ Não foi possível identificar o nome. Tente enquadrar melhor.');
                     showResult(null, '—');
-                    // Preenche o campo manual com o texto bruto para o usuário corrigir
                     nameInput.value = ocrText.substring(0, 60);
                     return;
                 }
 
-                // 4. Preenche o campo manual e busca
                 nameInput.value = guessedName;
                 setStatus(`🔍 Nome lido: "${guessedName}" — buscando...`, true);
 
@@ -588,7 +1115,7 @@
             }
         }
 
-        // ---- Busca manual (plus) ----
+        // ---- Busca manual ----
         async function manualSearch() {
             const name = nameInput.value.trim();
             if (!name) {
@@ -611,7 +1138,7 @@
             }
         }
 
-        // ---- Upload de imagem (usando mesmo fluxo) ----
+        // ---- Upload de imagem ----
         async function handleFileUpload(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -652,6 +1179,30 @@
             fileInput.value = '';
         }
 
+        // ---- Adicionar à coleção ----
+        function handleAddToCollection() {
+            if (lastScannedCard) {
+                addCardToCollection(lastScannedCard);
+            } else {
+                setStatus('⚠️ Nenhuma carta escaneada para adicionar.');
+            }
+        }
+
+        // ---- Abas ----
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab' + tabId.charAt(0).toUpperCase() + tabId.slice(1)).classList.add('active');
+            document.querySelector(`.tabs button[data-tab="${tabId}"]`).classList.add('active');
+        }
+
+        tabContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('button');
+            if (!btn) return;
+            const tab = btn.dataset.tab;
+            if (tab) switchTab(tab);
+        });
+
         // ---- Event listeners ----
         startCam.addEventListener('click', startCamera);
         stopCam.addEventListener('click', stopCamera);
@@ -661,10 +1212,16 @@
         nameInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') manualSearch();
         });
+        addToCollectionBtn.addEventListener('click', handleAddToCollection);
+        clearCollectionBtn.addEventListener('click', clearCollection);
+        exportCollectionBtn.addEventListener('click', exportCollection);
 
         // ---- Inicialização ----
+        loadCollection();
         setStatus('📷 Clique em "Iniciar" e aponte para o nome da carta');
         resultDiv.classList.remove('visible');
+        addToCollectionBtn.style.display = 'none';
+        updateDetails(null);
     </script>
 </body>
 </html>
